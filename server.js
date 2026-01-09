@@ -8,6 +8,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const { Client, Environment } = require('square');
 const { v4: uuidv4 } = require('uuid');
 const axios = require('axios');
+const { RecaptchaEnterpriseServiceClient } = require('@google-cloud/recaptcha-enterprise');
 
 dotenv.config();
 
@@ -76,6 +77,61 @@ app.use(mongoSanitize({
     console.warn(`Sanitized ${key} in request body`);
   },
 }));
+
+// reCAPTCHA Enterprise Assessment Function
+async function createRecaptchaAssessment(token, recaptchaAction = 'submit') {
+  try {
+    const projectID = process.env.GOOGLE_CLOUD_PROJECT_ID;
+    const recaptchaKey = process.env.RECAPTCHA_ENTERPRISE_KEY;
+
+    if (!projectID || !recaptchaKey) {
+      console.error('Missing reCAPTCHA Enterprise configuration');
+      return null;
+    }
+
+    const client = new RecaptchaEnterpriseServiceClient();
+    const projectPath = client.projectPath(projectID);
+
+    const request = {
+      assessment: {
+        event: {
+          token: token,
+          siteKey: recaptchaKey,
+        },
+      },
+      parent: projectPath,
+    };
+
+    const [response] = await client.createAssessment(request);
+
+    // Check if the token is valid
+    if (!response.tokenProperties.valid) {
+      console.log(`reCAPTCHA token invalid: ${response.tokenProperties.invalidReason}`);
+      return null;
+    }
+
+    // Check if the expected action was executed
+    if (response.tokenProperties.action === recaptchaAction) {
+      const score = response.riskAnalysis.score;
+      console.log(`reCAPTCHA risk score: ${score}`);
+      
+      if (response.riskAnalysis.reasons) {
+        response.riskAnalysis.reasons.forEach((reason) => {
+          console.log(`  Reason: ${reason}`);
+        });
+      }
+      
+      return score;
+    } else {
+      console.log(`Action mismatch: expected ${recaptchaAction}, got ${response.tokenProperties.action}`);
+      return null;
+    }
+  } catch (error) {
+    console.error('reCAPTCHA assessment error:', error.message);
+    return null;
+  }
+}
+
 
 // Custom middleware to sanitize and validate input
 const sanitizeInput = (input) => {
@@ -302,7 +358,7 @@ app.post('/api/checkout', checkoutLimiter, asyncHandler(async (req, res) => {
 }));
 
 /**
- * Contact Form Submission with reCAPTCHA
+ * Contact Form Submission with reCAPTCHA Enterprise
  * POST /api/contact
  */
 app.post('/api/contact', contactLimiter, asyncHandler(async (req, res) => {
@@ -336,23 +392,15 @@ app.post('/api/contact', contactLimiter, asyncHandler(async (req, res) => {
   }
 
   try {
-    // Verify reCAPTCHA token with Google
-    const recaptchaResponse = await axios.post(
-      `https://www.google.com/recaptcha/api/siteverify`,
-      null,
-      {
-        params: {
-          secret: process.env.RECAPTCHA_SECRET_KEY,
-          response: recaptchaToken,
-        },
-      }
-    );
+    // Verify reCAPTCHA token with Google Cloud reCAPTCHA Enterprise
+    const score = await createRecaptchaAssessment(recaptchaToken, 'submit');
 
-    if (!recaptchaResponse.data.success || recaptchaResponse.data.score < 0.5) {
+    // Check if score is valid and above threshold (0.5)
+    if (score === null || score < 0.5) {
       return res.status(400).json({ 
         error: 'reCAPTCHA verification failed. Please try again.' 
       });
-    }
+    }    }
 
     // Sanitize inputs
     const sanitizedData = {
