@@ -254,6 +254,39 @@
       color: #aaa;
     }
 
+    .carousel-section {
+      padding: 60px 20px;
+      background: linear-gradient(135deg, rgba(201, 169, 97, 0.05) 0%, rgba(160, 82, 45, 0.05) 100%);
+    }
+
+    .carousel-section h3 {
+      color: #2d3e50;
+      font-weight: 700;
+      margin-bottom: 30px;
+      text-align: center;
+      font-size: 1.8rem;
+    }
+
+    .carousel-inner img {
+      height: 400px;
+      object-fit: cover;
+      border-radius: 12px;
+    }
+
+    .carousel-control-prev, .carousel-control-next {
+      filter: invert(1);
+    }
+
+    .carousel-indicators [data-bs-target] {
+      border-radius: 50%;
+      width: 12px;
+      height: 12px;
+    }
+
+    .carousel-indicators .active {
+      background-color: #C9A961;
+    }
+
     @media (max-width: 768px) {
       .hero h1 {
         font-size: 2rem;
@@ -316,7 +349,7 @@
         <!-- Product 1 -->
         <div class="col-lg-4 col-md-6">
           <div class="product-card">
-            <img src="https://via.placeholder.com/300x250?text=Seamoss+Aloe+Soap" alt="Organic Seamoss Aloe Soap">
+            <img src="./assets/img/Product/20190623_170735.jpg" alt="Organic Seamoss Aloe Soap">
             <div class="card-body">
               <h5 class="product-title">Organic Seamoss Aloe Soap</h5>
               <p class="product-description">Hydrating Sensitive Skin - Enriched with natural sea moss and aloe vera for nourished, moisturized skin.</p>
@@ -329,7 +362,7 @@
         <!-- Product 2 -->
         <div class="col-lg-4 col-md-6">
           <div class="product-card">
-            <img src="https://via.placeholder.com/300x250?text=Turmeric+Ginger+Latte" alt="Turmeric Ginger Latte Soap">
+            <img src="./assets/img/Product/TurmericGingerSoap_001.jpg" alt="Turmeric Ginger Latte Soap">
             <div class="card-body">
               <h5 class="product-title">Turmeric Ginger Latte Soap</h5>
               <p class="product-description">Anti-Inflammatory & Aromatic - Soothing bar with turmeric and ginger for a luxurious experience.</p>
@@ -342,7 +375,7 @@
         <!-- Product 3 -->
         <div class="col-lg-4 col-md-6">
           <div class="product-card">
-            <img src="https://via.placeholder.com/300x250?text=Bath+Salt+Soaks" alt="Bath Salt Soaks">
+            <img src="./assets/img/Product/20201112_113620.jpg" alt="Bath Salt Soaks">
             <div class="card-body">
               <h5 class="product-title">Bath Salt Soaks</h5>
               <p class="product-description">Aromatherapy Blend - Luxurious bath salts with essential oils for a soothing spa experience at home.</p>
@@ -370,6 +403,186 @@
         <div class="col-md-4 stat-item">
           <h3>15+</h3>
           <p>Unique Products</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Gallery Carousels Section -->
+  <section class="carousel-section">
+    <div class="container">
+      <!-- Carousel 1: Natural Ingredients -->
+      <div class="mb-5">
+        <h3>Our Natural Ingredients</h3>
+        <div id="carousel1" class="carousel slide" data-bs-ride="carousel">
+          <div class="carousel-indicators">
+            <button type="button" data-bs-target="#carousel1" data-bs-slide-to="0" class="active" aria-label="Slide 1"></button>
+            <button type="button" data-bs-target="#carousel1" data-bs-slide-to="1" aria-label="Slide 2"></button>
+            <button type="button" data-bs-target="#carousel1" data-bs-slide-to="2" aria-label="Slide 3"></button>
+            <button type="button" data-bs-target="#carousel1" data-bs-slide-to="3" aria-label="Slide 4"></button>
+            <button type="button" data-bs-target="#carousel1" data-bs-slide-to="4" aria-label="Slide 5"></button>
+            <button type="button" data-bs-target="#carousel1" data-bs-slide-to="5" aria-label="Slide 6"></button>
+            <button type="button" data-bs-target="#carousel1" data-bs-slide-to="6" aria-label="Slide 7"></button>
+            <button type="button" data-bs-target="#carousel1" data-bs-slide-to="7" aria-label="Slide 8"></button>
+            <button type="button" data-bs-target="#carousel1" data-bs-slide-to="8" aria-label="Slide 9"></button>
+          </div>
+          <div class="carousel-inner">
+            <div class="carousel-item active"><img src="./assets/img/Product/20190623_170755.jpg" class="d-block w-100" alt="Ingredients 1"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20190810_135006.jpg" class="d-block w-100" alt="Ingredients 2"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20200105_171606.jpg" class="d-block w-100" alt="Ingredients 3"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20201010_141145.jpg" class="d-block w-100" alt="Ingredients 4"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20191107_163554.jpg" class="d-block w-100" alt="Ingredients 5"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20200502_115725.jpg" class="d-block w-100" alt="Ingredients 6"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20201112_113211.jpg" class="d-block w-100" alt="Ingredients 7"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20200830_125948.jpg" class="d-block w-100" alt="Ingredients 8"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20210124_162804.jpg" class="d-block w-100" alt="Ingredients 9"></div>
+          </div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#carousel1" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#carousel1" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Carousel 2: Product Creation Process -->
+      <div class="mb-5">
+        <h3>Our Creation Process</h3>
+        <div id="carousel2" class="carousel slide" data-bs-ride="carousel">
+          <div class="carousel-indicators">
+            <button type="button" data-bs-target="#carousel2" data-bs-slide-to="0" class="active" aria-label="Slide 1"></button>
+            <button type="button" data-bs-target="#carousel2" data-bs-slide-to="1" aria-label="Slide 2"></button>
+            <button type="button" data-bs-target="#carousel2" data-bs-slide-to="2" aria-label="Slide 3"></button>
+            <button type="button" data-bs-target="#carousel2" data-bs-slide-to="3" aria-label="Slide 4"></button>
+            <button type="button" data-bs-target="#carousel2" data-bs-slide-to="4" aria-label="Slide 5"></button>
+            <button type="button" data-bs-target="#carousel2" data-bs-slide-to="5" aria-label="Slide 6"></button>
+            <button type="button" data-bs-target="#carousel2" data-bs-slide-to="6" aria-label="Slide 7"></button>
+            <button type="button" data-bs-target="#carousel2" data-bs-slide-to="7" aria-label="Slide 8"></button>
+            <button type="button" data-bs-target="#carousel2" data-bs-slide-to="8" aria-label="Slide 9"></button>
+          </div>
+          <div class="carousel-inner">
+            <div class="carousel-item active"><img src="./assets/img/Product/20200105_171749.jpg" class="d-block w-100" alt="Process 1"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20190810_135038.jpg" class="d-block w-100" alt="Process 2"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20191019_124636.jpg" class="d-block w-100" alt="Process 3"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20200613_221807.jpg" class="d-block w-100" alt="Process 4"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20201101_130128.jpg" class="d-block w-100" alt="Process 5"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20201112_112034.jpg" class="d-block w-100" alt="Process 6"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20201112_115217.jpg" class="d-block w-100" alt="Process 7"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20200618_164243.jpg" class="d-block w-100" alt="Process 8"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20200925_095046.jpg" class="d-block w-100" alt="Process 9"></div>
+          </div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#carousel2" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#carousel2" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Carousel 3: Product Varieties -->
+      <div class="mb-5">
+        <h3>Product Varieties</h3>
+        <div id="carousel3" class="carousel slide" data-bs-ride="carousel">
+          <div class="carousel-indicators">
+            <button type="button" data-bs-target="#carousel3" data-bs-slide-to="0" class="active" aria-label="Slide 1"></button>
+            <button type="button" data-bs-target="#carousel3" data-bs-slide-to="1" aria-label="Slide 2"></button>
+            <button type="button" data-bs-target="#carousel3" data-bs-slide-to="2" aria-label="Slide 3"></button>
+            <button type="button" data-bs-target="#carousel3" data-bs-slide-to="3" aria-label="Slide 4"></button>
+            <button type="button" data-bs-target="#carousel3" data-bs-slide-to="4" aria-label="Slide 5"></button>
+            <button type="button" data-bs-target="#carousel3" data-bs-slide-to="5" aria-label="Slide 6"></button>
+            <button type="button" data-bs-target="#carousel3" data-bs-slide-to="6" aria-label="Slide 7"></button>
+            <button type="button" data-bs-target="#carousel3" data-bs-slide-to="7" aria-label="Slide 8"></button>
+            <button type="button" data-bs-target="#carousel3" data-bs-slide-to="8" aria-label="Slide 9"></button>
+          </div>
+          <div class="carousel-inner">
+            <div class="carousel-item active"><img src="./assets/img/Product/20201010_141904.jpg" class="d-block w-100" alt="Variety 1"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20201010_142057.jpg" class="d-block w-100" alt="Variety 2"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20201020_114954.jpg" class="d-block w-100" alt="Variety 3"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20200721_213647.jpg" class="d-block w-100" alt="Variety 4"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20200721_214049.jpg" class="d-block w-100" alt="Variety 5"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20201109_124239.jpg" class="d-block w-100" alt="Variety 6"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20201112_113151.jpg" class="d-block w-100" alt="Variety 7"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20191223_125147.jpg" class="d-block w-100" alt="Variety 8"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20200319_141012.jpg" class="d-block w-100" alt="Variety 9"></div>
+          </div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#carousel3" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#carousel3" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Carousel 4: Customer Products in Use -->
+      <div class="mb-5">
+        <h3>Customer Favorites</h3>
+        <div id="carousel4" class="carousel slide" data-bs-ride="carousel">
+          <div class="carousel-indicators">
+            <button type="button" data-bs-target="#carousel4" data-bs-slide-to="0" class="active" aria-label="Slide 1"></button>
+            <button type="button" data-bs-target="#carousel4" data-bs-slide-to="1" aria-label="Slide 2"></button>
+            <button type="button" data-bs-target="#carousel4" data-bs-slide-to="2" aria-label="Slide 3"></button>
+            <button type="button" data-bs-target="#carousel4" data-bs-slide-to="3" aria-label="Slide 4"></button>
+            <button type="button" data-bs-target="#carousel4" data-bs-slide-to="4" aria-label="Slide 5"></button>
+            <button type="button" data-bs-target="#carousel4" data-bs-slide-to="5" aria-label="Slide 6"></button>
+            <button type="button" data-bs-target="#carousel4" data-bs-slide-to="6" aria-label="Slide 7"></button>
+            <button type="button" data-bs-target="#carousel4" data-bs-slide-to="7" aria-label="Slide 8"></button>
+            <button type="button" data-bs-target="#carousel4" data-bs-slide-to="8" aria-label="Slide 9"></button>
+          </div>
+          <div class="carousel-inner">
+            <div class="carousel-item active"><img src="./assets/img/Product/Denise_001.jpg" class="d-block w-100" alt="Favorite 1"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20201210_131722.jpg" class="d-block w-100" alt="Favorite 2"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20200402_223555.jpg" class="d-block w-100" alt="Favorite 3"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20201105_082144.jpg" class="d-block w-100" alt="Favorite 4"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20201112_112838.jpg" class="d-block w-100" alt="Favorite 5"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20200501_175909.jpg" class="d-block w-100" alt="Favorite 6"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20201120_111052.jpg" class="d-block w-100" alt="Favorite 7"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20190825_210207.jpg" class="d-block w-100" alt="Favorite 8"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20200213_095832.jpg" class="d-block w-100" alt="Favorite 9"></div>
+          </div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#carousel4" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#carousel4" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Carousel 5: Behind the Scenes -->
+      <div class="mb-5">
+        <h3>Behind the Scenes</h3>
+        <div id="carousel5" class="carousel slide" data-bs-ride="carousel">
+          <div class="carousel-indicators">
+            <button type="button" data-bs-target="#carousel5" data-bs-slide-to="0" class="active" aria-label="Slide 1"></button>
+            <button type="button" data-bs-target="#carousel5" data-bs-slide-to="1" aria-label="Slide 2"></button>
+            <button type="button" data-bs-target="#carousel5" data-bs-slide-to="2" aria-label="Slide 3"></button>
+            <button type="button" data-bs-target="#carousel5" data-bs-slide-to="3" aria-label="Slide 4"></button>
+            <button type="button" data-bs-target="#carousel5" data-bs-slide-to="4" aria-label="Slide 5"></button>
+            <button type="button" data-bs-target="#carousel5" data-bs-slide-to="5" aria-label="Slide 6"></button>
+            <button type="button" data-bs-target="#carousel5" data-bs-slide-to="6" aria-label="Slide 7"></button>
+            <button type="button" data-bs-target="#carousel5" data-bs-slide-to="7" aria-label="Slide 8"></button>
+            <button type="button" data-bs-target="#carousel5" data-bs-slide-to="8" aria-label="Slide 9"></button>
+          </div>
+          <div class="carousel-inner">
+            <div class="carousel-item active"><img src="./assets/img/Product/20190826_131334.jpg" class="d-block w-100" alt="Behind 1"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20190826_132300.jpg" class="d-block w-100" alt="Behind 2"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20190826_133827.jpg" class="d-block w-100" alt="Behind 3"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20190826_134427.jpg" class="d-block w-100" alt="Behind 4"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20190825_211750.jpg" class="d-block w-100" alt="Behind 5"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20201010_144348.jpg" class="d-block w-100" alt="Behind 6"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20201010_144623.jpg" class="d-block w-100" alt="Behind 7"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20200915_143204.jpg" class="d-block w-100" alt="Behind 8"></div>
+            <div class="carousel-item"><img src="./assets/img/Product/20201006_132825_089.jpg" class="d-block w-100" alt="Behind 9"></div>
+          </div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#carousel5" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#carousel5" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+          </button>
         </div>
       </div>
     </div>
