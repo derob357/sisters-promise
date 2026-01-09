@@ -2,13 +2,13 @@
   "name": "sisters-promise",
   "version": "1.0.0",
   "description": "Natural skincare website for Sisters Promise - handmade, clean skincare crafted with intention and care",
-  "main": "index.html",
+  "main": "server.js",
   "directories": {
     "example": "root"
   },
   "scripts": {
     "open-app": "gulp open-app",
-    "start": "npm run open-app",
+    "start": "node server.js",
     "server": "node server.js",
     "dev": "concurrently \"npm run server\" \"npm run open-app\"",
     "build": "node build.js",
