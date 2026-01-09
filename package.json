@@ -28,11 +28,11 @@
     "bootstrap 5",
     "responsive design"
   ],
-  "author": "Creative Tim <hello@creative-tim.com> (https://www.creative-tim.com/)",
+  "author": "Sisters Promise",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/derob357/sisters-promise/issues"
-  },Sisters Promise
+  },
   "devDependencies": {
     "gulp": "^4.0.2",
     "gulp-autoprefixer": "^7.0.1",
