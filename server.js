@@ -132,6 +132,33 @@ async function createRecaptchaAssessment(token, recaptchaAction = 'submit') {
   }
 }
 
+// Interpret reCAPTCHA Enterprise Score
+function interpretRecaptchaScore(score) {
+  if (score >= 0.9) return { level: 'VERY_LOW_RISK', action: 'allow', description: 'Definitely legitimate' };
+  if (score >= 0.7) return { level: 'LOW_RISK', action: 'allow', description: 'Likely legitimate' };
+  if (score >= 0.5) return { level: 'MEDIUM_RISK', action: 'allow', description: 'May be suspicious' };
+  if (score >= 0.3) return { level: 'HIGH_RISK', action: 'review', description: 'Likely suspicious' };
+  return { level: 'VERY_HIGH_RISK', action: 'block', description: 'Definitely suspicious' };
+}
+
+// Annotate reCAPTCHA Assessment (send feedback)
+async function annotateRecaptchaAssessment(assessmentName, annotation) {
+  try {
+    const client = new RecaptchaEnterpriseServiceClient();
+    
+    const request = {
+      name: assessmentName,
+      annotation: annotation, // 'LEGITIMATE', 'FRAUDULENT', 'MALICIOUS_LOGIN', 'UNWANTED_SIGNUP'
+    };
+
+    await client.annotateAssessment(request);
+    console.log(`Assessment ${assessmentName} annotated as ${annotation}`);
+    return true;
+  } catch (error) {
+    console.error('Failed to annotate assessment:', error.message);
+    return false;
+  }
+}
 
 // Custom middleware to sanitize and validate input
 const sanitizeInput = (input) => {
@@ -400,13 +427,19 @@ app.post('/api/contact', contactLimiter, asyncHandler(async (req, res) => {
       return res.status(400).json({ 
         error: 'reCAPTCHA verification failed. Please try again.' 
       });
-    }    }
+    }
+
+    // Interpret the score
+    const riskAssessment = interpretRecaptchaScore(score);
+    console.log(`reCAPTCHA Risk Level: ${riskAssessment.level} - ${riskAssessment.description}`);
 
     // Sanitize inputs
     const sanitizedData = {
       name: sanitizeInput(name),
       email: sanitizeInput(email),
       message: sanitizeInput(message),
+      riskScore: score,
+      riskLevel: riskAssessment.level,
       timestamp: new Date().toISOString(),
       ip: req.ip || req.connection.remoteAddress,
     };
@@ -415,11 +448,14 @@ app.post('/api/contact', contactLimiter, asyncHandler(async (req, res) => {
     console.log('Contact form submission:', sanitizedData);
 
     // TODO: Implement email sending via nodemailer or similar
+    // TODO: For production, store assessment ID and annotate later based on user behavior
+    
     // For now, just confirm receipt
     res.status(200).json({
       success: true,
       message: 'Your message has been received. We will contact you soon!',
       reference: uuidv4(),
+      riskLevel: riskAssessment.level,
     });
   } catch (error) {
     console.error('Contact form error:', error.message);

@@ -23,10 +23,10 @@
   <!-- Material Kit CSS -->
   <link href="../assets/css/material-kit.css?v=3.0.0" rel="stylesheet" />
 
-  <!-- reCAPTCHA v3 -->
-  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <!-- reCAPTCHA Enterprise -->
+  <script src="https://www.google.com/recaptcha/enterprise.js" async defer></script>
   <script>
-    window.RECAPTCHA_SITE_KEY = 'temp_recaptcha_site_key_placeholder';
+    window.RECAPTCHA_SITE_KEY = 'temp_recaptcha_enterprise_key_placeholder';
   </script>
 
   <style>
@@ -421,8 +421,8 @@
             throw new Error('Message must be at least 10 characters');
           }
 
-          // Get reCAPTCHA token
-          const token = await grecaptcha.execute(window.RECAPTCHA_SITE_KEY, { action: 'submit' });
+          // Get reCAPTCHA Enterprise token
+          const token = await grecaptcha.enterprise.execute(window.RECAPTCHA_SITE_KEY, { action: 'submit' });
 
           // Submit form
           const success = await SquareIntegration.submitContactForm(formData, token);
