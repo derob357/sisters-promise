@@ -36,6 +36,28 @@
       padding: 20px 0;
     }
 
+    /* Ensure navbar is always visible */
+    .navbar {
+      display: flex !important;
+      visibility: visible !important;
+      z-index: 1000;
+    }
+
+    .navbar-brand img {
+      max-height: 50px;
+      width: auto;
+    }
+
+    @media (max-width: 768px) {
+      .navbar {
+        padding: 0.5rem 1rem;
+      }
+
+      .navbar-brand img {
+        max-height: 40px;
+      }
+    }
+
     .contact-container {
       max-width: 900px;
       margin: 40px auto;
