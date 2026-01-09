@@ -419,3 +419,4 @@ app.listen(PORT, () => {
     console.warn('⚠️  Warning: RECAPTCHA_SECRET_KEY not configured for contact form');
   }
   console.log('\n');
+});
