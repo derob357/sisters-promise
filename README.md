@@ -1,18 +1,19 @@
-# [Material Kit 2](http://demos.creative-tim.com/material-kit/presentation?ref=readme-mk2) [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social&logo=twitter)](https://twitter.com/intent/tweet?url=https://www.creative-tim.com/product/material-kit&text=Check%20Material%20Kit%202%20made%20by%20@CreativeTim%20#webdesign%20#designSystem%20#uiKit%20#materialDesign%20#html%20https://www.creative-tim.com/product/material-kit) [![Discord](https://badgen.net/badge/icon/discord?icon=discord&label)](https://discord.gg/FhCJCaHdQa)
+# Sisters Promise - Natural Skincare Website
 
-![version](https://img.shields.io/badge/version-3.0.4-blue.svg) [![GitHub issues open](https://img.shields.io/github/issues/creativetimofficial/material-kit.svg?maxAge=2592000)](https://github.com/creativetimofficial/material-kit/issues?q=is%3Aopen+is%3Aissue) [![GitHub issues closed](https://img.shields.io/github/issues-closed-raw/creativetimofficial/material-kit.svg?maxAge=2592000)](https://github.com/creativetimofficial/material-kit/issues?q=is%3Aissue+is%3Aclosed)
+![version](https://img.shields.io/badge/version-1.0.0-blue.svg)
 
-![Image](https://raw.githubusercontent.com/creativetimofficial/public-assets/master/material-kit/material-kit.jpg)
+**Sisters Promise** is a natural skincare brand dedicated to creating clean, handmade, and intentional skincare products. This website showcases our collection of organic lotions, sea moss soap, skin scrubs, and other natural homemade products.
 
+## About Sisters Promise
 
-**Material Kit** is a **Free Bootstrap 5 UI Kit** with a fresh, new design inspired by Google's material design. You asked for it, so we built it. It's a great pleasure to introduce to you the material concepts in an easy to use and beautiful set of components. Along with the restyling of the Bootstrap elements, you will find three fully-coded example pages, to help you design your next project.
+Sisters Promise was created out of a desire for skincare that is clean, intentional, and made with love. Every product reflects a commitment to quality, care, and purpose. We believe skincare should be simple, honest, and effective—filled with plant-based ingredients, no harsh chemicals, small-batch crafted with love and care.
 
-**Material Kit** makes use of light, surface, and movement. It uses a deliberate color choice, edge-to-edge imagery, and large scale typography. The general layout resembles sheets of paper following multiple different layers so that the depth and order are obvious. The navigation stays mainly on the left and the actions on the right.
+**Our Core Values:**
+- 🌿 **All-Natural** - Plant-based ingredients with no harsh chemicals
+- ✋ **Handmade** - Small-batch skincare made with love and care
+- 💚 **Clean & Effective** - Gentle formulas that truly support healthy skin
 
-This new design has elements that have been the result of research regarding ink and paper and the way objects and materials interact in real life. The result is a beautiful and consistent set of elements that can get you started with your next project. Material Kit is a great tool if you are looking to create a web presence for your Android application and need to be consistent, leaving the impression of visually similar elements. It is also a great resource in its own right, looking gorgeous and helping you build your web pages.
-
-Special thanks go to:
-- [Nepcha Analytics](https://nepcha.com?ref=readme) for the analytics tool. Nepcha is already integrated with Material Dashboard. You can use it to gain insights into your sources of traffic.
+Visit our website: [sisterspromise.com](https://sisterspromise.com)
 
 
 ## Table of Contents
