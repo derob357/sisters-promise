@@ -13,22 +13,14 @@ services:
       - key: SQUARE_ENVIRONMENT
         value: sandbox
       - key: SQUARE_APPLICATION_ID
-        fromDatabase:
-          name: sisters-promise
-          property: SQUARE_APPLICATION_ID
+        sync: false
       - key: SQUARE_ACCESS_TOKEN
-        fromDatabase:
-          name: sisters-promise
-          property: SQUARE_ACCESS_TOKEN
+        sync: false
       - key: SQUARE_LOCATION_ID
-        fromDatabase:
-          name: sisters-promise
-          property: SQUARE_LOCATION_ID
-      - key: RECAPTCHA_SITE_KEY
-        fromDatabase:
-          name: sisters-promise
-          property: RECAPTCHA_SITE_KEY
-      - key: RECAPTCHA_SECRET_KEY
-        fromDatabase:
-          name: sisters-promise
-          property: RECAPTCHA_SECRET_KEY
+        sync: false
+      - key: GOOGLE_CLOUD_PROJECT_ID
+        value: sisters-promise
+      - key: RECAPTCHA_ENTERPRISE_KEY
+        sync: false
+      - key: GOOGLE_APPLICATION_CREDENTIALS
+        value: /etc/secrets/google-credentials.json
