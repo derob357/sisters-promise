@@ -9,6 +9,8 @@
   "scripts": {
     "open-app": "gulp open-app",
     "start": "npm run open-app",
+    "server": "node server.js",
+    "dev": "concurrently \"npm run server\" \"npm run open-app\"",
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "gulp-watch"
   },
@@ -34,6 +36,7 @@
     "url": "https://github.com/derob357/sisters-promise/issues"
   },
   "devDependencies": {
+    "concurrently": "^7.6.0",
     "gulp": "^4.0.2",
     "gulp-autoprefixer": "^7.0.1",
     "gulp-clean": "^0.4.0",
@@ -45,6 +48,10 @@
   },
   "homepage": "https://sisterspromise.com",
   "dependencies": {
-    "material-kit": "^2.0.4"
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "material-kit": "^2.0.4",
+    "node-fetch": "^2.6.11"
   }
 }
