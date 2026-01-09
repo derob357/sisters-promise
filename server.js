@@ -86,11 +86,24 @@ const sanitizeInput = (input) => {
     .slice(0, 500); // Limit length
 };
 
-// Serve static files with cache busting
-app.use(express.static('./', {
+// Serve static files - images, CSS, JavaScript, etc.
+app.use(express.static(__dirname, {
   maxAge: '1h',
   etag: false,
 }));
+
+// Route handlers for HTML pages
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/index.html');
+});
+
+app.get('/pages/contact', (req, res) => {
+  res.sendFile(__dirname + '/pages/contact.html');
+});
+
+app.get('/pages/shop', (req, res) => {
+  res.sendFile(__dirname + '/pages/shop.html');
+});
 
 // Initialize Square Client
 const client = new Client({
