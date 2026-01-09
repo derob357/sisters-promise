@@ -33,19 +33,42 @@
       background: rgba(255, 255, 255, 0.98) !important;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       backdrop-filter: blur(10px);
+      display: flex !important;
+      visibility: visible !important;
+      position: relative !important;
+      z-index: 1000 !important;
     }
 
     .navbar-brand {
       font-weight: 700;
-      display: flex;
+      display: flex !important;
       align-items: center;
       gap: 10px;
+      visibility: visible !important;
     }
 
     .navbar-brand img {
       height: 50px;
       width: auto;
       object-fit: contain;
+      visibility: visible !important;
+      display: block !important;
+    }
+
+    .navbar-nav {
+      display: flex !important;
+      visibility: visible !important;
+    }
+
+    .nav-link {
+      color: #333 !important;
+      display: block !important;
+      visibility: visible !important;
+    }
+
+    .navbar-toggler {
+      visibility: visible !important;
+      display: flex !important;
     }
 
     .hero {

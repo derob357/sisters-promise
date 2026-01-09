@@ -39,15 +39,34 @@
 
     .navbar-brand {
       font-weight: 700;
-      display: flex;
+      display: flex !important;
       align-items: center;
       gap: 10px;
+      visibility: visible !important;
     }
 
     .navbar-brand img {
       height: 50px;
       width: auto;
       object-fit: contain;
+      visibility: visible !important;
+      display: block !important;
+    }
+
+    .navbar-nav {
+      display: flex !important;
+      visibility: visible !important;
+    }
+
+    .nav-link {
+      color: #333 !important;
+      display: block !important;
+      visibility: visible !important;
+    }
+
+    .navbar-toggler {
+      visibility: visible !important;
+      display: flex !important;
     }
 
     @media (max-width: 768px) {
