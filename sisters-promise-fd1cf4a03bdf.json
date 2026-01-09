@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "sisters-promise",
+  "private_key_id": "fd1cf4a03bdf723a4a5c2b0757415a39230b6b07",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDiQCc0lTTVy+0c\nbPUOeq8HZITy5/GaXWmsd4th+1Yh9ma0zAe4xbWTXJYvxxZNDKBhVb7RNgfSEtwz\nClI3jadYJ0bzMRGX0H2oNiGtIxTaspim+B/SuBiKrMAI41335QOiCIkI64TYg55s\nm6jnhIq+A2ETBvp2Hi5ypPB2HVAnTeRqnX/LMbFpmIH8dHm1DJaP0+dzADIgqOBU\nIjrzaF/fwqROl/Xaidbbg6WEikPpfvf0ODCjWmeD2p0YAizbLgNTvoxXy64UgG2I\nmrWrPLvYI68Nr/T5atSgjrmAOBVnM/u+yiebVNtfLIf3VMZHrg9MGLSGcqwi0eXx\n6PYjaeadAgMBAAECggEADt39VYi6dJQWbChCwCVSrA8wZ0/TgfvCbmlamOEtq0So\nQhgoJ72iLWFHozMXZY+/WDYMuG2u/OBtZNM4TNs7lGDcWi2uxMWYBD4uX1SvUaGr\nw0kJukyLnE02vz7FlX0QjIy4CISFcb7QYb2mzzPX9B1/uwLZ4XohPjpVbMWHV1W4\n2+EBGM26QgZB7SWdoYQ8Q2H5sD9x4rt22CPi10MGfTg7S3RUrs9uxcKGFazy0die\nPnJqBx5bf5wU0HuBW+/NHw4u+yT0CvtZgt4a24k2SWgwpLh+/hzXdF/YM6tcSLpk\nUDoXn4J935taIcj2WJ0lEZeiDBvq1qJhpvYSCOmWoQKBgQDysT/K9o5huP9IewTt\n5kvOSo2TW987zRZwCjuRtWSSPFddlIbmDG+yudMszhICLtnvdocir5NJIL4mYh8j\nswhsg61gEi2UF1KB7gD0b5nU5/HZZfBjofHVhMD51MeQx1o5InLEkoj+mKyTfuOI\nGNWTy9P0GGqMi2j9hjd9Jy91LQKBgQDuqBr7E4qMfLO9cxPGtbR15wpI5sMmaC27\n9Lt5tQgguloJTx4aDQwqqLsXeoR5Faifze7ZXwYBLAA7WdE2MJuz8whIozAd+cSG\nU46Q1hmf1b42BV2tx5iHMfV7sYdoO/FbfwpifkhY5AfVBBK3ryDnxBzx50WfVfKf\n/wtS8QP9MQKBgQCtUGtwNFdF7mlQh5njkv072v3z6D4pZLLLXGNiERo7XKA/khws\nGWGDTzVB3//4UyEL46dp29zg8mMY4iW+xtITPI4J97FY+rbPVvqTlUdURjfuut/L\nJxGfG+j8ATpraBJEjxdKziLLPpiv1IQE40dS/tLklLMynzRhKQJjfCJmGQKBgQDr\nKSgU2Od/kO0HM1p8RdWBC9y9gu0ubh8Kgpcs0O4mWZmYbKZLoymm60YXV3krWuUi\nOigtdo2TIAlGcjVNQU5bXZF/CZXDI7a7aaAkJWNwdIwN7PGm5/Lq3JZ4gLDdS5uC\nvca80JR3SpJRGsdaya0R0tN2pZ2b6HO/pe9Blg2JMQKBgAuxUvZNdpA0M/W1gwHB\npzNPMT5dgoxlx4m44aTgO/+PAt4BOj4eXldXorRaemI6qwOyOf8fBS+NNZLedQV0\nQXlI+37e7d556cL77Aov9oPVj+AGLF9t377WITTK7Ll99xi9WGH7gjiisLRt+lZg\n6LPmcquoiNhbPolsKVwHddKA\n-----END PRIVATE KEY-----\n",
+  "client_email": "sisterspromise-service@sisters-promise.iam.gserviceaccount.com",
+  "client_id": "116078770404033914109",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/sisterspromise-service%40sisters-promise.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
