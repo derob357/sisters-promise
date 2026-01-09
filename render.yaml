@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: sisters-promise
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: SQUARE_ENVIRONMENT
+        value: sandbox
+      - key: SQUARE_APPLICATION_ID
+        fromDatabase:
+          name: sisters-promise
+          property: SQUARE_APPLICATION_ID
+      - key: SQUARE_ACCESS_TOKEN
+        fromDatabase:
+          name: sisters-promise
+          property: SQUARE_ACCESS_TOKEN
+      - key: SQUARE_LOCATION_ID
+        fromDatabase:
+          name: sisters-promise
+          property: SQUARE_LOCATION_ID
+      - key: RECAPTCHA_SITE_KEY
+        fromDatabase:
+          name: sisters-promise
+          property: RECAPTCHA_SITE_KEY
+      - key: RECAPTCHA_SECRET_KEY
+        fromDatabase:
+          name: sisters-promise
+          property: RECAPTCHA_SECRET_KEY
