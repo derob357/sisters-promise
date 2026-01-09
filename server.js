@@ -1,131 +1,155 @@
-// Etsy API Integration Server for Sisters Promise
+// Square Payment Integration Server for Sisters Promise
 const express = require('express');
 const cors = require('cors');
-const fetch = require('node-fetch');
-require('dotenv').config();
+const dotenv = require('dotenv');
+const { Client, Environment } = require('square');
+const { v4: uuidv4 } = require('uuid');
+
+dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-
-// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.static('./'));
 
-// Etsy API configuration
-const ETSY_API_KEY = process.env.ETSY_API_KEY;
-const ETSY_SHOP_ID = process.env.ETSY_SHOP_ID;
-const ETSY_API_BASE = 'https://openapi.etsy.com/v3/application';
+// Initialize Square Client
+const client = new Client({
+  accessToken: process.env.SQUARE_ACCESS_TOKEN,
+  environment: process.env.SQUARE_ENVIRONMENT === 'production' ? Environment.Production : Environment.Sandbox,
+});
+
+const catalogApi = client.catalogApi;
+const paymentsApi = client.paymentsApi;
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    message: 'Sisters Promise Square integration is running',
+    environment: process.env.SQUARE_ENVIRONMENT || 'sandbox'
+  });
+});
 
 /**
- * Fetch products from Etsy shop
+ * Get all products from Square Catalog
  * GET /api/products
  */
 app.get('/api/products', async (req, res) => {
   try {
-    if (!ETSY_API_KEY || !ETSY_SHOP_ID) {
-      return res.status(400).json({ 
-        error: 'Etsy API credentials not configured. Please set ETSY_API_KEY and ETSY_SHOP_ID in .env file'
+    if (!process.env.SQUARE_ACCESS_TOKEN) {
+      return res.status(400).json({
+        error: 'Missing SQUARE_ACCESS_TOKEN in environment configuration',
+        message: 'Please set SQUARE_ACCESS_TOKEN in your .env file'
       });
     }
 
-    const url = `${ETSY_API_BASE}/shops/${ETSY_SHOP_ID}/listings/active?limit=100`;
+    const response = await catalogApi.listCatalog();
     
-    const response = await fetch(url, {
-      headers: {
-        'x-api-key': ETSY_API_KEY,
-        'Accept': 'application/json'
-      }
-    });
+    // Filter for item objects only (products)
+    const products = response.result.objects
+      ?.filter(item => item.type === 'ITEM')
+      .map(item => ({
+        id: item.id,
+        name: item.itemData?.name || 'Unnamed Product',
+        description: item.itemData?.description || '',
+        variations: item.itemData?.variations || [],
+        imageUrl: item.itemData?.imageIds?.[0] || null,
+        categoryId: item.itemData?.categoryId || null
+      })) || [];
 
-    if (!response.ok) {
-      throw new Error(`Etsy API error: ${response.status} ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    
-    // Transform Etsy data to our format
-    const products = data.results.map(listing => ({
-      id: listing.listing_id,
-      title: listing.title,
-      description: listing.description,
-      price: listing.price.amount / 100, // Convert from cents
-      currency: listing.price.currency_code,
-      url: `https://www.etsy.com/listing/${listing.listing_id}`,
-      images: listing.url_images || [],
-      tags: listing.tags || []
-    }));
-
-    res.json({
+    res.json({ 
       success: true,
       count: products.length,
-      products: products
+      products
     });
-
   } catch (error) {
     console.error('Error fetching products:', error);
-    res.status(500).json({ 
-      error: 'Failed to fetch products from Etsy',
+    res.status(500).json({
+      error: 'Failed to fetch products from Square',
       details: error.message
     });
   }
 });
 
 /**
- * Get single product details
+ * Get single product by ID
  * GET /api/products/:id
  */
 app.get('/api/products/:id', async (req, res) => {
   try {
-    const { id } = req.params;
+    const response = await catalogApi.retrieveCatalogObject(req.params.id);
+    const item = response.result.object;
 
-    if (!ETSY_API_KEY) {
-      return res.status(400).json({ error: 'Etsy API key not configured' });
+    if (item.type !== 'ITEM') {
+      return res.status(404).json({ error: 'Product not found' });
     }
-
-    const url = `${ETSY_API_BASE}/listings/${id}`;
-    
-    const response = await fetch(url, {
-      headers: {
-        'x-api-key': ETSY_API_KEY,
-        'Accept': 'application/json'
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error(`Etsy API error: ${response.status}`);
-    }
-
-    const listing = await response.json();
-    
-    const product = {
-      id: listing.listing_id,
-      title: listing.title,
-      description: listing.description,
-      price: listing.price.amount / 100,
-      currency: listing.price.currency_code,
-      url: `https://www.etsy.com/listing/${listing.listing_id}`,
-      images: listing.url_images || [],
-      tags: listing.tags || []
-    };
 
     res.json({
       success: true,
-      product: product
+      product: {
+        id: item.id,
+        name: item.itemData?.name || 'Unnamed Product',
+        description: item.itemData?.description || '',
+        variations: item.itemData?.variations || [],
+        imageUrl: item.itemData?.imageIds?.[0] || null,
+        categoryId: item.itemData?.categoryId || null
+      }
     });
-
   } catch (error) {
     console.error('Error fetching product:', error);
-    res.status(500).json({ 
-      error: 'Failed to fetch product from Etsy',
+    res.status(500).json({
+      error: 'Failed to fetch product from Square',
       details: error.message
     });
   }
 });
 
-// Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Sisters Promise API is running' });
+/**
+ * Create a payment (for checkout processing)
+ * POST /api/checkout
+ */
+app.post('/api/checkout', async (req, res) => {
+  try {
+    const { sourceId, amount, currency = 'USD', note = '' } = req.body;
+
+    if (!sourceId || !amount) {
+      return res.status(400).json({ 
+        error: 'Missing required fields: sourceId and amount' 
+      });
+    }
+
+    if (!process.env.SQUARE_LOCATION_ID) {
+      return res.status(400).json({
+        error: 'Missing SQUARE_LOCATION_ID in environment configuration'
+      });
+    }
+
+    const response = await paymentsApi.createPayment({
+      sourceId,
+      amount,
+      currency,
+      note,
+      idempotencyKey: uuidv4(),
+      locationId: process.env.SQUARE_LOCATION_ID
+    });
+
+    res.json({
+      success: true,
+      payment: response.result.payment
+    });
+  } catch (error) {
+    console.error('Payment error:', error);
+    res.status(400).json({
+      error: 'Payment failed',
+      details: error.message
+    });
+  }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Sisters Promise Square integration server running on http://localhost:${PORT}`);
+  console.log(`Environment: ${process.env.SQUARE_ENVIRONMENT || 'sandbox'}`);
 });
 
 // Start server
