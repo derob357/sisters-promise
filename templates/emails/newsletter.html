@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sisters Promise Newsletter</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .content {
+            padding: 30px 20px;
+        }
+        .content p {
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 6px;
+        }
+        .section h3 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        .feature-box {
+            background-color: white;
+            border: 1px solid #eee;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 6px;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #667eea;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 13px;
+            margin: 5px 0;
+        }
+        .cta-button:hover {
+            background-color: #764ba2;
+        }
+        .footer {
+            background-color: #f9f9f9;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #eee;
+            font-size: 12px;
+            color: #666;
+        }
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💚 Sisters Promise Newsletter</h1>
+            <p>Natural Skincare, Intentional Beauty</p>
+        </div>
+        
+        <div class="content">
+            <p>Hi {{firstName}},</p>
+            
+            <p>Welcome to this month's Sisters Promise newsletter! Here's what's new in the world of natural skincare and wellness.</p>
+            
+            <div class="section">
+                <h3>🌟 Featured This Month</h3>
+                <div class="feature-box">
+                    <p><strong>New Product Launch: Nourishing Sea Moss Serum</strong></p>
+                    <p>Our latest creation combines the power of sea moss with organic botanicals to hydrate and rejuvenate your skin. Rich in minerals and antioxidants, this serum is perfect for all skin types.</p>
+                    <a href="http://localhost:3000/pages/shop" class="cta-button">Shop Now</a>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h3>📚 Skincare Tips</h3>
+                <p><strong>The Power of Consistency:</strong> When it comes to skincare, consistency is key. Most skincare benefits take 4-6 weeks to show. Choose products that work for your skin type and stick with them to see real results.</p>
+            </div>
+            
+            <div class="section">
+                <h3>🎁 Exclusive Offer</h3>
+                <p>Use code <strong>NEWSLETTER15</strong> for 15% off your next purchase! Valid for 7 days.</p>
+                <a href="http://localhost:3000/pages/shop" class="cta-button">Claim Your Discount</a>
+            </div>
+            
+            <p>Stay tuned for next month's newsletter packed with more skincare wisdom and exclusive deals!</p>
+            
+            <p>With gratitude,<br><strong>The Sisters Promise Team</strong></p>
+        </div>
+        
+        <div class="footer">
+            <p>Sisters Promise | Natural Skincare Crafted with Intention</p>
+            <p>Phone: (555) 123-4567 | Email: info@sisterspromise.com</p>
+            <p><a href="{{unsubscribeLink}}">Unsubscribe</a> | <a href="http://localhost:3000/pages/contact-us.html">Contact Us</a></p>
+            <p style="margin-top: 10px; color: #999;">© 2025 Sisters Promise. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

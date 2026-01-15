@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Your Purchase</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #f5af19 0%, #f12711 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .content {
+            padding: 30px 20px;
+        }
+        .cart-items {
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .cart-items h3 {
+            margin-top: 0;
+            color: #f12711;
+        }
+        .cart-items ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .cart-items li {
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+        }
+        .cart-items li:last-child {
+            border-bottom: none;
+        }
+        .cart-total {
+            background-color: #fffacd;
+            border-left: 4px solid #f5af19;
+            padding: 15px;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 20px 0;
+            text-align: right;
+        }
+        .highlight {
+            background-color: #fff5e6;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+            border-left: 4px solid #f5af19;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #f12711;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            margin: 20px 0;
+            transition: background-color 0.3s ease;
+            font-size: 14px;
+        }
+        .cta-button:hover {
+            background-color: #d41d0a;
+        }
+        .footer {
+            background-color: #f9f9f9;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #eee;
+            font-size: 12px;
+            color: #666;
+        }
+        .footer a {
+            color: #f12711;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛒 You Left Something Behind!</h1>
+            <p>Complete your order before items sell out</p>
+        </div>
+        
+        <div class="content">
+            <p>Hi {{firstName}},</p>
+            
+            <p>We noticed you had some beautiful Sisters Promise products in your cart. We'd hate for you to miss out on these natural skincare essentials!</p>
+            
+            <div class="cart-items">
+                <h3>Items in Your Cart</h3>
+                <ul>
+                    {{cartItems}}
+                </ul>
+            </div>
+            
+            <div class="cart-total">
+                Subtotal: {{cartTotal}}
+            </div>
+            
+            <div class="highlight">
+                <p><strong>⏰ Special Offer:</strong> Complete your purchase today and receive <strong>10% off</strong> with code <strong>COMEBACK10</strong></p>
+            </div>
+            
+            <a href="{{checkoutUrl}}" class="cta-button">Complete Your Purchase</a>
+            
+            <p>Our products are carefully crafted with natural ingredients to nourish your skin. Don't miss out on the wellness routine you deserve!</p>
+            
+            <p>Questions about a product? <a href="#">Contact us</a> - we're here to help!</p>
+            
+            <p>With gratitude,<br><strong>The Sisters Promise Team</strong></p>
+        </div>
+        
+        <div class="footer">
+            <p>Sisters Promise | Natural Skincare Crafted with Intention</p>
+            <p>Questions? Contact us at info@sisterspromise.com</p>
+            <p><a href="{{unsubscribeLink}}">Unsubscribe</a> | <a href="#">Contact Us</a></p>
+            <p style="margin-top: 10px; color: #999;">© 2025 Sisters Promise. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

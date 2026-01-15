@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Sisters Promise</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        .content {
+            padding: 40px 20px;
+        }
+        .content p {
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        .highlight {
+            background-color: #f0f4ff;
+            padding: 20px;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+            margin: 20px 0;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #667eea;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            margin: 20px 0;
+            transition: background-color 0.3s ease;
+        }
+        .cta-button:hover {
+            background-color: #764ba2;
+        }
+        .footer {
+            background-color: #f9f9f9;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #eee;
+            font-size: 12px;
+            color: #666;
+        }
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        .footer-divider {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌿 Welcome to Sisters Promise</h1>
+        </div>
+        
+        <div class="content">
+            <p>Hi {{firstName}},</p>
+            
+            <p>Thank you so much for joining the Sisters Promise community! We're thrilled to have you with us.</p>
+            
+            <div class="highlight">
+                <p><strong>What to Expect:</strong></p>
+                <ul>
+                    <li>✨ Exclusive new product launches</li>
+                    <li>🎁 Special promotions and discounts</li>
+                    <li>📚 Skincare tips and wellness advice</li>
+                    <li>💚 Behind-the-scenes stories from our team</li>
+                </ul>
+            </div>
+            
+            <p>Our mission is to provide natural, handcrafted skincare products that nourish your skin and soul. Every product is made with intention, care, and the finest natural ingredients.</p>
+            
+            <a href="http://localhost:3000/pages/shop" class="cta-button">Explore Our Shop</a>
+            
+            <p>If you have any questions or would like to know more about Sisters Promise, don't hesitate to reach out!</p>
+            
+            <p>With gratitude,<br><strong>The Sisters Promise Team</strong></p>
+        </div>
+        
+        <div class="footer">
+            <p>Sisters Promise | Natural Skincare Crafted with Intention</p>
+            <div class="footer-divider">
+                <p>Phone: (555) 123-4567 | Email: info@sisterspromise.com</p>
+            </div>
+            <div class="footer-divider">
+                <a href="{{unsubscribeLink}}">Unsubscribe from future emails</a>
+            </div>
+            <p style="margin-top: 15px; color: #999;">© {{year}} Sisters Promise. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

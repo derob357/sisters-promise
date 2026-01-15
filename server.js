@@ -9,10 +9,16 @@ const { Client, Environment } = require('square');
 const { v4: uuidv4 } = require('uuid');
 const axios = require('axios');
 const { RecaptchaEnterpriseServiceClient } = require('@google-cloud/recaptcha-enterprise');
+const EmailSubscriber = require('./models/EmailSubscriber');
+const EmailService = require('./services/EmailService');
 
 dotenv.config();
 
 const app = express();
+
+// Initialize email services
+const emailSubscriber = new EmailSubscriber();
+const emailService = new EmailService();
 
 // Security Middleware - Helmet for security headers
 app.use(helmet({
@@ -384,6 +390,626 @@ app.post('/api/checkout', checkoutLimiter, asyncHandler(async (req, res) => {
     });
   }
 }));
+
+// ============================================================================
+// EMAIL MARKETING AND SUBSCRIBER MANAGEMENT ENDPOINTS
+// ============================================================================
+
+/**
+ * Subscribe to newsletter
+ * POST /api/email/subscribe
+ */
+app.post('/api/email/subscribe', contactLimiter, asyncHandler(async (req, res) => {
+  try {
+    const { email, firstName = '', lastName = '', preferences = {}, recaptchaToken } = req.body;
+
+    // Validate input
+    if (!email) {
+      return res.status(400).json({
+        error: 'Validation Error',
+        message: 'Email is required'
+      });
+    }
+
+    // reCAPTCHA verification
+    if (recaptchaToken) {
+      const riskScore = await createRecaptchaAssessment(recaptchaToken, 'subscribe');
+      const riskLevel = interpretRecaptchaScore(riskScore);
+      
+      if (riskLevel.action === 'block') {
+        return res.status(403).json({
+          error: 'Subscription Failed',
+          message: 'Unable to process subscription at this time',
+          riskLevel: riskLevel.level
+        });
+      }
+    }
+
+    // Add subscriber
+    const subscriber = emailSubscriber.addSubscriber({
+      email: sanitizeInput(email),
+      firstName: sanitizeInput(firstName),
+      lastName: sanitizeInput(lastName),
+      preferences,
+      source: 'website'
+    });
+
+    // Send welcome email
+    await emailService.sendWelcomeEmail(subscriber);
+
+    res.status(201).json({
+      success: true,
+      message: 'Successfully subscribed! Check your email for a welcome message.',
+      subscriberId: subscriber.id,
+      email: subscriber.email
+    });
+
+  } catch (error) {
+    console.error('Subscription error:', error.message);
+    
+    if (error.message.includes('already subscribed')) {
+      return res.status(409).json({
+        error: 'Already Subscribed',
+        message: 'This email is already subscribed to our newsletter'
+      });
+    }
+
+    res.status(400).json({
+      error: 'Subscription Failed',
+      message: error.message || 'Unable to process subscription'
+    });
+  }
+}));
+
+/**
+ * Update subscriber preferences
+ * POST /api/email/update/:email
+ */
+app.post('/api/email/update/:email', asyncHandler(async (req, res) => {
+  try {
+    const { email } = req.params;
+    const { preferences } = req.body;
+
+    if (!preferences) {
+      return res.status(400).json({
+        error: 'Validation Error',
+        message: 'Preferences are required'
+      });
+    }
+
+    const subscriber = emailSubscriber.updateSubscriber(email, { preferences });
+
+    res.json({
+      success: true,
+      message: 'Preferences updated successfully',
+      subscriber: {
+        email: subscriber.email,
+        preferences: subscriber.preferences
+      }
+    });
+
+  } catch (error) {
+    console.error('Update preferences error:', error.message);
+    res.status(400).json({
+      error: 'Update Failed',
+      message: error.message || 'Unable to update preferences'
+    });
+  }
+}));
+
+/**
+ * Unsubscribe from newsletter
+ * GET /api/email/unsubscribe/:token
+ */
+app.get('/api/email/unsubscribe/:token', asyncHandler(async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    emailSubscriber.unsubscribeByToken(token);
+
+    // Return an HTML page confirming unsubscription
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Unsubscribed - Sisters Promise</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+          }
+          .container {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+          }
+          h1 { color: #333; }
+          p { color: #666; line-height: 1.6; }
+          a { color: #667eea; text-decoration: none; font-weight: 600; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h1>✓ Unsubscribed</h1>
+          <p>You have been successfully unsubscribed from Sisters Promise emails.</p>
+          <p>We're sorry to see you go! If you change your mind, you can always resubscribe on our <a href="/">website</a>.</p>
+        </div>
+      </body>
+      </html>
+    `);
+
+  } catch (error) {
+    console.error('Unsubscribe error:', error.message);
+    res.status(400).send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Error - Sisters Promise</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+          }
+          .container {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+          }
+          h1 { color: #e74c3c; }
+          p { color: #666; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h1>⚠️ Error</h1>
+          <p>Unable to process your request. The unsubscribe link may be invalid or expired.</p>
+        </div>
+      </body>
+      </html>
+    `);
+  }
+}));
+
+/**
+ * Get subscriber info
+ * GET /api/email/subscriber/:email
+ */
+app.get('/api/email/subscriber/:email', asyncHandler(async (req, res) => {
+  try {
+    const { email } = req.params;
+    const subscriber = emailSubscriber.getSubscriber(email);
+
+    if (!subscriber) {
+      return res.status(404).json({
+        error: 'Not Found',
+        message: 'Subscriber not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      subscriber: {
+        id: subscriber.id,
+        email: subscriber.email,
+        firstName: subscriber.firstName,
+        lastName: subscriber.lastName,
+        status: subscriber.status,
+        preferences: subscriber.preferences,
+        subscriptionDate: subscriber.subscriptionDate,
+        lastUpdated: subscriber.lastUpdated
+      }
+    });
+
+  } catch (error) {
+    console.error('Get subscriber error:', error.message);
+    res.status(500).json({
+      error: 'Server Error',
+      message: 'Unable to retrieve subscriber information'
+    });
+  }
+}));
+
+/**
+ * Get email statistics
+ * GET /api/email/stats
+ */
+app.get('/api/email/stats', asyncHandler(async (req, res) => {
+  try {
+    const subscriberStats = emailSubscriber.getStats();
+    const campaignStats = emailSubscriber.getCampaignsStats();
+
+    res.json({
+      success: true,
+      subscribers: subscriberStats,
+      campaigns: campaignStats,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Get stats error:', error.message);
+    res.status(500).json({
+      error: 'Server Error',
+      message: 'Unable to retrieve statistics'
+    });
+  }
+}));
+
+/**
+ * Send test email
+ * POST /api/email/test
+ */
+app.post('/api/email/test', asyncHandler(async (req, res) => {
+  try {
+    const { email, templateId = 'welcome' } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        error: 'Validation Error',
+        message: 'Email is required'
+      });
+    }
+
+    const testSubscriber = {
+      email: sanitizeInput(email),
+      firstName: 'Test',
+      lastName: 'User',
+      unsubscribeToken: 'test-token'
+    };
+
+    const success = await emailService.sendCustomEmail(testSubscriber, {
+      template: templateId,
+      subject: `Test Email - ${templateId}`,
+      fallbackText: 'This is a test email',
+      variables: { firstName: 'Test User' }
+    });
+
+    if (!success) {
+      return res.status(500).json({
+        error: 'Send Failed',
+        message: 'Unable to send test email. Check email configuration.'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: `Test email sent to ${email}`,
+      template: templateId
+    });
+
+  } catch (error) {
+    console.error('Test email error:', error.message);
+    res.status(500).json({
+      error: 'Test Failed',
+      message: error.message || 'Unable to send test email'
+    });
+  }
+}));
+
+/**
+ * Export subscribers as CSV (admin only - add authentication in production)
+ * GET /api/email/export
+ */
+app.get('/api/email/export', asyncHandler(async (req, res) => {
+  try {
+    const csv = emailSubscriber.exportAsCSV();
+    
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename=subscribers.csv');
+    res.send(csv);
+
+  } catch (error) {
+    console.error('Export error:', error.message);
+    res.status(500).json({
+      error: 'Export Failed',
+      message: 'Unable to export subscribers'
+    });
+  }
+}));
+
+/**
+ * Create marketing campaign
+ * POST /api/admin/campaigns
+ */
+app.post('/api/admin/campaigns', asyncHandler(async (req, res) => {
+  try {
+    const { name, subject, templateId, type = 'newsletter', scheduleTime } = req.body;
+
+    if (!name || !subject || !templateId) {
+      return res.status(400).json({
+        error: 'Validation Error',
+        message: 'name, subject, and templateId are required'
+      });
+    }
+
+    const campaign = emailSubscriber.createCampaign({
+      name: sanitizeInput(name),
+      subject: sanitizeInput(subject),
+      templateId: sanitizeInput(templateId),
+      type,
+      scheduleTime
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Campaign created successfully',
+      campaign
+    });
+
+  } catch (error) {
+    console.error('Create campaign error:', error.message);
+    res.status(400).json({
+      error: 'Creation Failed',
+      message: error.message || 'Unable to create campaign'
+    });
+  }
+}));
+
+/**
+ * Get campaign by ID
+ * GET /api/admin/campaigns/:campaignId
+ */
+app.get('/api/admin/campaigns/:campaignId', asyncHandler(async (req, res) => {
+  try {
+    const { campaignId } = req.params;
+    const campaign = emailSubscriber.getCampaign(campaignId);
+
+    if (!campaign) {
+      return res.status(404).json({
+        error: 'Not Found',
+        message: 'Campaign not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      campaign
+    });
+
+  } catch (error) {
+    console.error('Get campaign error:', error.message);
+    res.status(500).json({
+      error: 'Server Error',
+      message: 'Unable to retrieve campaign'
+    });
+  }
+}));
+
+/**
+ * Send campaign to subscribers
+ * POST /api/admin/campaigns/:campaignId/send
+ */
+app.post('/api/admin/campaigns/:campaignId/send', asyncHandler(async (req, res) => {
+  try {
+    const { campaignId } = req.params;
+    const { filterType = 'all' } = req.body;
+
+    const campaign = emailSubscriber.getCampaign(campaignId);
+    if (!campaign) {
+      return res.status(404).json({
+        error: 'Not Found',
+        message: 'Campaign not found'
+      });
+    }
+
+    // Get subscribers based on filter
+    let subscribers = [];
+    if (filterType === 'all') {
+      subscribers = emailSubscriber.getAllActiveSubscribers();
+    } else {
+      subscribers = emailSubscriber.getActiveSubscribers(filterType);
+    }
+
+    if (subscribers.length === 0) {
+      return res.status(400).json({
+        error: 'No Recipients',
+        message: 'No active subscribers found for this campaign'
+      });
+    }
+
+    // Send campaign
+    const result = await emailService.sendNewsletter(campaign, subscribers);
+
+    // Update campaign
+    emailSubscriber.updateCampaignStatus(campaignId, 'sent');
+    const updatedCampaign = emailSubscriber.getCampaign(campaignId);
+    updatedCampaign.recipientCount = subscribers.length;
+
+    res.json({
+      success: true,
+      message: `Campaign sent to ${result.success} subscribers`,
+      campaign: updatedCampaign,
+      details: {
+        successful: result.success,
+        failed: result.failed,
+        total: subscribers.length
+      }
+    });
+
+  } catch (error) {
+    console.error('Send campaign error:', error.message);
+    res.status(500).json({
+      error: 'Send Failed',
+      message: error.message || 'Unable to send campaign'
+    });
+  }
+}));
+
+/**
+ * Send promotional email
+ * POST /api/admin/promotions/send
+ */
+app.post('/api/admin/promotions/send', asyncHandler(async (req, res) => {
+  try {
+    const { title, description, code, link, emails = null } = req.body;
+
+    if (!title || !description) {
+      return res.status(400).json({
+        error: 'Validation Error',
+        message: 'title and description are required'
+      });
+    }
+
+    const promotion = {
+      title: sanitizeInput(title),
+      description: sanitizeInput(description),
+      code: sanitizeInput(code || ''),
+      link: link || null
+    };
+
+    // Send to specific emails or all subscribers interested in promotions
+    let subscribers = emails 
+      ? emails.map(email => emailSubscriber.getSubscriber(email)).filter(Boolean)
+      : emailSubscriber.getActiveSubscribers('promotions');
+
+    if (subscribers.length === 0) {
+      return res.status(400).json({
+        error: 'No Recipients',
+        message: 'No subscribers found for this promotion'
+      });
+    }
+
+    let successCount = 0;
+    let failedCount = 0;
+
+    for (const subscriber of subscribers) {
+      const sent = await emailService.sendPromotion(subscriber, promotion);
+      if (sent) {
+        successCount++;
+      } else {
+        failedCount++;
+      }
+    }
+
+    res.json({
+      success: true,
+      message: `Promotion sent to ${successCount} subscribers`,
+      details: {
+        successful: successCount,
+        failed: failedCount,
+        total: subscribers.length
+      }
+    });
+
+  } catch (error) {
+    console.error('Send promotion error:', error.message);
+    res.status(500).json({
+      error: 'Send Failed',
+      message: error.message || 'Unable to send promotion'
+    });
+  }
+}));
+
+/**
+ * Send order confirmation email
+ * POST /api/email/order-confirmation
+ */
+app.post('/api/email/order-confirmation', asyncHandler(async (req, res) => {
+  try {
+    const { email, order } = req.body;
+
+    if (!email || !order) {
+      return res.status(400).json({
+        error: 'Validation Error',
+        message: 'email and order are required'
+      });
+    }
+
+    const subscriber = emailSubscriber.getSubscriber(email);
+    if (!subscriber) {
+      return res.status(404).json({
+        error: 'Subscriber Not Found',
+        message: 'Email not found in subscriber list'
+      });
+    }
+
+    const sent = await emailService.sendOrderConfirmation(subscriber, order);
+
+    if (!sent) {
+      return res.status(500).json({
+        error: 'Send Failed',
+        message: 'Unable to send order confirmation email'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Order confirmation email sent',
+      email
+    });
+
+  } catch (error) {
+    console.error('Order confirmation error:', error.message);
+    res.status(500).json({
+      error: 'Error',
+      message: error.message || 'Unable to send order confirmation'
+    });
+  }
+}));
+
+/**
+ * Send abandoned cart reminder
+ * POST /api/email/abandoned-cart
+ */
+app.post('/api/email/abandoned-cart', asyncHandler(async (req, res) => {
+  try {
+    const { email, cartItems } = req.body;
+
+    if (!email || !cartItems || cartItems.length === 0) {
+      return res.status(400).json({
+        error: 'Validation Error',
+        message: 'email and cartItems are required'
+      });
+    }
+
+    const subscriber = emailSubscriber.getSubscriber(email);
+    if (!subscriber) {
+      return res.status(404).json({
+        error: 'Subscriber Not Found',
+        message: 'Email not found in subscriber list'
+      });
+    }
+
+    const sent = await emailService.sendAbandonedCartReminder(subscriber, cartItems);
+
+    if (!sent) {
+      return res.status(500).json({
+        error: 'Send Failed',
+        message: 'Unable to send abandoned cart reminder'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Abandoned cart reminder email sent',
+      email
+    });
+
+  } catch (error) {
+    console.error('Abandoned cart error:', error.message);
+    res.status(500).json({
+      error: 'Error',
+      message: error.message || 'Unable to send abandoned cart reminder'
+    });
+  }
+}));
+
+// ============================================================================
+// END EMAIL MARKETING ENDPOINTS
+// ============================================================================
 
 /**
  * Contact Form Submission with reCAPTCHA Enterprise

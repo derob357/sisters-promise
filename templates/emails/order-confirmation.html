@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .content {
+            padding: 30px 20px;
+        }
+        .order-info {
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .order-info h3 {
+            margin-top: 0;
+            color: #11998e;
+        }
+        .order-details {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+        }
+        .order-details:last-child {
+            border-bottom: none;
+        }
+        .label {
+            font-weight: 600;
+            color: #666;
+        }
+        .value {
+            text-align: right;
+        }
+        .order-items {
+            margin: 20px 0;
+        }
+        .order-items h3 {
+            color: #11998e;
+            margin-top: 0;
+        }
+        .order-items li {
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+        }
+        .order-items li:last-child {
+            border-bottom: none;
+        }
+        .total {
+            background-color: #f0f9f8;
+            border-left: 4px solid #11998e;
+            padding: 15px;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 20px 0;
+            text-align: right;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #11998e;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            margin: 20px 0;
+            transition: background-color 0.3s ease;
+        }
+        .cta-button:hover {
+            background-color: #0d6c63;
+        }
+        .footer {
+            background-color: #f9f9f9;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #eee;
+            font-size: 12px;
+            color: #666;
+        }
+        .footer a {
+            color: #11998e;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✓ Order Confirmed</h1>
+            <p>Thank you for your purchase!</p>
+        </div>
+        
+        <div class="content">
+            <p>Hi {{firstName}},</p>
+            
+            <p>We've received your order and are preparing it for shipment. You can track your order status using the link below.</p>
+            
+            <div class="order-info">
+                <h3>Order Details</h3>
+                <div class="order-details">
+                    <span class="label">Order Number:</span>
+                    <span class="value">{{orderId}}</span>
+                </div>
+                <div class="order-details">
+                    <span class="label">Order Date:</span>
+                    <span class="value">{{orderDate}}</span>
+                </div>
+            </div>
+            
+            <div class="order-items">
+                <h3>Items Ordered</h3>
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    {{orderItems}}
+                </ul>
+            </div>
+            
+            <div class="total">
+                Total: {{orderTotal}}
+            </div>
+            
+            <a href="{{trackingUrl}}" class="cta-button">Track Your Order</a>
+            
+            <p>You can also check the status of your order anytime by visiting your account dashboard.</p>
+            
+            <p><strong>What's Next?</strong></p>
+            <p>Your order will ship within 1-2 business days. Once shipped, you'll receive a tracking number via email. Most orders arrive within 5-7 business days.</p>
+            
+            <p>If you have any questions about your order, please don't hesitate to contact us!</p>
+            
+            <p>With gratitude,<br><strong>The Sisters Promise Team</strong></p>
+        </div>
+        
+        <div class="footer">
+            <p>Sisters Promise | Natural Skincare Crafted with Intention</p>
+            <p>Phone: (555) 123-4567 | Email: info@sisterspromise.com</p>
+            <p><a href="{{unsubscribeLink}}">Unsubscribe</a> | <a href="#">Help Center</a></p>
+            <p style="margin-top: 10px; color: #999;">© 2025 Sisters Promise. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

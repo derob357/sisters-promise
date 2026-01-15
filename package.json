@@ -59,6 +59,8 @@
     "helmet": "^7.0.0",
     "material-kit": "^2.0.4",
     "node-fetch": "^2.6.11",
+    "nodemailer": "^6.9.7",
+    "nodemailer-sendgrid-transport": "^1.2.1",
     "square": "^28.0.0",
     "uuid": "^9.0.0"
   }
