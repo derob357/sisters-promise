@@ -12,6 +12,8 @@ const { RecaptchaEnterpriseServiceClient } = require('@google-cloud/recaptcha-en
 const EmailSubscriber = require('./models/EmailSubscriber');
 const EmailService = require('./services/EmailService');
 const { connectDB, isConnected } = require('./config/database');
+const UserService = require('./services/UserService');
+const { authenticate, adminOrOwner, ownerOnly } = require('./middleware/auth');
 
 dotenv.config();
 
@@ -20,6 +22,11 @@ const app = express();
 // Initialize database connection
 connectDB().catch(err => {
   console.warn('MongoDB connection failed, using file-based storage as fallback');
+});
+
+// Initialize default users (owner and admin)
+UserService.initializeDefaultUsers().catch(err => {
+  console.warn('Could not initialize default users:', err.message);
 });
 
 // Initialize email services
@@ -1131,6 +1138,362 @@ process.on('unhandledRejection', (err) => {
   process.exit(1);
 });
 
+// ==================== USER MANAGEMENT ENDPOINTS ====================
+
+/**
+ * POST /api/auth/register
+ * Register a new standard user account
+ */
+app.post('/api/auth/register', async (req, res) => {
+  try {
+    const { email, firstName, lastName, password, confirmPassword } = req.body;
+
+    if (!email || !password || !confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email and password are required',
+      });
+    }
+
+    if (password !== confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        error: 'Passwords do not match',
+      });
+    }
+
+    const user = await UserService.createUser(email, firstName, lastName, password, 'standard');
+
+    const { generateToken } = require('./middleware/auth');
+    const token = generateToken(user.id);
+
+    res.status(201).json({
+      success: true,
+      message: 'User registered successfully',
+      token,
+      user,
+    });
+  } catch (error) {
+    console.error('Registration error:', error.message);
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * POST /api/auth/login
+ * Authenticate user and return JWT token
+ */
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email and password are required',
+      });
+    }
+
+    const result = await UserService.authenticateUser(email, password);
+
+    res.json({
+      success: true,
+      message: 'Login successful',
+      token: result.token,
+      user: result.user,
+    });
+  } catch (error) {
+    console.error('Login error:', error.message);
+    res.status(401).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * GET /api/auth/me
+ * Get current user profile (requires authentication)
+ */
+app.get('/api/auth/me', authenticate, (req, res) => {
+  try {
+    res.json({
+      success: true,
+      user: UserService.sanitizeUser(req.user),
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * POST /api/auth/change-password
+ * Change user password (requires authentication)
+ */
+app.post('/api/auth/change-password', authenticate, async (req, res) => {
+  try {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        error: 'Current and new passwords are required',
+      });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        error: 'New passwords do not match',
+      });
+    }
+
+    await UserService.changePassword(req.user.id, currentPassword, newPassword);
+
+    res.json({
+      success: true,
+      message: 'Password changed successfully',
+    });
+  } catch (error) {
+    console.error('Password change error:', error.message);
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * PUT /api/auth/profile
+ * Update user profile (requires authentication)
+ */
+app.put('/api/auth/profile', authenticate, async (req, res) => {
+  try {
+    const { firstName, lastName, phone, profileImage } = req.body;
+
+    const user = await UserService.updateUser(req.user.id, {
+      firstName,
+      lastName,
+      phone,
+      profileImage,
+    });
+
+    res.json({
+      success: true,
+      message: 'Profile updated successfully',
+      user,
+    });
+  } catch (error) {
+    console.error('Profile update error:', error.message);
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * GET /api/admin/users
+ * Get all users (admin/owner only)
+ */
+app.get('/api/admin/users', authenticate, adminOrOwner, async (req, res) => {
+  try {
+    const { role, status } = req.query;
+    const users = await UserService.getAllUsers(role, status);
+
+    res.json({
+      success: true,
+      count: users.length,
+      users,
+    });
+  } catch (error) {
+    console.error('Error fetching users:', error.message);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * GET /api/admin/users/:userId
+ * Get specific user (admin/owner only)
+ */
+app.get('/api/admin/users/:userId', authenticate, adminOrOwner, async (req, res) => {
+  try {
+    const user = await UserService.getUserById(req.params.userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found',
+      });
+    }
+
+    res.json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * POST /api/admin/users
+ * Create new user (admin/owner only)
+ */
+app.post('/api/admin/users', authenticate, adminOrOwner, async (req, res) => {
+  try {
+    const { email, firstName, lastName, password, role } = req.body;
+
+    if (!email || !password || !role) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email, password, and role are required',
+      });
+    }
+
+    const user = await UserService.createUser(email, firstName, lastName, password, role);
+
+    res.status(201).json({
+      success: true,
+      message: 'User created successfully',
+      user,
+    });
+  } catch (error) {
+    console.error('Error creating user:', error.message);
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * PUT /api/admin/users/:userId/role
+ * Assign role to user (owner only)
+ */
+app.put('/api/admin/users/:userId/role', authenticate, ownerOnly, async (req, res) => {
+  try {
+    const { role } = req.body;
+
+    if (!role) {
+      return res.status(400).json({
+        success: false,
+        error: 'Role is required',
+      });
+    }
+
+    const user = await UserService.assignRole(req.params.userId, role);
+
+    res.json({
+      success: true,
+      message: 'Role assigned successfully',
+      user,
+    });
+  } catch (error) {
+    console.error('Error assigning role:', error.message);
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * PUT /api/admin/users/:userId/suspend
+ * Suspend user account (admin/owner only)
+ */
+app.put('/api/admin/users/:userId/suspend', authenticate, adminOrOwner, async (req, res) => {
+  try {
+    const { reason } = req.body;
+    const user = await UserService.suspendUser(req.params.userId, reason);
+
+    res.json({
+      success: true,
+      message: 'User suspended successfully',
+      user,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * PUT /api/admin/users/:userId/deactivate
+ * Deactivate user account (admin/owner only)
+ */
+app.put('/api/admin/users/:userId/deactivate', authenticate, adminOrOwner, async (req, res) => {
+  try {
+    const user = await UserService.deactivateUser(req.params.userId);
+
+    res.json({
+      success: true,
+      message: 'User deactivated successfully',
+      user,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * PUT /api/admin/users/:userId/reactivate
+ * Reactivate user account (admin/owner only)
+ */
+app.put('/api/admin/users/:userId/reactivate', authenticate, adminOrOwner, async (req, res) => {
+  try {
+    const user = await UserService.reactivateUser(req.params.userId);
+
+    res.json({
+      success: true,
+      message: 'User reactivated successfully',
+      user,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * DELETE /api/admin/users/:userId
+ * Delete user (owner only)
+ */
+app.delete('/api/admin/users/:userId', authenticate, ownerOnly, async (req, res) => {
+  try {
+    await UserService.deleteUser(req.params.userId);
+
+    res.json({
+      success: true,
+      message: 'User deleted successfully',
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
 process.on('SIGTERM', () => {
   console.log('SIGTERM signal received: closing HTTP server');
   process.exit(0);
@@ -1141,12 +1504,17 @@ app.listen(PORT, () => {
   console.log(`✓ Environment: ${process.env.SQUARE_ENVIRONMENT || 'sandbox'}`);
   console.log(`✓ Security: Helmet enabled, Rate limiting active, Input sanitization enabled`);
   console.log(`✓ Max payload size: 10KB`);
+  console.log(`✓ Authentication: JWT enabled with role-based access control`);
+  console.log(`✓ Default Users: Owner (denise@sisterspromise.com), Admin (deric.robinson71@gmail.com)`);
   
   if (!process.env.SQUARE_ACCESS_TOKEN) {
     console.warn('\n⚠️  Warning: SQUARE_ACCESS_TOKEN not configured');
   }
   if (!process.env.RECAPTCHA_SECRET_KEY) {
     console.warn('⚠️  Warning: RECAPTCHA_SECRET_KEY not configured for contact form');
+  }
+  if (!process.env.JWT_SECRET) {
+    console.warn('⚠️  Warning: JWT_SECRET not configured - using default (not secure for production)');
   }
   console.log('\n');
 });
