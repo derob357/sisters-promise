@@ -11,13 +11,19 @@ const axios = require('axios');
 const { RecaptchaEnterpriseServiceClient } = require('@google-cloud/recaptcha-enterprise');
 const EmailSubscriber = require('./models/EmailSubscriber');
 const EmailService = require('./services/EmailService');
+const { connectDB, isConnected } = require('./config/database');
 
 dotenv.config();
 
 const app = express();
 
+// Initialize database connection
+connectDB().catch(err => {
+  console.warn('MongoDB connection failed, using file-based storage as fallback');
+});
+
 // Initialize email services
-const emailSubscriber = new EmailSubscriber();
+const emailSubscriber = new EmailSubscriber(isConnected());
 const emailService = new EmailService();
 
 // Security Middleware - Helmet for security headers

@@ -1,21 +1,23 @@
 /**
- * EmailSubscriber Model
- * Manages customer email list and subscription preferences
+ * EmailSubscriber Model - MongoDB Version
+ * Manages customer email list, campaigns, and subscription preferences
+ * Uses MongoDB for persistent storage with fallback to file-based storage
  */
 
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { Subscriber, Campaign, EmailLog } = require('./emailSchemas');
 
-// Simple file-based storage for email subscribers
-// In production, replace with MongoDB, PostgreSQL, or similar
 class EmailSubscriber {
-  constructor() {
+  constructor(useMongoDB = true) {
+    this.useMongoDB = useMongoDB;
     this.dataDir = path.join(__dirname, '../data');
     this.subscribersFile = path.join(this.dataDir, 'subscribers.json');
     this.campaignsFile = path.join(this.dataDir, 'campaigns.json');
     this.logsFile = path.join(this.dataDir, 'email-logs.json');
     
+    // Load file-based data as fallback
     this.ensureDataDir();
     this.subscribers = this.loadSubscribers();
     this.campaigns = this.loadCampaigns();
@@ -23,7 +25,7 @@ class EmailSubscriber {
   }
 
   /**
-   * Ensure data directory exists
+   * Ensure data directory exists for fallback storage
    */
   ensureDataDir() {
     if (!fs.existsSync(this.dataDir)) {
@@ -32,7 +34,7 @@ class EmailSubscriber {
   }
 
   /**
-   * Load subscribers from file
+   * Load subscribers from file (fallback)
    */
   loadSubscribers() {
     try {
@@ -41,13 +43,13 @@ class EmailSubscriber {
         return JSON.parse(data);
       }
     } catch (error) {
-      console.error('Error loading subscribers:', error.message);
+      console.error('Error loading subscribers from file:', error.message);
     }
     return [];
   }
 
   /**
-   * Load campaigns from file
+   * Load campaigns from file (fallback)
    */
   loadCampaigns() {
     try {
@@ -56,13 +58,13 @@ class EmailSubscriber {
         return JSON.parse(data);
       }
     } catch (error) {
-      console.error('Error loading campaigns:', error.message);
+      console.error('Error loading campaigns from file:', error.message);
     }
     return [];
   }
 
   /**
-   * Load email logs from file
+   * Load email logs from file (fallback)
    */
   loadLogs() {
     try {
@@ -71,15 +73,39 @@ class EmailSubscriber {
         return JSON.parse(data);
       }
     } catch (error) {
-      console.error('Error loading logs:', error.message);
+      console.error('Error loading logs from file:', error.message);
     }
     return [];
   }
 
   /**
-   * Save subscribers to file
+   * Save subscribers to both MongoDB and file
    */
-  saveSubscribers() {
+  async saveSubscribers() {
+    const fileSaved = this._saveSubscribersToFile();
+    
+    if (this.useMongoDB && this.subscribers) {
+      try {
+        // Sync to MongoDB
+        for (const subscriber of this.subscribers) {
+          await Subscriber.findOneAndUpdate(
+            { id: subscriber.id },
+            subscriber,
+            { upsert: true, new: true }
+          );
+        }
+      } catch (error) {
+        console.error('Error syncing subscribers to MongoDB:', error.message);
+      }
+    }
+    
+    return fileSaved;
+  }
+
+  /**
+   * Save subscribers to file only (private)
+   */
+  _saveSubscribersToFile() {
     try {
       fs.writeFileSync(
         this.subscribersFile,
@@ -87,15 +113,38 @@ class EmailSubscriber {
       );
       return true;
     } catch (error) {
-      console.error('Error saving subscribers:', error.message);
+      console.error('Error saving subscribers to file:', error.message);
       return false;
     }
   }
 
   /**
-   * Save campaigns to file
+   * Save campaigns to both MongoDB and file
    */
-  saveCampaigns() {
+  async saveCampaigns() {
+    const fileSaved = this._saveCampaignsToFile();
+    
+    if (this.useMongoDB && this.campaigns) {
+      try {
+        for (const campaign of this.campaigns) {
+          await Campaign.findOneAndUpdate(
+            { id: campaign.id },
+            campaign,
+            { upsert: true, new: true }
+          );
+        }
+      } catch (error) {
+        console.error('Error syncing campaigns to MongoDB:', error.message);
+      }
+    }
+    
+    return fileSaved;
+  }
+
+  /**
+   * Save campaigns to file only (private)
+   */
+  _saveCampaignsToFile() {
     try {
       fs.writeFileSync(
         this.campaignsFile,
@@ -103,15 +152,36 @@ class EmailSubscriber {
       );
       return true;
     } catch (error) {
-      console.error('Error saving campaigns:', error.message);
+      console.error('Error saving campaigns to file:', error.message);
       return false;
     }
   }
 
   /**
-   * Save email logs to file
+   * Save email logs to both MongoDB and file
    */
-  saveLogs() {
+  async saveLogs() {
+    const fileSaved = this._saveLogsToFile();
+    
+    if (this.useMongoDB && this.logs) {
+      try {
+        for (const log of this.logs) {
+          await EmailLog.create(log).catch(() => {
+            // Log already exists, that's okay
+          });
+        }
+      } catch (error) {
+        console.error('Error syncing logs to MongoDB:', error.message);
+      }
+    }
+    
+    return fileSaved;
+  }
+
+  /**
+   * Save email logs to file only (private)
+   */
+  _saveLogsToFile() {
     try {
       fs.writeFileSync(
         this.logsFile,
@@ -119,383 +189,427 @@ class EmailSubscriber {
       );
       return true;
     } catch (error) {
-      console.error('Error saving logs:', error.message);
+      console.error('Error saving logs to file:', error.message);
       return false;
     }
   }
 
   /**
-   * Add a new email subscriber
-   * @param {Object} subscriberData - { email, firstName, lastName, preferences, source }
+   * Add new subscriber (MongoDB primary)
    */
-  addSubscriber(subscriberData) {
-    const { email, firstName = '', lastName = '', preferences = {}, source = 'website' } = subscriberData;
-
-    // Validate email
-    if (!this.isValidEmail(email)) {
+  async addSubscriber(email, firstName = '', lastName = '') {
+    if (!this.validateEmail(email)) {
       throw new Error('Invalid email address');
     }
 
-    // Check if already subscribed
-    if (this.subscribers.some(s => s.email.toLowerCase() === email.toLowerCase())) {
-      throw new Error('Email already subscribed');
-    }
+    try {
+      const subscriber = {
+        id: crypto.randomUUID(),
+        email: email.toLowerCase(),
+        firstName: firstName || '',
+        lastName: lastName || '',
+        status: 'active',
+        preferences: {
+          newsletters: true,
+          promotions: true,
+          productUpdates: true,
+        },
+        unsubscribeToken: crypto.randomBytes(32).toString('hex'),
+        subscriptionDate: new Date(),
+        lastEngaged: new Date(),
+      };
 
-    const subscriber = {
-      id: crypto.randomBytes(8).toString('hex'),
-      email: email.toLowerCase(),
-      firstName: firstName.trim(),
-      lastName: lastName.trim(),
-      preferences: {
-        marketing: preferences.marketing !== false,
-        newsletter: preferences.newsletter !== false,
-        promotions: preferences.promotions !== false,
-        productUpdates: preferences.productUpdates !== false,
-        ...preferences
-      },
-      source,
-      subscriptionDate: new Date().toISOString(),
-      lastUpdated: new Date().toISOString(),
-      status: 'active',
-      unsubscribeToken: crypto.randomBytes(16).toString('hex'),
-      bounced: false,
-      complained: false,
-    };
-
-    this.subscribers.push(subscriber);
-    this.saveSubscribers();
-
-    this.logAction('subscriber_added', email, { source });
-
-    return subscriber;
-  }
-
-  /**
-   * Get subscriber by email
-   */
-  getSubscriber(email) {
-    return this.subscribers.find(s => s.email.toLowerCase() === email.toLowerCase());
-  }
-
-  /**
-   * Get subscriber by ID
-   */
-  getSubscriberById(id) {
-    return this.subscribers.find(s => s.id === id);
-  }
-
-  /**
-   * Update subscriber preferences
-   */
-  updateSubscriber(email, updates) {
-    const subscriber = this.getSubscriber(email);
-    if (!subscriber) {
-      throw new Error('Subscriber not found');
-    }
-
-    // Only allow updates to specific fields
-    const allowedUpdates = ['firstName', 'lastName', 'preferences', 'status'];
-    Object.keys(updates).forEach(key => {
-      if (allowedUpdates.includes(key)) {
-        if (key === 'preferences') {
-          subscriber.preferences = { ...subscriber.preferences, ...updates[key] };
-        } else {
-          subscriber[key] = updates[key];
+      if (this.useMongoDB) {
+        try {
+          const dbSubscriber = await Subscriber.create(subscriber);
+          console.log(`✓ Subscriber ${email} added to MongoDB`);
+          return dbSubscriber;
+        } catch (error) {
+          if (error.code === 11000) {
+            throw new Error('Email already subscribed');
+          }
+          throw error;
         }
+      } else {
+        // Fallback to file-based storage
+        const existing = this.subscribers.find(s => s.email === email.toLowerCase());
+        if (existing) {
+          throw new Error('Email already subscribed');
+        }
+        this.subscribers.push(subscriber);
+        await this.saveSubscribers();
+        return subscriber;
       }
-    });
-
-    subscriber.lastUpdated = new Date().toISOString();
-    this.saveSubscribers();
-
-    this.logAction('subscriber_updated', email, updates);
-
-    return subscriber;
+    } catch (error) {
+      console.error('Error adding subscriber:', error.message);
+      throw error;
+    }
   }
 
   /**
-   * Unsubscribe a subscriber
+   * Get subscriber by email (MongoDB primary)
    */
-  unsubscribe(email) {
-    const subscriber = this.getSubscriber(email);
-    if (!subscriber) {
+  async getSubscriber(email) {
+    const normalizedEmail = email.toLowerCase();
+    
+    if (this.useMongoDB) {
+      try {
+        const subscriber = await Subscriber.findOne({ email: normalizedEmail });
+        return subscriber;
+      } catch (error) {
+        console.error('Error fetching subscriber from MongoDB:', error.message);
+      }
+    }
+    
+    // Fallback to file-based storage
+    return this.subscribers.find(s => s.email === normalizedEmail) || null;
+  }
+
+  /**
+   * Update subscriber (MongoDB primary)
+   */
+  async updateSubscriber(email, updates) {
+    const normalizedEmail = email.toLowerCase();
+    
+    if (this.useMongoDB) {
+      try {
+        const subscriber = await Subscriber.findOneAndUpdate(
+          { email: normalizedEmail },
+          updates,
+          { new: true }
+        );
+        if (!subscriber) {
+          throw new Error('Subscriber not found');
+        }
+        console.log(`✓ Subscriber ${email} updated in MongoDB`);
+        return subscriber;
+      } catch (error) {
+        console.error('Error updating subscriber:', error.message);
+        throw error;
+      }
+    }
+    
+    // Fallback to file-based storage
+    const index = this.subscribers.findIndex(s => s.email === normalizedEmail);
+    if (index === -1) {
       throw new Error('Subscriber not found');
     }
-
-    subscriber.status = 'unsubscribed';
-    subscriber.lastUpdated = new Date().toISOString();
-    this.saveSubscribers();
-
-    this.logAction('unsubscribed', email);
-
-    return subscriber;
+    this.subscribers[index] = { ...this.subscribers[index], ...updates };
+    await this.saveSubscribers();
+    return this.subscribers[index];
   }
 
   /**
-   * Unsubscribe using token (for email links)
+   * Unsubscribe by email (MongoDB primary)
    */
-  unsubscribeByToken(token) {
-    const subscriber = this.subscribers.find(s => s.unsubscribeToken === token);
-    if (!subscriber) {
+  async unsubscribe(email) {
+    return this.updateSubscriber(email, { status: 'unsubscribed' });
+  }
+
+  /**
+   * Unsubscribe using token (MongoDB primary)
+   */
+  async unsubscribeByToken(token) {
+    if (this.useMongoDB) {
+      try {
+        const subscriber = await Subscriber.findOneAndUpdate(
+          { unsubscribeToken: token },
+          { status: 'unsubscribed' },
+          { new: true }
+        );
+        if (!subscriber) {
+          throw new Error('Invalid unsubscribe token');
+        }
+        console.log(`✓ Subscriber unsubscribed via token`);
+        return subscriber;
+      } catch (error) {
+        console.error('Error unsubscribing by token:', error.message);
+        throw error;
+      }
+    }
+    
+    // Fallback to file-based storage
+    const index = this.subscribers.findIndex(s => s.unsubscribeToken === token);
+    if (index === -1) {
       throw new Error('Invalid unsubscribe token');
     }
-
-    return this.unsubscribe(subscriber.email);
+    this.subscribers[index].status = 'unsubscribed';
+    await this.saveSubscribers();
+    return this.subscribers[index];
   }
 
   /**
-   * Get active subscribers for a campaign type
+   * Create campaign (MongoDB primary)
    */
-  getActiveSubscribers(campaignType = 'newsletter') {
-    return this.subscribers.filter(s => 
-      s.status === 'active' && 
-      !s.bounced &&
-      s.preferences[campaignType] !== false
-    );
-  }
+  async createCampaign(name, subject, templateName, content) {
+    try {
+      const campaign = {
+        id: crypto.randomUUID(),
+        name,
+        subject,
+        templateName,
+        content,
+        status: 'draft',
+        recipientCount: 0,
+        sentCount: 0,
+        openCount: 0,
+        clickCount: 0,
+        bounceCount: 0,
+        complaintCount: 0,
+      };
 
-  /**
-   * Get all active subscribers
-   */
-  getAllActiveSubscribers() {
-    return this.subscribers.filter(s => 
-      s.status === 'active' && 
-      !s.bounced
-    );
-  }
-
-  /**
-   * Mark email as bounced
-   */
-  markBounced(email) {
-    const subscriber = this.getSubscriber(email);
-    if (subscriber) {
-      subscriber.bounced = true;
-      subscriber.lastUpdated = new Date().toISOString();
-      this.saveSubscribers();
-      this.logAction('email_bounced', email);
+      if (this.useMongoDB) {
+        try {
+          const dbCampaign = await Campaign.create(campaign);
+          console.log(`✓ Campaign "${name}" created in MongoDB`);
+          return dbCampaign;
+        } catch (error) {
+          throw error;
+        }
+      } else {
+        this.campaigns.push(campaign);
+        await this.saveCampaigns();
+        return campaign;
+      }
+    } catch (error) {
+      console.error('Error creating campaign:', error.message);
+      throw error;
     }
   }
 
   /**
-   * Mark email as complained (spam)
+   * Get campaign by ID (MongoDB primary)
    */
-  markComplained(email) {
-    const subscriber = this.getSubscriber(email);
-    if (subscriber) {
-      subscriber.complained = true;
-      subscriber.status = 'inactive';
-      subscriber.lastUpdated = new Date().toISOString();
-      this.saveSubscribers();
-      this.logAction('complaint_received', email);
+  async getCampaign(campaignId) {
+    if (this.useMongoDB) {
+      try {
+        const campaign = await Campaign.findOne({ id: campaignId });
+        return campaign;
+      } catch (error) {
+        console.error('Error fetching campaign from MongoDB:', error.message);
+      }
     }
+    
+    return this.campaigns.find(c => c.id === campaignId) || null;
+  }
+
+  /**
+   * Update campaign (MongoDB primary)
+   */
+  async updateCampaign(campaignId, updates) {
+    if (this.useMongoDB) {
+      try {
+        const campaign = await Campaign.findOneAndUpdate(
+          { id: campaignId },
+          updates,
+          { new: true }
+        );
+        if (!campaign) {
+          throw new Error('Campaign not found');
+        }
+        console.log(`✓ Campaign "${campaignId}" updated in MongoDB`);
+        return campaign;
+      } catch (error) {
+        console.error('Error updating campaign:', error.message);
+        throw error;
+      }
+    }
+    
+    const index = this.campaigns.findIndex(c => c.id === campaignId);
+    if (index === -1) {
+      throw new Error('Campaign not found');
+    }
+    this.campaigns[index] = { ...this.campaigns[index], ...updates };
+    await this.saveCampaigns();
+    return this.campaigns[index];
+  }
+
+  /**
+   * Update campaign status (MongoDB primary)
+   */
+  async updateCampaignStatus(campaignId, status) {
+    return this.updateCampaign(campaignId, { status });
+  }
+
+  /**
+   * Get statistics (MongoDB primary)
+   */
+  async getStats() {
+    if (this.useMongoDB) {
+      try {
+        const totalSubscribers = await Subscriber.countDocuments();
+        const activeSubscribers = await Subscriber.countDocuments({ status: 'active' });
+        const unsubscribed = await Subscriber.countDocuments({ status: 'unsubscribed' });
+        const totalCampaigns = await Campaign.countDocuments();
+        const sentCampaigns = await Campaign.countDocuments({ status: 'sent' });
+        const totalEmails = await EmailLog.countDocuments();
+        const deliveredEmails = await EmailLog.countDocuments({ status: 'delivered' });
+
+        return {
+          totalSubscribers,
+          activeSubscribers,
+          unsubscribed,
+          totalCampaigns,
+          sentCampaigns,
+          totalEmails,
+          deliveredEmails,
+          lastUpdated: new Date(),
+        };
+      } catch (error) {
+        console.error('Error fetching stats from MongoDB:', error.message);
+      }
+    }
+    
+    // Fallback to file-based calculation
+    return {
+      totalSubscribers: this.subscribers.length,
+      activeSubscribers: this.subscribers.filter(s => s.status === 'active').length,
+      unsubscribed: this.subscribers.filter(s => s.status === 'unsubscribed').length,
+      totalCampaigns: this.campaigns.length,
+      sentCampaigns: this.campaigns.filter(c => c.status === 'sent').length,
+      totalEmails: this.logs.length,
+      deliveredEmails: this.logs.filter(l => l.status === 'delivered').length,
+      lastUpdated: new Date(),
+    };
+  }
+
+  /**
+   * Get active subscribers (MongoDB primary)
+   */
+  async getActiveSubscribers() {
+    if (this.useMongoDB) {
+      try {
+        const subscribers = await Subscriber.find({ status: 'active' });
+        return subscribers;
+      } catch (error) {
+        console.error('Error fetching active subscribers from MongoDB:', error.message);
+      }
+    }
+    
+    return this.subscribers.filter(s => s.status === 'active');
+  }
+
+  /**
+   * Get active subscriber count (MongoDB primary)
+   */
+  async getActiveSubscriberCount() {
+    if (this.useMongoDB) {
+      try {
+        const count = await Subscriber.countDocuments({ status: 'active' });
+        return count;
+      } catch (error) {
+        console.error('Error counting active subscribers in MongoDB:', error.message);
+      }
+    }
+    
+    return this.subscribers.filter(s => s.status === 'active').length;
+  }
+
+  /**
+   * Export subscribers as CSV (MongoDB primary)
+   */
+  async exportAsCSV() {
+    let subscribers;
+    
+    if (this.useMongoDB) {
+      try {
+        subscribers = await Subscriber.find({ status: 'active' });
+      } catch (error) {
+        console.error('Error fetching subscribers for export:', error.message);
+        subscribers = this.subscribers.filter(s => s.status === 'active');
+      }
+    } else {
+      subscribers = this.subscribers.filter(s => s.status === 'active');
+    }
+
+    let csv = 'Email,First Name,Last Name,Subscription Date\n';
+    subscribers.forEach(s => {
+      csv += `${s.email},"${s.firstName || ''}","${s.lastName || ''}",${s.subscriptionDate || ''}\n`;
+    });
+    return csv;
+  }
+
+  /**
+   * Log email action (MongoDB primary)
+   */
+  async logAction(subscriberId, email, type, action, details = {}) {
+    const logEntry = {
+      id: crypto.randomUUID(),
+      subscriberId,
+      email: email.toLowerCase(),
+      type,
+      action,
+      details,
+      sentDate: new Date(),
+    };
+
+    if (this.useMongoDB) {
+      try {
+        await EmailLog.create(logEntry);
+      } catch (error) {
+        console.error('Error logging action to MongoDB:', error.message);
+      }
+    }
+
+    this.logs.push(logEntry);
+    await this.saveLogs();
+    return logEntry;
+  }
+
+  /**
+   * Get logs (MongoDB primary)
+   */
+  async getLogs(limit = 100) {
+    if (this.useMongoDB) {
+      try {
+        const logs = await EmailLog.find()
+          .sort({ sentDate: -1 })
+          .limit(limit);
+        return logs;
+      } catch (error) {
+        console.error('Error fetching logs from MongoDB:', error.message);
+      }
+    }
+    
+    return this.logs.slice(-limit);
+  }
+
+  /**
+   * Get campaigns stats (MongoDB primary)
+   */
+  async getCampaignsStats() {
+    if (this.useMongoDB) {
+      try {
+        const campaigns = await Campaign.find();
+        return campaigns.map(c => ({
+          id: c.id,
+          name: c.name,
+          status: c.status,
+          sentCount: c.sentCount,
+          openCount: c.openCount,
+          clickCount: c.clickCount,
+        }));
+      } catch (error) {
+        console.error('Error fetching campaign stats:', error.message);
+      }
+    }
+    
+    return this.campaigns.map(c => ({
+      id: c.id,
+      name: c.name,
+      status: c.status,
+      sentCount: c.sentCount,
+      openCount: c.openCount,
+      clickCount: c.clickCount,
+    }));
   }
 
   /**
    * Validate email format
    */
-  isValidEmail(email) {
+  validateEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
-  }
-
-  /**
-   * Get subscriber count
-   */
-  getSubscriberCount() {
-    return this.subscribers.length;
-  }
-
-  /**
-   * Get active subscriber count
-   */
-  getActiveSubscriberCount() {
-    return this.getActiveSubscribers().length;
-  }
-
-  /**
-   * Get subscriber statistics
-   */
-  getStats() {
-    const total = this.subscribers.length;
-    const active = this.getActiveSubscribers().length;
-    const unsubscribed = this.subscribers.filter(s => s.status === 'unsubscribed').length;
-    const bounced = this.subscribers.filter(s => s.bounced).length;
-    const complained = this.subscribers.filter(s => s.complained).length;
-
-    return {
-      total,
-      active,
-      unsubscribed,
-      bounced,
-      complained,
-      subscriptionRate: total > 0 ? ((active / total) * 100).toFixed(2) + '%' : '0%',
-    };
-  }
-
-  /**
-   * Create a new marketing campaign
-   */
-  createCampaign(campaignData) {
-    const { name, subject, templateId, type = 'newsletter', scheduleTime = null } = campaignData;
-
-    if (!name || !subject || !templateId) {
-      throw new Error('Missing required campaign fields');
-    }
-
-    const campaign = {
-      id: crypto.randomBytes(8).toString('hex'),
-      name: name.trim(),
-      subject: subject.trim(),
-      templateId,
-      type,
-      status: scheduleTime ? 'scheduled' : 'draft',
-      scheduleTime: scheduleTime ? new Date(scheduleTime).toISOString() : null,
-      createdAt: new Date().toISOString(),
-      sentAt: null,
-      recipientCount: 0,
-      openCount: 0,
-      clickCount: 0,
-      bounceCount: 0,
-      complaintCount: 0,
-      unsubscribeCount: 0,
-    };
-
-    this.campaigns.push(campaign);
-    this.saveCampaigns();
-
-    this.logAction('campaign_created', campaign.id, { name, type });
-
-    return campaign;
-  }
-
-  /**
-   * Get campaign by ID
-   */
-  getCampaign(campaignId) {
-    return this.campaigns.find(c => c.id === campaignId);
-  }
-
-  /**
-   * Update campaign status
-   */
-  updateCampaignStatus(campaignId, status) {
-    const campaign = this.getCampaign(campaignId);
-    if (!campaign) {
-      throw new Error('Campaign not found');
-    }
-
-    campaign.status = status;
-    if (status === 'sent') {
-      campaign.sentAt = new Date().toISOString();
-    }
-    this.saveCampaigns();
-
-    this.logAction('campaign_updated', campaignId, { status });
-
-    return campaign;
-  }
-
-  /**
-   * Record email open
-   */
-  recordOpen(campaignId, email) {
-    const campaign = this.getCampaign(campaignId);
-    if (campaign) {
-      campaign.openCount = (campaign.openCount || 0) + 1;
-      this.saveCampaigns();
-      this.logAction('email_opened', email, { campaignId });
-    }
-  }
-
-  /**
-   * Record email click
-   */
-  recordClick(campaignId, email, link) {
-    const campaign = this.getCampaign(campaignId);
-    if (campaign) {
-      campaign.clickCount = (campaign.clickCount || 0) + 1;
-      this.saveCampaigns();
-      this.logAction('email_clicked', email, { campaignId, link });
-    }
-  }
-
-  /**
-   * Log an action
-   */
-  logAction(action, email, metadata = {}) {
-    const log = {
-      timestamp: new Date().toISOString(),
-      action,
-      email,
-      ...metadata,
-    };
-
-    this.logs.push(log);
-    
-    // Keep only last 10000 logs
-    if (this.logs.length > 10000) {
-      this.logs = this.logs.slice(-10000);
-    }
-
-    this.saveLogs();
-  }
-
-  /**
-   * Get recent logs
-   */
-  getLogs(limit = 100) {
-    return this.logs.slice(-limit).reverse();
-  }
-
-  /**
-   * Export subscribers as CSV
-   */
-  exportAsCSV() {
-    const headers = ['Email', 'First Name', 'Last Name', 'Status', 'Subscription Date', 'Marketing', 'Newsletter', 'Promotions'];
-    const rows = this.subscribers.map(s => [
-      s.email,
-      s.firstName,
-      s.lastName,
-      s.status,
-      s.subscriptionDate,
-      s.preferences.marketing ? 'Yes' : 'No',
-      s.preferences.newsletter ? 'Yes' : 'No',
-      s.preferences.promotions ? 'Yes' : 'No',
-    ]);
-
-    const csv = [
-      headers.join(','),
-      ...rows.map(row => row.map(field => `"${field}"`).join(','))
-    ].join('\n');
-
-    return csv;
-  }
-
-  /**
-   * Get campaigns statistics
-   */
-  getCampaignsStats() {
-    const totalCampaigns = this.campaigns.length;
-    const sentCampaigns = this.campaigns.filter(c => c.status === 'sent').length;
-    const draftCampaigns = this.campaigns.filter(c => c.status === 'draft').length;
-    const scheduledCampaigns = this.campaigns.filter(c => c.status === 'scheduled').length;
-
-    const totalOpens = this.campaigns.reduce((sum, c) => sum + (c.openCount || 0), 0);
-    const totalClicks = this.campaigns.reduce((sum, c) => sum + (c.clickCount || 0), 0);
-    const avgOpenRate = sentCampaigns > 0 ? (totalOpens / sentCampaigns).toFixed(2) : '0';
-    const avgClickRate = sentCampaigns > 0 ? (totalClicks / sentCampaigns).toFixed(2) : '0';
-
-    return {
-      totalCampaigns,
-      sentCampaigns,
-      draftCampaigns,
-      scheduledCampaigns,
-      totalOpens,
-      totalClicks,
-      avgOpenRate,
-      avgClickRate,
-    };
   }
 }
 
