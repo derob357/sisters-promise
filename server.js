@@ -13,6 +13,7 @@ const EmailSubscriber = require('./models/EmailSubscriber');
 const EmailService = require('./services/EmailService');
 const { connectDB, isConnected } = require('./config/database');
 const UserService = require('./services/UserService');
+const AnalyticsService = require('./services/AnalyticsService');
 const { authenticate, adminOrOwner, ownerOnly } = require('./middleware/auth');
 
 dotenv.config();
@@ -1494,6 +1495,241 @@ app.delete('/api/admin/users/:userId', authenticate, ownerOnly, async (req, res)
   }
 });
 
+// ==================== ANALYTICS ENDPOINTS ====================
+
+/**
+ * POST /api/analytics/event
+ * Track custom event
+ */
+app.post('/api/analytics/event', async (req, res) => {
+  try {
+    const { eventName, eventData, userId } = req.body;
+
+    if (!eventName) {
+      return res.status(400).json({
+        success: false,
+        error: 'Event name is required',
+      });
+    }
+
+    await AnalyticsService.trackEvent(eventName, eventData || {}, userId);
+
+    res.json({
+      success: true,
+      message: 'Event tracked successfully',
+    });
+  } catch (error) {
+    console.error('Analytics error:', error.message);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * POST /api/analytics/signup
+ * Track user signup
+ */
+app.post('/api/analytics/signup', async (req, res) => {
+  try {
+    const { email, userType } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email is required',
+      });
+    }
+
+    await AnalyticsService.trackSignup(email, userType || 'standard');
+
+    res.json({
+      success: true,
+      message: 'Signup tracked successfully',
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * POST /api/analytics/purchase
+ * Track purchase event
+ */
+app.post('/api/analytics/purchase', async (req, res) => {
+  try {
+    const { userId, transactionId, value, currency, items, paymentMethod } = req.body;
+
+    if (!transactionId || !value) {
+      return res.status(400).json({
+        success: false,
+        error: 'Transaction ID and value are required',
+      });
+    }
+
+    await AnalyticsService.trackPurchase({
+      userId,
+      transactionId,
+      value,
+      currency: currency || 'USD',
+      items: items || [],
+      paymentMethod: paymentMethod || 'card',
+    });
+
+    res.json({
+      success: true,
+      message: 'Purchase tracked successfully',
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * POST /api/analytics/email-subscription
+ * Track email subscription
+ */
+app.post('/api/analytics/email-subscription', async (req, res) => {
+  try {
+    const { email, subscriptionType } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email is required',
+      });
+    }
+
+    await AnalyticsService.trackEmailSubscription(email, subscriptionType || 'newsletter');
+
+    res.json({
+      success: true,
+      message: 'Email subscription tracked successfully',
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * POST /api/analytics/campaign
+ * Track campaign event (sent/opened/clicked)
+ */
+app.post('/api/analytics/campaign', async (req, res) => {
+  try {
+    const { action, campaignId, campaignName, email, recipientCount, linkUrl } = req.body;
+
+    if (!action || !campaignId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Action and campaign ID are required',
+      });
+    }
+
+    if (action === 'sent') {
+      await AnalyticsService.trackCampaignSent(campaignId, campaignName, recipientCount);
+    } else if (action === 'opened') {
+      await AnalyticsService.trackCampaignOpened(campaignId, email);
+    } else if (action === 'clicked') {
+      await AnalyticsService.trackCampaignClicked(campaignId, email, linkUrl);
+    } else {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid action. Must be: sent, opened, or clicked',
+      });
+    }
+
+    res.json({
+      success: true,
+      message: `Campaign ${action} tracked successfully`,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * POST /api/analytics/product
+ * Track product events (view, add to cart, etc)
+ */
+app.post('/api/analytics/product', async (req, res) => {
+  try {
+    const { action, productId, productName, category, price, userId, quantity } = req.body;
+
+    if (!action || !productId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Action and product ID are required',
+      });
+    }
+
+    if (action === 'view') {
+      await AnalyticsService.trackProductView(productId, productName, category, price);
+    } else if (action === 'add_to_cart') {
+      await AnalyticsService.trackAddToCart(userId, productId, productName, price, quantity);
+    } else if (action === 'search') {
+      await AnalyticsService.trackSearch(productName, 1);
+    } else {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid action. Must be: view, add_to_cart, or search',
+      });
+    }
+
+    res.json({
+      success: true,
+      message: `Product ${action} tracked successfully`,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * POST /api/analytics/form
+ * Track form submission
+ */
+app.post('/api/analytics/form', async (req, res) => {
+  try {
+    const { formName, userId } = req.body;
+
+    if (!formName) {
+      return res.status(400).json({
+        success: false,
+        error: 'Form name is required',
+      });
+    }
+
+    await AnalyticsService.trackFormSubmission(formName, userId);
+
+    res.json({
+      success: true,
+      message: 'Form submission tracked successfully',
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
 process.on('SIGTERM', () => {
   console.log('SIGTERM signal received: closing HTTP server');
   process.exit(0);
@@ -1506,6 +1742,7 @@ app.listen(PORT, () => {
   console.log(`✓ Max payload size: 10KB`);
   console.log(`✓ Authentication: JWT enabled with role-based access control`);
   console.log(`✓ Default Users: Owner (denise@sisterspromise.com), Admin (deric.robinson71@gmail.com)`);
+  console.log(`✓ Analytics: Google Analytics 4 and Apple Analytics enabled`);
   
   if (!process.env.SQUARE_ACCESS_TOKEN) {
     console.warn('\n⚠️  Warning: SQUARE_ACCESS_TOKEN not configured');

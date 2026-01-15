@@ -14,6 +14,22 @@
   <meta name="description" content="Discover Sister's Promise natural skincare products - handmade organic lotions, sea moss soap, and skin scrubs">
   <meta name="keywords" content="natural skincare, organic lotion, sea moss soap, skin scrub">
 
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G_MEASUREMENT_ID"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('consent', 'default', {
+      'analytics_storage': 'denied'
+    });
+    // Replace G_MEASUREMENT_ID with your actual GA4 measurement ID from .env
+  </script>
+
+  <!-- Apple App-Specific Site Analytics (iOS) -->
+  <meta name="apple-app-site-association" content='{"apps":[],"webcredentials":{"apps":["XXXXXXXXXX.com.sisterspromise"]}}'>
+  <link rel="manifest" href="/manifest.json">
+
   <!-- Fonts -->
   <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -761,6 +777,43 @@
   
   <!-- Square Integration -->
   <script src="./assets/js/square-integration.js"></script>
+
+  <!-- Analytics Tracking -->
+  <script src="./assets/js/analytics-tracking.js"></script>
+  <script>
+    // Initialize analytics with page tracking
+    if (typeof analyticsService !== 'undefined') {
+      // Set up global GA4 measurement ID
+      window.GA_MEASUREMENT_ID = 'G_XXXXXXXXXX'; // Replace with actual measurement ID from env
+      
+      // Track page view
+      analyticsService.trackPageView(window.location.pathname, document.title);
+      
+      // Track user consent (GDPR/CCPA)
+      analyticsService.setConsentMode({
+        analytics: true,
+        marketing: true,
+        personalization: true
+      });
+
+      // Track product views when products are clicked
+      document.addEventListener('click', function(e) {
+        const productLink = e.target.closest('[data-product-id]');
+        if (productLink) {
+          const productId = productLink.dataset.productId;
+          const productName = productLink.dataset.productName || 'Unknown Product';
+          const price = parseFloat(productLink.dataset.price) || 0;
+          analyticsService.trackUserEngagement('view_item', {
+            items: [{
+              item_id: productId,
+              item_name: productName,
+              price: price
+            }]
+          });
+        }
+      });
+    }
+  </script>
 
 </body>
 
