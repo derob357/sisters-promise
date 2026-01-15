@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Order Management - Sisters Promise</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            color: #2d3436;
+            font-size: 28px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info span {
+            color: #636e72;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-logout {
+            background: #e17055;
+            color: white;
+            padding: 8px 16px;
+        }
+
+        .btn-logout:hover {
+            background: #d63031;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            color: #2d3436;
+            margin-bottom: 20px;
+            font-size: 20px;
+            border-bottom: 2px solid #6c5ce7;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            color: #2d3436;
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #dfe6e9;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #6c5ce7;
+            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+        }
+
+        .product-section {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+        }
+
+        .product-item {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 50px;
+            gap: 10px;
+            align-items: flex-end;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .product-item:last-child {
+            border-bottom: none;
+        }
+
+        .product-item input {
+            margin: 0;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #6c5ce7;
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            background: #5f3dc4;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
+        }
+
+        .btn-secondary {
+            background: #0984e3;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #2d5aa2;
+        }
+
+        .btn-danger {
+            background: #d63031;
+            color: white;
+            padding: 6px 10px;
+            font-size: 12px;
+        }
+
+        .btn-danger:hover {
+            background: #b71c1c;
+        }
+
+        .btn-small {
+            padding: 6px 10px;
+            font-size: 12px;
+        }
+
+        .add-product-btn {
+            background: #00b894;
+            color: white;
+            margin-top: 10px;
+            padding: 10px 16px;
+        }
+
+        .add-product-btn:hover {
+            background: #00a86b;
+        }
+
+        .payment-section {
+            background: #fff3cd;
+            padding: 16px;
+            border-radius: 4px;
+            border-left: 4px solid #ffc107;
+            margin-bottom: 16px;
+        }
+
+        .payment-section h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .order-summary {
+            background: #e8f5e9;
+            padding: 16px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            color: #2d3436;
+        }
+
+        .summary-row.total {
+            font-weight: 700;
+            font-size: 16px;
+            border-top: 2px solid #4caf50;
+            padding-top: 8px;
+            color: #2e7d32;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .recent-orders {
+            margin-top: 30px;
+        }
+
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        .orders-table thead {
+            background: #f8f9fa;
+        }
+
+        .orders-table th {
+            padding: 12px;
+            text-align: left;
+            color: #2d3436;
+            font-weight: 600;
+            border-bottom: 2px solid #dfe6e9;
+        }
+
+        .orders-table td {
+            padding: 12px;
+            border-bottom: 1px solid #dfe6e9;
+            color: #636e72;
+        }
+
+        .orders-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-processing {
+            background: #cfe2ff;
+            color: #084298;
+        }
+
+        .status-completed {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .status-failed {
+            background: #f8d7da;
+            color: #842029;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h3 {
+            margin-bottom: 20px;
+            color: #2d3436;
+        }
+
+        .close-modal {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #636e72;
+        }
+
+        .close-modal:hover {
+            color: #2d3436;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #636e72;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #dfe6e9;
+            border-top-color: #6c5ce7;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 600px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+
+            .product-item {
+                grid-template-columns: 1fr;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #b2bec3;
+        }
+
+        .empty-state p {
+            margin: 10px 0;
+        }
+
+        .auth-required {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .auth-required.active {
+            display: flex;
+        }
+
+        .auth-form {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .auth-form h2 {
+            margin-bottom: 20px;
+            color: #2d3436;
+        }
+
+        .auth-error {
+            color: #d63031;
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .auth-error.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div>
+                <h1>📦 Order Management</h1>
+            </div>
+            <div class="user-info">
+                <span id="userName">Loading...</span>
+                <button class="btn-logout" onclick="logout()">Logout</button>
+            </div>
+        </header>
+
+        <div id="authRequired" class="auth-required">
+            <div class="auth-form">
+                <h2>Admin Access Required</h2>
+                <div class="form-group">
+                    <label for="authEmail">Email</label>
+                    <input type="email" id="authEmail" placeholder="admin@sisterspromise.com">
+                </div>
+                <div class="form-group">
+                    <label for="authPassword">Password</label>
+                    <input type="password" id="authPassword" placeholder="Enter password">
+                </div>
+                <div id="authError" class="auth-error"></div>
+                <button class="btn btn-primary" onclick="login()">Login</button>
+            </div>
+        </div>
+
+        <div id="contentArea" style="display: none;">
+            <div id="alertContainer"></div>
+
+            <div class="main-grid">
+                <!-- Order Entry Form -->
+                <div class="card">
+                    <h2>Create Manual Order</h2>
+                    
+                    <div class="form-group">
+                        <label for="customerName">Customer Name *</label>
+                        <input type="text" id="customerName" placeholder="Full name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="customerEmail">Customer Email *</label>
+                        <input type="email" id="customerEmail" placeholder="customer@example.com">
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label for="customerPhone">Phone Number</label>
+                            <input type="tel" id="customerPhone" placeholder="(555) 123-4567">
+                        </div>
+                        <div class="form-group">
+                            <label for="orderDate">Order Date *</label>
+                            <input type="date" id="orderDate">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Shipping Address *</label>
+                        <input type="text" id="shippingAddress" placeholder="Street address">
+                        <div class="grid-2" style="margin-top: 10px;">
+                            <input type="text" id="shippingCity" placeholder="City">
+                            <input type="text" id="shippingState" placeholder="State">
+                        </div>
+                        <div class="grid-2" style="margin-top: 10px;">
+                            <input type="text" id="shippingZip" placeholder="ZIP code">
+                            <input type="text" id="shippingCountry" placeholder="Country" value="USA">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notes">Order Notes</label>
+                        <textarea id="notes" placeholder="Any special notes or requests..." rows="3"></textarea>
+                    </div>
+                </div>
+
+                <!-- Products Section -->
+                <div class="card">
+                    <h2>Add Products</h2>
+                    
+                    <div id="productsContainer" class="product-section">
+                        <div class="product-item">
+                            <div>
+                                <label>Product Name *</label>
+                                <input type="text" class="productName" placeholder="e.g., Sea Moss Soap">
+                            </div>
+                            <div>
+                                <label>Quantity *</label>
+                                <input type="number" class="productQty" placeholder="1" min="1" value="1">
+                            </div>
+                            <div>
+                                <label>Price *</label>
+                                <input type="number" class="productPrice" placeholder="0.00" min="0" step="0.01">
+                            </div>
+                            <button class="btn btn-danger btn-small" onclick="removeProduct(this)">✕</button>
+                        </div>
+                    </div>
+                    <button class="btn add-product-btn" onclick="addProduct()">+ Add Product</button>
+
+                    <!-- Order Summary -->
+                    <div class="order-summary">
+                        <div class="summary-row">
+                            <span>Subtotal:</span>
+                            <span id="subtotal">$0.00</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Shipping:</span>
+                            <input type="number" id="shippingCost" placeholder="0.00" min="0" step="0.01" style="width: 100px; padding: 4px; margin: 0;">
+                        </div>
+                        <div class="summary-row">
+                            <span>Tax:</span>
+                            <input type="number" id="taxCost" placeholder="0.00" min="0" step="0.01" style="width: 100px; padding: 4px; margin: 0;">
+                        </div>
+                        <div class="summary-row total">
+                            <span>Total:</span>
+                            <span id="totalAmount">$0.00</span>
+                        </div>
+                    </div>
+
+                    <!-- Payment Section -->
+                    <div class="payment-section">
+                        <h3>Payment Method</h3>
+                        <div class="form-group">
+                            <label for="paymentMethod">Payment Method *</label>
+                            <select id="paymentMethod">
+                                <option value="">Select payment method</option>
+                                <option value="cash">Cash (Paid in person)</option>
+                                <option value="card">Credit/Debit Card</option>
+                                <option value="check">Check</option>
+                                <option value="venmo">Venmo</option>
+                                <option value="paypal">PayPal</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div id="paymentDetails" style="display: none;">
+                            <div class="form-group">
+                                <label for="paymentReference">Payment Reference</label>
+                                <input type="text" id="paymentReference" placeholder="e.g., Last 4 digits, check #, etc.">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="submitOrder()" style="margin-top: 20px;">
+                        <span id="submitBtnText">Create & Process Order</span>
+                        <span id="submitBtnLoading" class="spinner" style="display: none; margin-left: 10px;"></span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recent Orders -->
+            <div class="card recent-orders">
+                <h2>Recent Manual Orders</h2>
+                <div id="ordersContainer" class="loading active">
+                    <div class="spinner"></div>
+                </div>
+                <div id="ordersEmpty" class="empty-state" style="display: none;">
+                    <p>No manual orders yet</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div id="orderModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeOrderModal()">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+        let authToken = null;
+
+        // Set today's date as default
+        document.getElementById('orderDate').valueAsDate = new Date();
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+            setupEventListeners();
+        });
+
+        function checkAuth() {
+            const token = localStorage.getItem('adminToken');
+            if (token) {
+                authToken = token;
+                verifyToken();
+            } else {
+                showAuthForm();
+            }
+        }
+
+        function verifyToken() {
+            fetch(`${API_BASE}/api/auth/verify`, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('authRequired').classList.remove('active');
+                    document.getElementById('contentArea').style.display = 'block';
+                    document.getElementById('userName').textContent = `${data.user.firstName} ${data.user.lastName}`;
+                    loadRecentOrders();
+                } else {
+                    showAuthForm();
+                }
+            })
+            .catch(() => showAuthForm());
+        }
+
+        function showAuthForm() {
+            document.getElementById('authRequired').classList.add('active');
+            document.getElementById('contentArea').style.display = 'none';
+        }
+
+        function login() {
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+            const errorEl = document.getElementById('authError');
+
+            if (!email || !password) {
+                errorEl.textContent = 'Email and password required';
+                errorEl.classList.add('active');
+                return;
+            }
+
+            errorEl.classList.remove('active');
+
+            fetch(`${API_BASE}/api/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    // Check if user is admin or owner
+                    if (data.user.role !== 'admin' && data.user.role !== 'owner') {
+                        errorEl.textContent = 'Admin/Owner access required';
+                        errorEl.classList.add('active');
+                        return;
+                    }
+                    authToken = data.token;
+                    localStorage.setItem('adminToken', data.token);
+                    document.getElementById('authRequired').classList.remove('active');
+                    document.getElementById('contentArea').style.display = 'block';
+                    document.getElementById('userName').textContent = `${data.user.firstName} ${data.user.lastName}`;
+                    loadRecentOrders();
+                } else {
+                    errorEl.textContent = data.error || 'Login failed';
+                    errorEl.classList.add('active');
+                }
+            });
+        }
+
+        function logout() {
+            localStorage.removeItem('adminToken');
+            authToken = null;
+            showAuthForm();
+            document.getElementById('authEmail').value = '';
+            document.getElementById('authPassword').value = '';
+        }
+
+        function setupEventListeners() {
+            document.getElementById('paymentMethod').addEventListener('change', (e) => {
+                document.getElementById('paymentDetails').style.display = 
+                    e.target.value && e.target.value !== 'cash' ? 'block' : 'none';
+            });
+
+            // Update totals on change
+            const updateTotals = () => updateOrderTotal();
+            ['shippingCost', 'taxCost'].forEach(id => {
+                document.getElementById(id).addEventListener('change', updateTotals);
+            });
+        }
+
+        function addProduct() {
+            const container = document.getElementById('productsContainer');
+            const item = document.createElement('div');
+            item.className = 'product-item';
+            item.innerHTML = `
+                <div>
+                    <label>Product Name *</label>
+                    <input type="text" class="productName" placeholder="e.g., Sea Moss Soap">
+                </div>
+                <div>
+                    <label>Quantity *</label>
+                    <input type="number" class="productQty" placeholder="1" min="1" value="1">
+                </div>
+                <div>
+                    <label>Price *</label>
+                    <input type="number" class="productPrice" placeholder="0.00" min="0" step="0.01">
+                </div>
+                <button class="btn btn-danger btn-small" onclick="removeProduct(this)">✕</button>
+            `;
+            container.appendChild(item);
+
+            // Add listeners for price changes
+            item.querySelectorAll('.productQty, .productPrice').forEach(input => {
+                input.addEventListener('change', updateOrderTotal);
+            });
+        }
+
+        function removeProduct(btn) {
+            btn.closest('.product-item').remove();
+            updateOrderTotal();
+        }
+
+        function updateOrderTotal() {
+            let subtotal = 0;
+            document.querySelectorAll('.product-item').forEach(item => {
+                const qty = parseFloat(item.querySelector('.productQty').value) || 0;
+                const price = parseFloat(item.querySelector('.productPrice').value) || 0;
+                subtotal += qty * price;
+            });
+
+            const shipping = parseFloat(document.getElementById('shippingCost').value) || 0;
+            const tax = parseFloat(document.getElementById('taxCost').value) || 0;
+            const total = subtotal + shipping + tax;
+
+            document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('totalAmount').textContent = `$${total.toFixed(2)}`;
+        }
+
+        function submitOrder() {
+            const btn = document.querySelector('[onclick="submitOrder()"]');
+            const btnText = document.getElementById('submitBtnText');
+            const spinner = document.getElementById('submitBtnLoading');
+
+            // Validate
+            const errors = [];
+            if (!document.getElementById('customerName').value) errors.push('Customer name required');
+            if (!document.getElementById('customerEmail').value) errors.push('Customer email required');
+            if (!document.getElementById('shippingAddress').value) errors.push('Shipping address required');
+            if (!document.getElementById('paymentMethod').value) errors.push('Payment method required');
+
+            const products = [];
+            document.querySelectorAll('.product-item').forEach(item => {
+                const name = item.querySelector('.productName').value;
+                const qty = parseFloat(item.querySelector('.productQty').value);
+                const price = parseFloat(item.querySelector('.productPrice').value);
+                if (!name || !qty || !price) errors.push('All product fields required');
+                products.push({ name, quantity: qty, price });
+            });
+
+            if (products.length === 0) errors.push('Add at least one product');
+
+            if (errors.length > 0) {
+                showAlert(errors.join('\n'), 'error');
+                return;
+            }
+
+            // Prepare order
+            const subtotal = products.reduce((sum, p) => sum + (p.quantity * p.price), 0);
+            const shipping = parseFloat(document.getElementById('shippingCost').value) || 0;
+            const tax = parseFloat(document.getElementById('taxCost').value) || 0;
+            const total = subtotal + shipping + tax;
+
+            const orderData = {
+                customerName: document.getElementById('customerName').value,
+                customerEmail: document.getElementById('customerEmail').value,
+                customerPhone: document.getElementById('customerPhone').value,
+                orderDate: document.getElementById('orderDate').value,
+                shippingAddress: {
+                    street: document.getElementById('shippingAddress').value,
+                    city: document.getElementById('shippingCity').value,
+                    state: document.getElementById('shippingState').value,
+                    zip: document.getElementById('shippingZip').value,
+                    country: document.getElementById('shippingCountry').value,
+                },
+                products,
+                paymentMethod: document.getElementById('paymentMethod').value,
+                paymentReference: document.getElementById('paymentReference').value,
+                subtotal,
+                shipping,
+                tax,
+                total,
+                notes: document.getElementById('notes').value,
+                createdBy: 'manual-admin'
+            };
+
+            btnText.style.display = 'none';
+            spinner.style.display = 'inline-block';
+            btn.disabled = true;
+
+            fetch(`${API_BASE}/api/admin/orders/manual`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                body: JSON.stringify(orderData)
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert(`Order #${data.order.id} created successfully!`, 'success');
+                    // Clear form
+                    document.getElementById('customerName').value = '';
+                    document.getElementById('customerEmail').value = '';
+                    document.getElementById('customerPhone').value = '';
+                    document.getElementById('shippingAddress').value = '';
+                    document.getElementById('shippingCity').value = '';
+                    document.getElementById('shippingState').value = '';
+                    document.getElementById('shippingZip').value = '';
+                    document.getElementById('notes').value = '';
+                    document.getElementById('productsContainer').innerHTML = `
+                        <div class="product-item">
+                            <div>
+                                <label>Product Name *</label>
+                                <input type="text" class="productName" placeholder="e.g., Sea Moss Soap">
+                            </div>
+                            <div>
+                                <label>Quantity *</label>
+                                <input type="number" class="productQty" placeholder="1" min="1" value="1">
+                            </div>
+                            <div>
+                                <label>Price *</label>
+                                <input type="number" class="productPrice" placeholder="0.00" min="0" step="0.01">
+                            </div>
+                            <button class="btn btn-danger btn-small" onclick="removeProduct(this)">✕</button>
+                        </div>
+                    `;
+                    updateOrderTotal();
+                    loadRecentOrders();
+                } else {
+                    showAlert(data.error || 'Order creation failed', 'error');
+                }
+            })
+            .catch(e => showAlert(e.message, 'error'))
+            .finally(() => {
+                btnText.style.display = 'inline';
+                spinner.style.display = 'none';
+                btn.disabled = false;
+            });
+        }
+
+        function loadRecentOrders() {
+            const container = document.getElementById('ordersContainer');
+            container.innerHTML = '<div class="spinner" style="text-align: center;"></div>';
+
+            fetch(`${API_BASE}/api/admin/orders/manual?limit=10`, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success && data.orders.length > 0) {
+                    let html = '<table class="orders-table"><thead><tr>';
+                    html += '<th>Order ID</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th><th>Action</th>';
+                    html += '</tr></thead><tbody>';
+                    
+                    data.orders.forEach(order => {
+                        const status = order.paymentStatus || 'pending';
+                        const statusClass = `status-${status}`;
+                        html += `<tr>
+                            <td><strong>${order.id.slice(0, 8)}</strong></td>
+                            <td>${order.customerName}</td>
+                            <td><strong>$${order.total.toFixed(2)}</strong></td>
+                            <td><span class="status-badge ${statusClass}">${status.toUpperCase()}</span></td>
+                            <td>${new Date(order.createdAt).toLocaleDateString()}</td>
+                            <td><button class="btn btn-secondary btn-small" onclick="viewOrder('${order.id}')">View</button></td>
+                        </tr>`;
+                    });
+                    html += '</tbody></table>';
+
+                    container.innerHTML = html;
+                    document.getElementById('ordersEmpty').style.display = 'none';
+                } else {
+                    container.style.display = 'none';
+                    document.getElementById('ordersEmpty').style.display = 'block';
+                }
+            });
+        }
+
+        function viewOrder(orderId) {
+            fetch(`${API_BASE}/api/admin/orders/${orderId}`, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    const order = data.order;
+                    let html = `
+                        <h3>Order #${order.id.slice(0, 8)}</h3>
+                        <div class="summary-row">
+                            <strong>Customer:</strong> ${order.customerName}<br>
+                            <strong>Email:</strong> ${order.customerEmail}<br>
+                            <strong>Phone:</strong> ${order.customerPhone || 'N/A'}<br>
+                            <strong>Date:</strong> ${new Date(order.createdAt).toLocaleString()}
+                        </div>
+                        <div style="margin-top: 15px; border-top: 1px solid #dfe6e9; padding-top: 15px;">
+                            <strong>Shipping Address:</strong><br>
+                            ${order.shippingAddress.street}<br>
+                            ${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.zip}<br>
+                            ${order.shippingAddress.country}
+                        </div>
+                        <div style="margin-top: 15px; border-top: 1px solid #dfe6e9; padding-top: 15px;">
+                            <strong>Products:</strong><br>
+                            <table style="width: 100%; margin-top: 10px;">
+                                <tr style="border-bottom: 1px solid #dfe6e9;">
+                                    <th style="text-align: left; padding: 5px;">Product</th>
+                                    <th style="text-align: right; padding: 5px;">Qty</th>
+                                    <th style="text-align: right; padding: 5px;">Price</th>
+                                    <th style="text-align: right; padding: 5px;">Total</th>
+                                </tr>
+                    `;
+                    order.products.forEach(p => {
+                        html += `<tr><td style="padding: 5px;">${p.name}</td><td style="text-align: right; padding: 5px;">${p.quantity}</td><td style="text-align: right; padding: 5px;">$${p.price.toFixed(2)}</td><td style="text-align: right; padding: 5px;">$${(p.quantity * p.price).toFixed(2)}</td></tr>`;
+                    });
+                    html += `</table>
+                        </div>
+                        <div style="margin-top: 15px; background: #f8f9fa; padding: 15px; border-radius: 4px;">
+                            <div class="summary-row"><span>Subtotal:</span> <span>$${order.subtotal.toFixed(2)}</span></div>
+                            <div class="summary-row"><span>Shipping:</span> <span>$${order.shipping.toFixed(2)}</span></div>
+                            <div class="summary-row"><span>Tax:</span> <span>$${order.tax.toFixed(2)}</span></div>
+                            <div class="summary-row" style="font-weight: bold; font-size: 16px;"><span>Total:</span> <span>$${order.total.toFixed(2)}</span></div>
+                        </div>
+                        <div style="margin-top: 15px;">
+                            <strong>Payment Method:</strong> ${order.paymentMethod.toUpperCase()}<br>
+                            <strong>Status:</strong> <span class="status-badge status-${order.paymentStatus}">${order.paymentStatus.toUpperCase()}</span>
+                        </div>
+                    `;
+                    if (order.notes) {
+                        html += `<div style="margin-top: 15px; background: #fff9e6; padding: 10px; border-radius: 4px;"><strong>Notes:</strong> ${order.notes}</div>`;
+                    }
+                    document.getElementById('modalContent').innerHTML = html;
+                    document.getElementById('orderModal').classList.add('active');
+                }
+            });
+        }
+
+        function closeOrderModal() {
+            document.getElementById('orderModal').classList.remove('active');
+        }
+
+        function showAlert(message, type = 'info') {
+            const container = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            container.innerHTML = '';
+            container.appendChild(alert);
+
+            setTimeout(() => alert.remove(), 5000);
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('orderModal').addEventListener('click', (e) => {
+            if (e.target.id === 'orderModal') closeOrderModal();
+        });
+    </script>
+</body>
+</html>

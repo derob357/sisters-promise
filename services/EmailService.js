@@ -393,6 +393,165 @@ class EmailService {
       return false;
     }
   }
+
+  /**
+   * Send order confirmation to customer
+   */
+  async sendOrderConfirmation({ customerName, customerEmail, orderId, products, total, shippingAddress }) {
+    if (!this.transporter) {
+      console.warn('Email transporter not configured. Skipping order confirmation.');
+      return;
+    }
+
+    try {
+      const productsList = products.map(p => 
+        `<tr><td>${p.name}</td><td>${p.quantity}</td><td>$${p.price.toFixed(2)}</td><td>$${(p.quantity * p.price).toFixed(2)}</td></tr>`
+      ).join('');
+
+      const htmlContent = `
+        <h2>Order Confirmation</h2>
+        <p>Thank you for your order, ${customerName}!</p>
+        <p><strong>Order ID:</strong> ${orderId.slice(0, 8)}</p>
+        <table border="1" cellpadding="8" style="margin: 20px 0;">
+          <tr><th>Product</th><th>Qty</th><th>Price</th><th>Total</th></tr>
+          ${productsList}
+        </table>
+        <p><strong>Total:</strong> $${total.toFixed(2)}</p>
+        <p><strong>Shipping Address:</strong><br>
+        ${shippingAddress.street}<br>
+        ${shippingAddress.city}, ${shippingAddress.state} ${shippingAddress.zip}<br>
+        ${shippingAddress.country}</p>
+        <p>We'll notify you when your order ships!</p>
+        <p>Questions? Contact us at denise@sisterspromise.com</p>
+      `;
+
+      await this.transporter.sendMail({
+        from: process.env.SMTP_USER || 'denise@sisterspromise.com',
+        to: customerEmail,
+        subject: `Order Confirmation - Sisters Promise #${orderId.slice(0, 8)}`,
+        html: htmlContent,
+      });
+
+      console.log(`✓ Order confirmation sent to ${customerEmail}`);
+    } catch (error) {
+      console.error('Error sending order confirmation:', error.message);
+    }
+  }
+
+  /**
+   * Send order notification to admin/owner
+   */
+  async sendOrderNotification({ orderId, customerName, customerEmail, total, paymentMethod, paymentStatus, createdBy }) {
+    if (!this.transporter) {
+      console.warn('Email transporter not configured. Skipping admin notification.');
+      return;
+    }
+
+    try {
+      const htmlContent = `
+        <h2>New Manual Order Created</h2>
+        <p><strong>Order ID:</strong> ${orderId.slice(0, 8)}</p>
+        <p><strong>Customer:</strong> ${customerName} (${customerEmail})</p>
+        <p><strong>Total:</strong> $${total.toFixed(2)}</p>
+        <p><strong>Payment Method:</strong> ${paymentMethod.toUpperCase()}</p>
+        <p><strong>Payment Status:</strong> ${paymentStatus.toUpperCase()}</p>
+        <p><strong>Created by:</strong> ${createdBy}</p>
+        <p><a href="${process.env.APP_URL || 'https://localhost'}/admin-order-dashboard.html">View Order</a></p>
+      `;
+
+      await this.transporter.sendMail({
+        from: process.env.SMTP_USER || 'denise@sisterspromise.com',
+        to: process.env.ADMIN_EMAIL || 'denise@sisterspromise.com',
+        subject: `New Manual Order - #${orderId.slice(0, 8)}`,
+        html: htmlContent,
+      });
+
+      console.log(`✓ Order notification sent to admin`);
+    } catch (error) {
+      console.error('Error sending order notification:', error.message);
+    }
+  }
+
+  /**
+   * Send payment status update to customer
+   */
+  async sendPaymentStatusUpdate({ customerName, customerEmail, orderId, paymentStatus, total }) {
+    if (!this.transporter) {
+      console.warn('Email transporter not configured. Skipping payment update.');
+      return;
+    }
+
+    try {
+      const statusMessages = {
+        pending: 'Your payment is pending processing',
+        completed: 'Your payment has been successfully processed',
+        processing: 'Your payment is being processed',
+        failed: 'Your payment failed. Please contact us.',
+        refunded: 'Your payment has been refunded',
+      };
+
+      const htmlContent = `
+        <h2>Payment Status Update</h2>
+        <p>Hi ${customerName},</p>
+        <p><strong>Order ID:</strong> ${orderId.slice(0, 8)}</p>
+        <p>${statusMessages[paymentStatus] || 'Your payment status has been updated'}</p>
+        <p><strong>Order Total:</strong> $${total.toFixed(2)}</p>
+        <p>Thank you for your business!</p>
+        <p>Questions? Contact us at denise@sisterspromise.com</p>
+      `;
+
+      await this.transporter.sendMail({
+        from: process.env.SMTP_USER || 'denise@sisterspromise.com',
+        to: customerEmail,
+        subject: `Payment Status Update - Sisters Promise #${orderId.slice(0, 8)}`,
+        html: htmlContent,
+      });
+
+      console.log(`✓ Payment status update sent to ${customerEmail}`);
+    } catch (error) {
+      console.error('Error sending payment status update:', error.message);
+    }
+  }
+
+  /**
+   * Send order status update to customer
+   */
+  async sendOrderStatusUpdate({ customerName, customerEmail, orderId, orderStatus }) {
+    if (!this.transporter) {
+      console.warn('Email transporter not configured. Skipping order status update.');
+      return;
+    }
+
+    try {
+      const statusMessages = {
+        confirmed: 'Your order has been confirmed and is being prepared',
+        processing: 'Your order is being processed',
+        shipped: 'Your order has shipped!',
+        delivered: 'Your order has been delivered',
+        cancelled: 'Your order has been cancelled',
+      };
+
+      const htmlContent = `
+        <h2>Order Status Update</h2>
+        <p>Hi ${customerName},</p>
+        <p><strong>Order ID:</strong> ${orderId.slice(0, 8)}</p>
+        <p>${statusMessages[orderStatus] || 'Your order status has been updated'}</p>
+        <p>Thank you for choosing Sisters Promise!</p>
+        <p>Questions? Contact us at denise@sisterspromise.com</p>
+      `;
+
+      await this.transporter.sendMail({
+        from: process.env.SMTP_USER || 'denise@sisterspromise.com',
+        to: customerEmail,
+        subject: `Order Status Update - Sisters Promise #${orderId.slice(0, 8)}`,
+        html: htmlContent,
+      });
+
+      console.log(`✓ Order status update sent to ${customerEmail}`);
+    } catch (error) {
+      console.error('Error sending order status update:', error.message);
+    }
+  }
 }
 
 module.exports = EmailService;

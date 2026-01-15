@@ -1522,6 +1522,341 @@ app.delete('/api/admin/users/:userId', authenticate, ownerOnly, async (req, res)
   }
 });
 
+// ==================== MANUAL ORDER MANAGEMENT (ADMIN/OWNER ONLY) ====================
+
+/**
+ * POST /api/admin/orders/manual
+ * Create manual order (admin/owner can enter orders and take payments)
+ */
+app.post('/api/admin/orders/manual', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
+  const {
+    customerName,
+    customerEmail,
+    customerPhone,
+    orderDate,
+    shippingAddress,
+    products,
+    paymentMethod,
+    paymentReference,
+    subtotal,
+    shipping,
+    tax,
+    total,
+    notes,
+  } = req.body;
+
+  // Validate required fields
+  if (!customerName || !customerEmail || !shippingAddress || !products || products.length === 0) {
+    return res.status(400).json({
+      success: false,
+      error: 'Missing required fields: customerName, customerEmail, shippingAddress, products'
+    });
+  }
+
+  if (!paymentMethod) {
+    return res.status(400).json({
+      success: false,
+      error: 'Payment method is required'
+    });
+  }
+
+  try {
+    // Create order object
+    const order = {
+      id: uuidv4(),
+      customerName: sanitizeInput(customerName),
+      customerEmail: sanitizeInput(customerEmail),
+      customerPhone: sanitizeInput(customerPhone),
+      orderDate: orderDate || new Date().toISOString(),
+      shippingAddress: {
+        street: sanitizeInput(shippingAddress.street),
+        city: sanitizeInput(shippingAddress.city),
+        state: sanitizeInput(shippingAddress.state),
+        zip: sanitizeInput(shippingAddress.zip),
+        country: sanitizeInput(shippingAddress.country),
+      },
+      products: products.map(p => ({
+        name: sanitizeInput(p.name),
+        quantity: Math.max(1, parseInt(p.quantity) || 1),
+        price: Math.max(0, parseFloat(p.price) || 0),
+      })),
+      paymentMethod: sanitizeInput(paymentMethod),
+      paymentReference: sanitizeInput(paymentReference),
+      subtotal: parseFloat(subtotal) || 0,
+      shipping: parseFloat(shipping) || 0,
+      tax: parseFloat(tax) || 0,
+      total: parseFloat(total) || 0,
+      notes: sanitizeInput(notes),
+      paymentStatus: paymentMethod === 'cash' ? 'pending' : 'processing',
+      orderStatus: 'confirmed',
+      createdBy: req.user.id,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    // Save to database if connected
+    if (isConnected()) {
+      const ManualOrder = require('./models/ManualOrder');
+      await ManualOrder.create(order);
+    } else {
+      // Fallback to file storage
+      const EmailSubscriber = require('./models/EmailSubscriber');
+      const subscriber = new EmailSubscriber(false);
+      subscriber.saveOrder(order);
+    }
+
+    // Track in analytics
+    await AnalyticsService.trackPurchase({
+      userId: null,
+      transactionId: order.id,
+      value: order.total,
+      currency: 'USD',
+      items: order.products.map(p => ({ name: p.name, quantity: p.quantity, price: p.price })),
+      paymentMethod: order.paymentMethod,
+    });
+
+    // Send confirmation email to customer
+    await emailService.sendOrderConfirmation({
+      customerName: order.customerName,
+      customerEmail: order.customerEmail,
+      orderId: order.id,
+      products: order.products,
+      total: order.total,
+      shippingAddress: order.shippingAddress,
+    });
+
+    // Send notification to admin/owner
+    await emailService.sendOrderNotification({
+      orderId: order.id,
+      customerName: order.customerName,
+      customerEmail: order.customerEmail,
+      total: order.total,
+      paymentMethod: order.paymentMethod,
+      paymentStatus: order.paymentStatus,
+      createdBy: req.user.email,
+    });
+
+    console.log(`✓ Manual order created: ${order.id} by ${req.user.email}`);
+
+    res.status(201).json({
+      success: true,
+      message: 'Manual order created successfully',
+      order: {
+        id: order.id,
+        customerName: order.customerName,
+        total: order.total,
+        paymentStatus: order.paymentStatus,
+        createdAt: order.createdAt,
+      }
+    });
+  } catch (error) {
+    console.error('Error creating manual order:', error.message);
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+}));
+
+/**
+ * GET /api/admin/orders/manual
+ * List all manual orders (admin/owner only)
+ */
+app.get('/api/admin/orders/manual', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit) || 20, 100);
+    const skip = Math.max(0, parseInt(req.query.skip) || 0);
+
+    if (isConnected()) {
+      const ManualOrder = require('./models/ManualOrder');
+      const orders = await ManualOrder.find()
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .skip(skip);
+      const count = await ManualOrder.countDocuments();
+
+      res.json({
+        success: true,
+        orders,
+        count,
+        limit,
+        skip,
+      });
+    } else {
+      // Fallback: return empty array
+      res.json({
+        success: true,
+        orders: [],
+        count: 0,
+        limit,
+        skip,
+      });
+    }
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+}));
+
+/**
+ * GET /api/admin/orders/:orderId
+ * Get specific manual order (admin/owner only)
+ */
+app.get('/api/admin/orders/:orderId', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
+  try {
+    if (isConnected()) {
+      const ManualOrder = require('./models/ManualOrder');
+      const order = await ManualOrder.findById(req.params.orderId);
+
+      if (!order) {
+        return res.status(404).json({
+          success: false,
+          error: 'Order not found',
+        });
+      }
+
+      res.json({
+        success: true,
+        order,
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+        error: 'Order not found',
+      });
+    }
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+}));
+
+/**
+ * PUT /api/admin/orders/:orderId/payment-status
+ * Update payment status (admin/owner only)
+ */
+app.put('/api/admin/orders/:orderId/payment-status', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
+  const { paymentStatus, paymentReference } = req.body;
+
+  if (!paymentStatus || !['pending', 'completed', 'failed', 'refunded'].includes(paymentStatus)) {
+    return res.status(400).json({
+      success: false,
+      error: 'Valid paymentStatus required: pending, completed, failed, refunded',
+    });
+  }
+
+  try {
+    if (isConnected()) {
+      const ManualOrder = require('./models/ManualOrder');
+      const order = await ManualOrder.findByIdAndUpdate(
+        req.params.orderId,
+        {
+          paymentStatus,
+          paymentReference: paymentReference || undefined,
+          updatedAt: new Date().toISOString(),
+        },
+        { new: true }
+      );
+
+      if (!order) {
+        return res.status(404).json({
+          success: false,
+          error: 'Order not found',
+        });
+      }
+
+      // Send status update email to customer
+      await emailService.sendPaymentStatusUpdate({
+        customerName: order.customerName,
+        customerEmail: order.customerEmail,
+        orderId: order.id,
+        paymentStatus,
+        total: order.total,
+      });
+
+      res.json({
+        success: true,
+        message: 'Payment status updated successfully',
+        order,
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        error: 'Database unavailable',
+      });
+    }
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+}));
+
+/**
+ * PUT /api/admin/orders/:orderId/order-status
+ * Update order status (admin/owner only)
+ */
+app.put('/api/admin/orders/:orderId/order-status', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
+  const { orderStatus } = req.body;
+
+  if (!orderStatus || !['confirmed', 'processing', 'shipped', 'delivered', 'cancelled'].includes(orderStatus)) {
+    return res.status(400).json({
+      success: false,
+      error: 'Valid orderStatus required: confirmed, processing, shipped, delivered, cancelled',
+    });
+  }
+
+  try {
+    if (isConnected()) {
+      const ManualOrder = require('./models/ManualOrder');
+      const order = await ManualOrder.findByIdAndUpdate(
+        req.params.orderId,
+        {
+          orderStatus,
+          updatedAt: new Date().toISOString(),
+        },
+        { new: true }
+      );
+
+      if (!order) {
+        return res.status(404).json({
+          success: false,
+          error: 'Order not found',
+        });
+      }
+
+      // Send status update email to customer
+      await emailService.sendOrderStatusUpdate({
+        customerName: order.customerName,
+        customerEmail: order.customerEmail,
+        orderId: order.id,
+        orderStatus,
+      });
+
+      res.json({
+        success: true,
+        message: 'Order status updated successfully',
+        order,
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        error: 'Database unavailable',
+      });
+    }
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+}));
+
 // ==================== ANALYTICS ENDPOINTS ====================
 
 /**
