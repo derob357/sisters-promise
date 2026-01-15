@@ -1857,6 +1857,505 @@ app.put('/api/admin/orders/:orderId/order-status', authenticate, adminOrOwner, a
   }
 }));
 
+// ==================== CHAT SYSTEM ENDPOINTS ====================
+
+const ChatService = require('./services/ChatService');
+
+/**
+ * POST /api/chat/rooms
+ * Create new chat room (VIP, Admin, Owner only)
+ */
+app.post('/api/chat/rooms', authenticate, asyncHandler(async (req, res) => {
+  const { name, description, roomType, icon, accessLevel, isPrivate } = req.body;
+  const userRole = req.user.role;
+
+  // Validate user has permission to create rooms
+  if (!['vip', 'admin', 'owner'].includes(userRole)) {
+    return res.status(403).json({
+      success: false,
+      error: 'Only VIP members, admins, and owners can create chat rooms',
+    });
+  }
+
+  if (!name || name.trim().length === 0) {
+    return res.status(400).json({
+      success: false,
+      error: 'Room name is required',
+    });
+  }
+
+  try {
+    const room = await ChatService.createRoom({
+      name: name.substring(0, 100),
+      description: description ? description.substring(0, 500) : '',
+      roomType: roomType || 'group',
+      icon: icon || '💬',
+      accessLevel: accessLevel || 'public',
+      isPrivate: isPrivate || false,
+    }, {
+      id: req.user.id,
+      name: req.user.name,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Chat room created successfully',
+      room,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+}));
+
+/**
+ * GET /api/chat/rooms
+ * Get all accessible chat rooms for user
+ */
+app.get('/api/chat/rooms', authenticate, asyncHandler(async (req, res) => {
+  try {
+    const rooms = await ChatService.getUserRooms(req.user.id, req.user.role);
+
+    res.json({
+      success: true,
+      count: rooms.length,
+      rooms,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+}));
+
+/**
+ * GET /api/chat/rooms/:roomId
+ * Get specific room details
+ */
+app.get('/api/chat/rooms/:roomId', authenticate, asyncHandler(async (req, res) => {
+  try {
+    const hasAccess = await ChatService.validateRoomAccess(req.params.roomId, req.user.id, req.user.role);
+
+    if (!hasAccess) {
+      return res.status(403).json({
+        success: false,
+        error: 'You do not have access to this room',
+      });
+    }
+
+    const room = await ChatService.getRoomDetails(req.params.roomId);
+
+    if (!room) {
+      return res.status(404).json({
+        success: false,
+        error: 'Room not found',
+      });
+    }
+
+    res.json({
+      success: true,
+      room,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+}));
+
+/**
+ * POST /api/chat/messages
+ * Send message to room
+ */
+app.post('/api/chat/messages', authenticate, asyncHandler(async (req, res) => {
+  const { roomId, content, attachments } = req.body;
+
+  if (!roomId) {
+    return res.status(400).json({
+      success: false,
+      error: 'Room ID is required',
+    });
+  }
+
+  if (!content || content.trim().length === 0) {
+    return res.status(400).json({
+      success: false,
+      error: 'Message content is required',
+    });
+  }
+
+  try {
+    const hasAccess = await ChatService.validateRoomAccess(roomId, req.user.id, req.user.role);
+
+    if (!hasAccess) {
+      return res.status(403).json({
+        success: false,
+        error: 'You do not have access to this room',
+      });
+    }
+
+    const message = await ChatService.sendMessage(
+      roomId,
+      req.user.id,
+      req.user.name,
+      req.user.role,
+      content.substring(0, 10000),
+      attachments || []
+    );
+
+    res.status(201).json({
+      success: true,
+      message: 'Message sent successfully',
+      data: message,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+}));
+
+/**
+ * GET /api/chat/messages/:roomId
+ * Get messages from room with pagination
+ */
+app.get('/api/chat/messages/:roomId', authenticate, asyncHandler(async (req, res) => {
+  const { limit = 50, skip = 0 } = req.query;
+
+  try {
+    const hasAccess = await ChatService.validateRoomAccess(req.params.roomId, req.user.id, req.user.role);
+
+    if (!hasAccess) {
+      return res.status(403).json({
+        success: false,
+        error: 'You do not have access to this room',
+      });
+    }
+
+    const messages = await ChatService.getRoomMessages(
+      req.params.roomId,
+      Math.min(parseInt(limit), 100),
+      parseInt(skip)
+    );
+
+    res.json({
+      success: true,
+      count: messages.length,
+      messages,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+}));
+
+/**
+ * PUT /api/chat/messages/:messageId
+ * Edit message (VIP, Admin, Owner only)
+ */
+app.put('/api/chat/messages/:messageId', authenticate, asyncHandler(async (req, res) => {
+  const { content } = req.body;
+
+  if (!content || content.trim().length === 0) {
+    return res.status(400).json({
+      success: false,
+      error: 'Message content is required',
+    });
+  }
+
+  if (!['vip', 'admin', 'owner'].includes(req.user.role)) {
+    return res.status(403).json({
+      success: false,
+      error: 'Only VIP members, admins, and owners can edit messages',
+    });
+  }
+
+  try {
+    const message = await ChatService.editMessage(
+      req.params.messageId,
+      content.substring(0, 10000),
+      req.user.id,
+      req.user.name
+    );
+
+    if (!message) {
+      return res.status(404).json({
+        success: false,
+        error: 'Message not found',
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Message updated successfully',
+      data: message,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+}));
+
+/**
+ * DELETE /api/chat/messages/:messageId
+ * Delete message (VIP, Admin, Owner only)
+ */
+app.delete('/api/chat/messages/:messageId', authenticate, asyncHandler(async (req, res) => {
+  if (!['vip', 'admin', 'owner'].includes(req.user.role)) {
+    return res.status(403).json({
+      success: false,
+      error: 'Only VIP members, admins, and owners can delete messages',
+    });
+  }
+
+  try {
+    const message = await ChatService.deleteMessage(
+      req.params.messageId,
+      req.user.id,
+      req.user.role
+    );
+
+    if (!message) {
+      return res.status(404).json({
+        success: false,
+        error: 'Message not found',
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Message deleted successfully',
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+}));
+
+/**
+ * POST /api/chat/messages/:messageId/read
+ * Mark message as read
+ */
+app.post('/api/chat/messages/:messageId/read', authenticate, asyncHandler(async (req, res) => {
+  try {
+    await ChatService.markMessageAsRead(req.params.messageId, req.user.id);
+
+    res.json({
+      success: true,
+      message: 'Message marked as read',
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+}));
+
+/**
+ * POST /api/chat/messages/:messageId/pin
+ * Pin message (Admin, Owner only)
+ */
+app.post('/api/chat/messages/:messageId/pin', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
+  const { roomId } = req.body;
+
+  if (!roomId) {
+    return res.status(400).json({
+      success: false,
+      error: 'Room ID is required',
+    });
+  }
+
+  try {
+    await ChatService.pinMessage(req.params.messageId, roomId, req.user.id, req.user.role);
+
+    res.json({
+      success: true,
+      message: 'Message pinned successfully',
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+}));
+
+/**
+ * POST /api/chat/messages/:messageId/reactions
+ * Add reaction to message
+ */
+app.post('/api/chat/messages/:messageId/reactions', authenticate, asyncHandler(async (req, res) => {
+  const { emoji } = req.body;
+
+  if (!emoji) {
+    return res.status(400).json({
+      success: false,
+      error: 'Emoji is required',
+    });
+  }
+
+  try {
+    const message = await ChatService.addReaction(req.params.messageId, emoji, req.user.id);
+
+    res.json({
+      success: true,
+      message: 'Reaction added successfully',
+      data: message,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+}));
+
+/**
+ * GET /api/chat/search
+ * Search messages across rooms
+ */
+app.get('/api/chat/search', authenticate, asyncHandler(async (req, res) => {
+  const { q, roomId } = req.query;
+
+  if (!q || q.trim().length < 2) {
+    return res.status(400).json({
+      success: false,
+      error: 'Search query must be at least 2 characters',
+    });
+  }
+
+  try {
+    const messages = await ChatService.searchMessages(roomId, q.substring(0, 100), 50);
+
+    res.json({
+      success: true,
+      count: messages.length,
+      results: messages,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+}));
+
+/**
+ * GET /api/chat/unread
+ * Get unread message count for user
+ */
+app.get('/api/chat/unread', authenticate, asyncHandler(async (req, res) => {
+  const { roomId } = req.query;
+
+  try {
+    const unreadCount = await ChatService.getUnreadCount(req.user.id, roomId);
+
+    res.json({
+      success: true,
+      unreadCount,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+}));
+
+/**
+ * POST /api/chat/rooms/:roomId/members
+ * Add member to room (Admin, Owner only)
+ */
+app.post('/api/chat/rooms/:roomId/members', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
+  const { userId, userName, role } = req.body;
+
+  if (!userId || !userName) {
+    return res.status(400).json({
+      success: false,
+      error: 'User ID and name are required',
+    });
+  }
+
+  try {
+    const room = await ChatService.addMemberToRoom(
+      req.params.roomId,
+      userId,
+      userName,
+      role || 'member'
+    );
+
+    if (!room) {
+      return res.status(404).json({
+        success: false,
+        error: 'Room not found or user already a member',
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Member added to room successfully',
+      room,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+}));
+
+/**
+ * POST /api/chat/rooms/:roomId/mute
+ * Mute room for user
+ */
+app.post('/api/chat/rooms/:roomId/mute', authenticate, asyncHandler(async (req, res) => {
+  try {
+    await ChatService.muteRoom(req.params.roomId, req.user.id);
+
+    res.json({
+      success: true,
+      message: 'Room muted successfully',
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+}));
+
+/**
+ * POST /api/chat/rooms/:roomId/unmute
+ * Unmute room for user
+ */
+app.post('/api/chat/rooms/:roomId/unmute', authenticate, asyncHandler(async (req, res) => {
+  try {
+    await ChatService.unmuteRoom(req.params.roomId, req.user.id);
+
+    res.json({
+      success: true,
+      message: 'Room unmuted successfully',
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+}));
+
 // ==================== ANALYTICS ENDPOINTS ====================
 
 /**

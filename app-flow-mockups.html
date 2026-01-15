@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sisters Promise App - User Flow Mockups</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+            font-size: 32px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .flow-section {
+            margin-bottom: 50px;
+        }
+
+        .section-title {
+            color: white;
+            font-size: 24px;
+            margin-bottom: 30px;
+            text-align: center;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .screens-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .phone-frame {
+            background: white;
+            border-radius: 40px;
+            padding: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 350px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .phone-screen {
+            background: linear-gradient(180deg, #f5f5f5 0%, #ffffff 100%);
+            border-radius: 35px;
+            overflow: hidden;
+            aspect-ratio: 9/16;
+            display: flex;
+            flex-direction: column;
+            font-size: 14px;
+            position: relative;
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05);
+        }
+
+        .phone-notch {
+            height: 30px;
+            background: #000;
+            border-radius: 0 0 20px 20px;
+        }
+
+        .screen-header {
+            background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .screen-header.secondary {
+            background: linear-gradient(135deg, #00b894 0%, #55efc4 100%);
+        }
+
+        .screen-header.warning {
+            background: linear-gradient(135deg, #fdcb6e 0%, #6c5ce7 100%);
+        }
+
+        .screen-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            font-size: 12px;
+            color: #636e72;
+            font-weight: 600;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #dfe6e9;
+            border-radius: 6px;
+            font-size: 13px;
+            background: #f8f9fa;
+        }
+
+        .btn {
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6c5ce7 0%, #5f3dc4 100%);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #6c5ce7;
+            border: 2px solid #6c5ce7;
+            width: 100%;
+        }
+
+        .product-card {
+            background: white;
+            border: 1px solid #dfe6e9;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .product-image {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 6px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .product-info {
+            flex: 1;
+        }
+
+        .product-name {
+            font-weight: 600;
+            font-size: 13px;
+            color: #2d3436;
+            margin-bottom: 4px;
+        }
+
+        .product-price {
+            color: #6c5ce7;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .product-desc {
+            color: #b2bec3;
+            font-size: 11px;
+            margin-top: 2px;
+        }
+
+        .qty-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .qty-btn {
+            width: 24px;
+            height: 24px;
+            border: 1px solid #dfe6e9;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .qty-display {
+            min-width: 30px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .tab-nav {
+            display: flex;
+            gap: 0;
+            border-bottom: 1px solid #dfe6e9;
+            margin-bottom: 15px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #b2bec3;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+        }
+
+        .tab.active {
+            color: #6c5ce7;
+            border-bottom-color: #6c5ce7;
+        }
+
+        .screen-number {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            background: rgba(0,0,0,0.1);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .screen-label {
+            text-align: center;
+            margin-top: 15px;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 30px 0;
+        }
+
+        .step {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+        }
+
+        .step.active {
+            background: white;
+            width: 30px;
+            border-radius: 5px;
+        }
+
+        .divider {
+            color: rgba(255,255,255,0.5);
+            text-align: center;
+            margin: 40px 0;
+            font-size: 24px;
+        }
+
+        .notification-badge {
+            display: inline-block;
+            background: #e17055;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            font-size: 11px;
+            font-weight: 700;
+            line-height: 20px;
+            text-align: center;
+        }
+
+        .price-breakdown {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: auto;
+            font-size: 12px;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            color: #636e72;
+        }
+
+        .price-row.total {
+            border-top: 1px solid #dfe6e9;
+            padding-top: 8px;
+            margin-top: 8px;
+            font-weight: 700;
+            color: #2d3436;
+        }
+
+        .icon {
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        .screen-footer {
+            padding: 12px 20px;
+            border-top: 1px solid #dfe6e9;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: space-around;
+            font-size: 11px;
+            color: #b2bec3;
+            flex-shrink: 0;
+        }
+
+        .footer-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .hero-image {
+            width: 100%;
+            height: 120px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .login-link {
+            text-align: center;
+            color: #6c5ce7;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .cart-item {
+            background: white;
+            border: 1px solid #dfe6e9;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .cart-item-image {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 28px;
+            flex-shrink: 0;
+        }
+
+        .cart-item-details {
+            flex: 1;
+        }
+
+        .cart-item-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: #2d3436;
+            margin-bottom: 4px;
+        }
+
+        .cart-item-price {
+            color: #6c5ce7;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .remove-btn {
+            color: #e17055;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px 20px;
+            color: #b2bec3;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .screen-content.scrollable {
+            overflow-y: scroll;
+        }
+
+        .screen-content.scrollable::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .screen-content.scrollable::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .screen-content.scrollable::-webkit-scrollbar-thumb {
+            background: #dfe6e9;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛍️ Sisters Promise App - Complete User Flow</h1>
+        <p style="text-align: center; color: white; margin-bottom: 50px; font-size: 16px;">Registration → Home → Shopping → Cart → Checkout</p>
+
+        <!-- PHASE 1: AUTHENTICATION -->
+        <div class="flow-section">
+            <div class="section-title">Phase 1: Authentication</div>
+            
+            <div class="screens-grid">
+                <!-- Screen 1: Welcome -->
+                <div>
+                    <div class="phone-frame">
+                        <div class="phone-screen">
+                            <div class="phone-notch"></div>
+                            <div class="screen-number">1</div>
+                            <div class="screen-header">Sisters Promise</div>
+                            <div class="screen-content">
+                                <div class="hero-image">✨</div>
+                                <h2 style="font-size: 20px; color: #2d3436; margin-bottom: 10px; text-align: center;">Welcome to Sisters Promise</h2>
+                                <p style="color: #636e72; font-size: 13px; text-align: center; margin-bottom: 20px;">Pure, natural skincare for healthy, glowing skin</p>
+                                <button class="btn btn-primary">Create Account</button>
+                                <button class="btn btn-secondary">Sign In</button>
+                                <div class="login-link">Continue as guest</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="screen-label">Screen 1: Welcome</div>
+                </div>
+
+                <!-- Screen 2: Register -->
+                <div>
+                    <div class="phone-frame">
+                        <div class="phone-screen">
+                            <div class="phone-notch"></div>
+                            <div class="screen-number">2</div>
+                            <div class="screen-header">Create Account</div>
+                            <div class="screen-content">
+                                <div class="form-group">
+                                    <label class="form-label">First Name</label>
+                                    <input type="text" class="form-input" placeholder="Sarah">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Last Name</label>
+                                    <input type="text" class="form-input" placeholder="Johnson">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Email Address</label>
+                                    <input type="email" class="form-input" placeholder="sarah@example.com">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Password</label>
+                                    <input type="password" class="form-input" placeholder="••••••••" value="password123">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Confirm Password</label>
+                                    <input type="password" class="form-input" placeholder="••••••••" value="password123">
+                                </div>
+                                <button class="btn btn-primary" style="margin-top: 20px;">Sign Up</button>
+                                <div class="login-link">Already have an account? Sign In</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="screen-label">Screen 2: Register</div>
+                </div>
+
+                <!-- Screen 3: Login -->
+                <div>
+                    <div class="phone-frame">
+                        <div class="phone-screen">
+                            <div class="phone-notch"></div>
+                            <div class="screen-number">3</div>
+                            <div class="screen-header">Sign In</div>
+                            <div class="screen-content">
+                                <div class="hero-image">🔐</div>
+                                <div class="form-group">
+                                    <label class="form-label">Email Address</label>
+                                    <input type="email" class="form-input" placeholder="sarah@example.com" value="sarah@example.com">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Password</label>
+                                    <input type="password" class="form-input" placeholder="••••••••" value="password123">
+                                </div>
+                                <button class="btn btn-primary">Sign In</button>
+                                <div class="login-link">Forgot Password?</div>
+                                <div style="text-align: center; color: #b2bec3; font-size: 12px; margin-top: 15px;">Don't have an account? Create one</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="screen-label">Screen 3: Login</div>
+                </div>
+            </div>
+
+            <div class="step-indicator">
+                <div class="step active"></div>
+                <div class="step"></div>
+                <div class="step"></div>
+                <div class="step"></div>
+                <div class="step"></div>
+            </div>
+        </div>
+
+        <div class="divider">↓</div>
+
+        <!-- PHASE 2: HOME & SHOPPING -->
+        <div class="flow-section">
+            <div class="section-title">Phase 2: Home & Product Discovery</div>
+            
+            <div class="screens-grid">
+                <!-- Screen 4: Home Feed -->
+                <div>
+                    <div class="phone-frame">
+                        <div class="phone-screen">
+                            <div class="phone-notch"></div>
+                            <div class="screen-number">4</div>
+                            <div class="screen-header">Sisters Promise</div>
+                            <div class="screen-content scrollable">
+                                <div style="padding: 0 -20px;">
+                                    <div class="hero-image" style="margin: -20px -20px 15px -20px; border-radius: 0;">🌿</div>
+                                </div>
+                                <div style="margin-bottom: 15px;">
+                                    <h3 style="font-size: 16px; color: #2d3436; margin-bottom: 8px;">Featured Products</h3>
+                                </div>
+                                <div class="product-card">
+                                    <div class="product-image">🧼</div>
+                                    <div class="product-info">
+                                        <div class="product-name">Sea Moss Soap</div>
+                                        <div class="product-price">$12.99</div>
+                                        <div class="product-desc">100% Natural • Organic</div>
+                                    </div>
+                                </div>
+                                <div class="product-card">
+                                    <div class="product-image">🧴</div>
+                                    <div class="product-info">
+                                        <div class="product-name">Body Lotion</div>
+                                        <div class="product-price">$18.99</div>
+                                        <div class="product-desc">Nourishing • Hydrating</div>
+                                    </div>
+                                </div>
+                                <div class="product-card">
+                                    <div class="product-image">🌾</div>
+                                    <div class="product-info">
+                                        <div class="product-name">Skin Scrub</div>
+                                        <div class="product-price">$15.99</div>
+                                        <div class="product-desc">Exfoliating • Refreshing</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="screen-footer">
+                                <div class="footer-item">🏠 Home</div>
+                                <div class="footer-item">🔍 Search</div>
+                                <div class="footer-item">❤️ Wishlist</div>
+                                <div class="footer-item">👤 Profile</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="screen-label">Screen 4: Home Feed</div>
+                </div>
+
+                <!-- Screen 5: Product Details -->
+                <div>
+                    <div class="phone-frame">
+                        <div class="phone-screen">
+                            <div class="phone-notch"></div>
+                            <div class="screen-number">5</div>
+                            <div class="screen-header secondary">Sea Moss Soap</div>
+                            <div class="screen-content scrollable">
+                                <div class="hero-image">🧼</div>
+                                <div style="margin-bottom: 15px;">
+                                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                                        <span style="color: #f39c12; font-size: 12px;">★★★★★</span>
+                                        <span style="color: #636e72; font-size: 12px;">(324 reviews)</span>
+                                    </div>
+                                    <h2 style="font-size: 18px; color: #2d3436; margin-bottom: 8px;">Sea Moss Soap</h2>
+                                    <div style="font-size: 20px; color: #6c5ce7; font-weight: 700; margin-bottom: 15px;">$12.99</div>
+                                </div>
+                                <div style="background: #f0f3ff; padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 12px; color: #2d3436; line-height: 1.5;">
+                                    Pure sea moss and natural oils create a luxurious lather that cleanses and nourishes your skin. Perfect for all skin types.
+                                </div>
+                                <div style="margin-bottom: 15px;">
+                                    <h4 style="font-size: 13px; color: #2d3436; font-weight: 600; margin-bottom: 8px;">Key Benefits:</h4>
+                                    <ul style="font-size: 12px; color: #636e72; padding-left: 15px; line-height: 1.8;">
+                                        <li>100% Natural Ingredients</li>
+                                        <li>Cruelty-Free & Vegan</li>
+                                        <li>Handmade with Care</li>
+                                        <li>Free Shipping on Orders $50+</li>
+                                    </ul>
+                                </div>
+                                <div class="qty-control">
+                                    <button class="qty-btn">−</button>
+                                    <div class="qty-display">1</div>
+                                    <button class="qty-btn">+</button>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" style="margin: 12px 20px 0 20px; width: calc(100% - 40px);">Add to Cart</button>
+                        </div>
+                    </div>
+                    <div class="screen-label">Screen 5: Product Details</div>
+                </div>
+
+                <!-- Screen 6: Search/Browse -->
+                <div>
+                    <div class="phone-frame">
+                        <div class="phone-screen">
+                            <div class="phone-notch"></div>
+                            <div class="screen-number">6</div>
+                            <div class="screen-header warning">Browse Products</div>
+                            <div class="screen-content scrollable">
+                                <div style="margin-bottom: 15px;">
+                                    <input type="text" class="form-input" placeholder="🔍 Search products..." style="margin-bottom: 15px;">
+                                    <div class="tab-nav">
+                                        <div class="tab active">All</div>
+                                        <div class="tab">Soaps</div>
+                                        <div class="tab">Lotions</div>
+                                        <div class="tab">More</div>
+                                    </div>
+                                </div>
+                                <div class="product-card">
+                                    <div class="product-image">🧼</div>
+                                    <div class="product-info">
+                                        <div class="product-name">Sea Moss Soap</div>
+                                        <div class="product-price">$12.99</div>
+                                        <div class="product-desc">100% Natural</div>
+                                    </div>
+                                </div>
+                                <div class="product-card">
+                                    <div class="product-image">🧴</div>
+                                    <div class="product-info">
+                                        <div class="product-name">Lavender Lotion</div>
+                                        <div class="product-price">$18.99</div>
+                                        <div class="product-desc">Soothing blend</div>
+                                    </div>
+                                </div>
+                                <div class="product-card">
+                                    <div class="product-image">🌾</div>
+                                    <div class="product-info">
+                                        <div class="product-name">Honey Scrub</div>
+                                        <div class="product-price">$15.99</div>
+                                        <div class="product-desc">Gentle exfoliant</div>
+                                    </div>
+                                </div>
+                                <div class="product-card">
+                                    <div class="product-image">💋</div>
+                                    <div class="product-info">
+                                        <div class="product-name">Lip Balm</div>
+                                        <div class="product-price">$8.99</div>
+                                        <div class="product-desc">Moisturizing</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="screen-footer">
+                                <div class="footer-item">🏠 Home</div>
+                                <div class="footer-item">🔍 Search</div>
+                                <div class="footer-item">❤️ Wishlist</div>
+                                <div class="footer-item">👤 Profile</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="screen-label">Screen 6: Search & Browse</div>
+                </div>
+            </div>
+
+            <div class="step-indicator">
+                <div class="step"></div>
+                <div class="step active"></div>
+                <div class="step"></div>
+                <div class="step"></div>
+                <div class="step"></div>
+            </div>
+        </div>
+
+        <div class="divider">↓</div>
+
+        <!-- PHASE 3: SHOPPING CART -->
+        <div class="flow-section">
+            <div class="section-title">Phase 3: Shopping Cart & Checkout</div>
+            
+            <div class="screens-grid">
+                <!-- Screen 7: Shopping Cart -->
+                <div>
+                    <div class="phone-frame">
+                        <div class="phone-screen">
+                            <div class="phone-notch"></div>
+                            <div class="screen-number">7</div>
+                            <div class="screen-header">Shopping Cart <span class="notification-badge">3</span></div>
+                            <div class="screen-content scrollable">
+                                <div class="cart-item">
+                                    <div class="cart-item-image">🧼</div>
+                                    <div class="cart-item-details">
+                                        <div class="cart-item-name">Sea Moss Soap</div>
+                                        <div class="cart-item-price">$12.99 × 2</div>
+                                        <div class="qty-control">
+                                            <button class="qty-btn">−</button>
+                                            <div class="qty-display">2</div>
+                                            <button class="qty-btn">+</button>
+                                        </div>
+                                        <div class="remove-btn">Remove</div>
+                                    </div>
+                                </div>
+
+                                <div class="cart-item">
+                                    <div class="cart-item-image">🧴</div>
+                                    <div class="cart-item-details">
+                                        <div class="cart-item-name">Body Lotion</div>
+                                        <div class="cart-item-price">$18.99 × 1</div>
+                                        <div class="qty-control">
+                                            <button class="qty-btn">−</button>
+                                            <div class="qty-display">1</div>
+                                            <button class="qty-btn">+</button>
+                                        </div>
+                                        <div class="remove-btn">Remove</div>
+                                    </div>
+                                </div>
+
+                                <div class="cart-item">
+                                    <div class="cart-item-image">💋</div>
+                                    <div class="cart-item-details">
+                                        <div class="cart-item-name">Lip Balm</div>
+                                        <div class="cart-item-price">$8.99 × 1</div>
+                                        <div class="qty-control">
+                                            <button class="qty-btn">−</button>
+                                            <div class="qty-display">1</div>
+                                            <button class="qty-btn">+</button>
+                                        </div>
+                                        <div class="remove-btn">Remove</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="price-breakdown">
+                                <div class="price-row">
+                                    <span>Subtotal:</span>
+                                    <span>$51.96</span>
+                                </div>
+                                <div class="price-row">
+                                    <span>Shipping:</span>
+                                    <span style="color: #00b894;">FREE</span>
+                                </div>
+                                <div class="price-row">
+                                    <span>Tax:</span>
+                                    <span>$4.16</span>
+                                </div>
+                                <div class="price-row total">
+                                    <span>Total:</span>
+                                    <span style="color: #6c5ce7;">$56.12</span>
+                                </div>
+                            </div>
+
+                            <button class="btn btn-primary" style="margin: 12px 0 0 0; width: 100%;">Proceed to Checkout</button>
+                        </div>
+                    </div>
+                    <div class="screen-label">Screen 7: Shopping Cart</div>
+                </div>
+
+                <!-- Screen 8: Cart Empty -->
+                <div>
+                    <div class="phone-frame">
+                        <div class="phone-screen">
+                            <div class="phone-notch"></div>
+                            <div class="screen-number">8</div>
+                            <div class="screen-header">Shopping Cart</div>
+                            <div class="screen-content" style="justify-content: center;">
+                                <div class="empty-state">
+                                    <div class="empty-state-icon">🛒</div>
+                                    <h3 style="font-size: 16px; color: #2d3436; margin-bottom: 8px;">Your Cart is Empty</h3>
+                                    <p style="font-size: 13px; margin-bottom: 20px;">Start shopping to add items to your cart</p>
+                                    <button class="btn btn-primary">Continue Shopping</button>
+                                </div>
+                            </div>
+                            <div class="screen-footer">
+                                <div class="footer-item">🏠 Home</div>
+                                <div class="footer-item">🔍 Search</div>
+                                <div class="footer-item">❤️ Wishlist</div>
+                                <div class="footer-item">👤 Profile</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="screen-label">Screen 8: Empty Cart</div>
+                </div>
+
+                <!-- Screen 9: Checkout -->
+                <div>
+                    <div class="phone-frame">
+                        <div class="phone-screen">
+                            <div class="phone-notch"></div>
+                            <div class="screen-number">9</div>
+                            <div class="screen-header secondary">Checkout</div>
+                            <div class="screen-content scrollable">
+                                <div style="margin-bottom: 15px;">
+                                    <h4 style="font-size: 13px; color: #2d3436; font-weight: 600; margin-bottom: 10px;">📍 Shipping Address</h4>
+                                    <div class="form-group">
+                                        <label class="form-label">Full Name</label>
+                                        <input type="text" class="form-input" value="Sarah Johnson">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Street Address</label>
+                                        <input type="text" class="form-input" value="123 Main Street">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">City</label>
+                                        <input type="text" class="form-input" value="New York">
+                                    </div>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                        <div class="form-group" style="margin-bottom: 0;">
+                                            <label class="form-label">State</label>
+                                            <input type="text" class="form-input" value="NY">
+                                        </div>
+                                        <div class="form-group" style="margin-bottom: 0;">
+                                            <label class="form-label">ZIP Code</label>
+                                            <input type="text" class="form-input" value="10001">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div style="margin-bottom: 15px;">
+                                    <h4 style="font-size: 13px; color: #2d3436; font-weight: 600; margin-bottom: 10px;">💳 Payment Method</h4>
+                                    <div class="form-group">
+                                        <label class="form-label">Card Number</label>
+                                        <input type="text" class="form-input" placeholder="•••• •••• •••• 4242">
+                                    </div>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                        <div class="form-group" style="margin-bottom: 0;">
+                                            <label class="form-label">Expiry</label>
+                                            <input type="text" class="form-input" placeholder="MM/YY">
+                                        </div>
+                                        <div class="form-group" style="margin-bottom: 0;">
+                                            <label class="form-label">CVV</label>
+                                            <input type="text" class="form-input" placeholder="•••">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="price-breakdown">
+                                <div class="price-row">
+                                    <span>Subtotal:</span>
+                                    <span>$51.96</span>
+                                </div>
+                                <div class="price-row">
+                                    <span>Shipping:</span>
+                                    <span>FREE</span>
+                                </div>
+                                <div class="price-row total">
+                                    <span>Total:</span>
+                                    <span>$56.12</span>
+                                </div>
+                            </div>
+
+                            <button class="btn btn-primary" style="margin: 12px 0 0 0; width: 100%;">Complete Purchase</button>
+                        </div>
+                    </div>
+                    <div class="screen-label">Screen 9: Checkout Form</div>
+                </div>
+            </div>
+
+            <div class="step-indicator">
+                <div class="step"></div>
+                <div class="step"></div>
+                <div class="step active"></div>
+                <div class="step"></div>
+                <div class="step"></div>
+            </div>
+        </div>
+
+        <div class="divider">↓</div>
+
+        <!-- PHASE 4: ORDER CONFIRMATION & PROFILE -->
+        <div class="flow-section">
+            <div class="section-title">Phase 4: Confirmation & Profile</div>
+            
+            <div class="screens-grid">
+                <!-- Screen 10: Order Confirmation -->
+                <div>
+                    <div class="phone-frame">
+                        <div class="phone-screen">
+                            <div class="phone-notch"></div>
+                            <div class="screen-number">10</div>
+                            <div class="screen-header secondary">Order Confirmed!</div>
+                            <div class="screen-content" style="justify-content: center; align-items: center; text-align: center;">
+                                <div style="font-size: 48px; margin-bottom: 15px;">✅</div>
+                                <h2 style="font-size: 18px; color: #2d3436; margin-bottom: 8px;">Thank You!</h2>
+                                <p style="color: #636e72; font-size: 13px; margin-bottom: 15px;">Your order has been confirmed</p>
+                                <div style="background: #f0f3ff; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+                                    <div style="font-size: 12px; color: #636e72; margin-bottom: 5px;">Order ID</div>
+                                    <div style="font-size: 16px; font-weight: 700; color: #6c5ce7; font-family: monospace;">ORD-2024-5647</div>
+                                </div>
+                                <p style="color: #636e72; font-size: 12px; margin-bottom: 20px; line-height: 1.6;">
+                                    A confirmation email has been sent to sarah@example.com
+                                </p>
+                                <button class="btn btn-primary" style="margin-bottom: 10px;">Track Order</button>
+                                <button class="btn btn-secondary">Continue Shopping</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="screen-label">Screen 10: Order Confirmed</div>
+                </div>
+
+                <!-- Screen 11: Order History -->
+                <div>
+                    <div class="phone-frame">
+                        <div class="phone-screen">
+                            <div class="phone-notch"></div>
+                            <div class="screen-number">11</div>
+                            <div class="screen-header">My Orders</div>
+                            <div class="screen-content scrollable">
+                                <div class="product-card" style="background: linear-gradient(135deg, #f0f3ff 0%, #e8f0ff 100%); border: 1px solid #dfe6e9;">
+                                    <div style="flex: 1;">
+                                        <div style="font-weight: 600; color: #2d3436; margin-bottom: 4px;">Order #ORD-2024-5647</div>
+                                        <div style="color: #636e72; font-size: 12px; margin-bottom: 4px;">Jan 15, 2026</div>
+                                        <div style="color: #00b894; font-weight: 600; font-size: 12px;">✓ Delivered</div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div style="color: #6c5ce7; font-weight: 700; font-size: 14px;">$56.12</div>
+                                    </div>
+                                </div>
+
+                                <div class="product-card" style="background: linear-gradient(135deg, #fff9e6 0%, #ffe8cc 100%); border: 1px solid #dfe6e9;">
+                                    <div style="flex: 1;">
+                                        <div style="font-weight: 600; color: #2d3436; margin-bottom: 4px;">Order #ORD-2024-5501</div>
+                                        <div style="color: #636e72; font-size: 12px; margin-bottom: 4px;">Jan 8, 2026</div>
+                                        <div style="color: #f39c12; font-weight: 600; font-size: 12px;">⏱ Processing</div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div style="color: #6c5ce7; font-weight: 700; font-size: 14px;">$35.99</div>
+                                    </div>
+                                </div>
+
+                                <div class="product-card">
+                                    <div style="flex: 1;">
+                                        <div style="font-weight: 600; color: #2d3436; margin-bottom: 4px;">Order #ORD-2024-5234</div>
+                                        <div style="color: #636e72; font-size: 12px; margin-bottom: 4px;">Dec 28, 2025</div>
+                                        <div style="color: #00b894; font-weight: 600; font-size: 12px;">✓ Delivered</div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div style="color: #6c5ce7; font-weight: 700; font-size: 14px;">$42.50</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="screen-footer">
+                                <div class="footer-item">🏠 Home</div>
+                                <div class="footer-item">🔍 Search</div>
+                                <div class="footer-item">❤️ Wishlist</div>
+                                <div class="footer-item">👤 Profile</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="screen-label">Screen 11: Order History</div>
+                </div>
+
+                <!-- Screen 12: User Profile -->
+                <div>
+                    <div class="phone-frame">
+                        <div class="phone-screen">
+                            <div class="phone-notch"></div>
+                            <div class="screen-number">12</div>
+                            <div class="screen-header">My Profile</div>
+                            <div class="screen-content scrollable">
+                                <div style="text-align: center; margin-bottom: 20px;">
+                                    <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;">👤</div>
+                                    <h3 style="font-size: 16px; color: #2d3436; margin-bottom: 4px;">Sarah Johnson</h3>
+                                    <p style="color: #636e72; font-size: 12px;">sarah@example.com</p>
+                                </div>
+
+                                <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; margin-bottom: 15px;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #dfe6e9;">
+                                        <span style="color: #636e72; font-size: 13px;">Total Orders</span>
+                                        <span style="color: #2d3436; font-weight: 700;">3</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #dfe6e9;">
+                                        <span style="color: #636e72; font-size: 13px;">Total Spent</span>
+                                        <span style="color: #2d3436; font-weight: 700;">$134.61</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span style="color: #636e72; font-size: 13px;">Member Since</span>
+                                        <span style="color: #2d3436; font-weight: 700;">Jan 2026</span>
+                                    </div>
+                                </div>
+
+                                <h4 style="font-size: 13px; color: #2d3436; font-weight: 600; margin-bottom: 10px;">Account Settings</h4>
+                                <button class="btn btn-secondary" style="margin-bottom: 8px; padding: 8px; text-align: left;">📍 Manage Addresses</button>
+                                <button class="btn btn-secondary" style="margin-bottom: 8px; padding: 8px; text-align: left;">🔒 Change Password</button>
+                                <button class="btn btn-secondary" style="margin-bottom: 8px; padding: 8px; text-align: left;">📧 Email Preferences</button>
+                                <button class="btn btn-secondary" style="margin-bottom: 8px; padding: 8px; text-align: left;">🛡️ Privacy Policy</button>
+                                <button class="btn btn-secondary" style="padding: 8px; text-align: left; color: #e17055;">🚪 Sign Out</button>
+                            </div>
+                            <div class="screen-footer">
+                                <div class="footer-item">🏠 Home</div>
+                                <div class="footer-item">🔍 Search</div>
+                                <div class="footer-item">❤️ Wishlist</div>
+                                <div class="footer-item">👤 Profile</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="screen-label">Screen 12: User Profile</div>
+                </div>
+            </div>
+
+            <div class="step-indicator">
+                <div class="step"></div>
+                <div class="step"></div>
+                <div class="step"></div>
+                <div class="step active"></div>
+                <div class="step"></div>
+            </div>
+        </div>
+
+        <div class="divider">↓</div>
+
+        <!-- PHASE 5: ADDITIONAL FEATURES -->
+        <div class="flow-section">
+            <div class="section-title">Phase 5: Additional Features</div>
+            
+            <div class="screens-grid">
+                <!-- Screen 13: Search -->
+                <div>
+                    <div class="phone-frame">
+                        <div class="phone-screen">
+                            <div class="phone-notch"></div>
+                            <div class="screen-number">13</div>
+                            <div class="screen-header warning">Search</div>
+                            <div class="screen-content scrollable">
+                                <div style="margin-bottom: 15px;">
+                                    <input type="text" class="form-input" placeholder="🔍 Search products..." style="margin-bottom: 15px;" value="soap">
+                                </div>
+                                <div style="color: #636e72; font-size: 12px; margin-bottom: 10px;">3 results found</div>
+                                <div class="product-card">
+                                    <div class="product-image">🧼</div>
+                                    <div class="product-info">
+                                        <div class="product-name">Sea Moss Soap</div>
+                                        <div class="product-price">$12.99</div>
+                                        <div class="product-desc">100% Natural</div>
+                                    </div>
+                                </div>
+                                <div class="product-card">
+                                    <div class="product-image">🧼</div>
+                                    <div class="product-info">
+                                        <div class="product-name">Oatmeal Soap</div>
+                                        <div class="product-price">$11.99</div>
+                                        <div class="product-desc">Soothing</div>
+                                    </div>
+                                </div>
+                                <div class="product-card">
+                                    <div class="product-image">🧼</div>
+                                    <div class="product-info">
+                                        <div class="product-name">Charcoal Soap</div>
+                                        <div class="product-price">$13.99</div>
+                                        <div class="product-desc">Detoxifying</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="screen-footer">
+                                <div class="footer-item">🏠 Home</div>
+                                <div class="footer-item">🔍 Search</div>
+                                <div class="footer-item">❤️ Wishlist</div>
+                                <div class="footer-item">👤 Profile</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="screen-label">Screen 13: Search Results</div>
+                </div>
+
+                <!-- Screen 14: Wishlist -->
+                <div>
+                    <div class="phone-frame">
+                        <div class="phone-screen">
+                            <div class="phone-notch"></div>
+                            <div class="screen-number">14</div>
+                            <div class="screen-header secondary">❤️ My Wishlist</div>
+                            <div class="screen-content scrollable">
+                                <div class="product-card">
+                                    <div class="product-image">🧴</div>
+                                    <div class="product-info">
+                                        <div class="product-name">Lavender Lotion</div>
+                                        <div class="product-price">$18.99</div>
+                                        <div class="product-desc">Soothing blend</div>
+                                    </div>
+                                </div>
+                                <div class="product-card">
+                                    <div class="product-image">🌾</div>
+                                    <div class="product-info">
+                                        <div class="product-name">Rose Hip Scrub</div>
+                                        <div class="product-price">$16.99</div>
+                                        <div class="product-desc">Anti-aging</div>
+                                    </div>
+                                </div>
+                                <div class="product-card">
+                                    <div class="product-image">💋</div>
+                                    <div class="product-info">
+                                        <div class="product-name">Shea Butter Lip Balm</div>
+                                        <div class="product-price">$9.99</div>
+                                        <div class="product-desc">Ultra moisturizing</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" style="margin: 12px 20px 0 20px; width: calc(100% - 40px);">Add All to Cart</button>
+                            <div class="screen-footer">
+                                <div class="footer-item">🏠 Home</div>
+                                <div class="footer-item">🔍 Search</div>
+                                <div class="footer-item">❤️ Wishlist</div>
+                                <div class="footer-item">👤 Profile</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="screen-label">Screen 14: Wishlist</div>
+                </div>
+
+                <!-- Screen 15: Privacy Policy -->
+                <div>
+                    <div class="phone-frame">
+                        <div class="phone-screen">
+                            <div class="phone-notch"></div>
+                            <div class="screen-number">15</div>
+                            <div class="screen-header">🛡️ Privacy Policy</div>
+                            <div class="screen-content scrollable">
+                                <h3 style="font-size: 14px; color: #2d3436; font-weight: 700; margin-bottom: 10px;">Privacy at Sisters Promise</h3>
+                                <p style="font-size: 12px; color: #636e72; line-height: 1.6; margin-bottom: 15px;">
+                                    We respect your privacy and are committed to protecting your personal data. This privacy policy explains how we collect, use, and protect your information.
+                                </p>
+                                <h4 style="font-size: 13px; color: #2d3436; font-weight: 600; margin-bottom: 8px;">Data Collection</h4>
+                                <p style="font-size: 12px; color: #636e72; line-height: 1.6; margin-bottom: 15px;">
+                                    We collect information to provide you with better service, including names, email addresses, and purchase history.
+                                </p>
+                                <h4 style="font-size: 13px; color: #2d3436; font-weight: 600; margin-bottom: 8px;">Data Protection</h4>
+                                <p style="font-size: 12px; color: #636e72; line-height: 1.6; margin-bottom: 15px;">
+                                    All data is encrypted with SSL/TLS technology and stored securely. We never share personal data with third parties.
+                                </p>
+                                <h4 style="font-size: 13px; color: #2d3436; font-weight: 600; margin-bottom: 8px;">Your Rights</h4>
+                                <p style="font-size: 12px; color: #636e72; line-height: 1.6;">
+                                    You have the right to access, modify, or delete your personal data at any time by contacting us.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="screen-label">Screen 15: Privacy Policy</div>
+                </div>
+            </div>
+
+            <div class="step-indicator">
+                <div class="step"></div>
+                <div class="step"></div>
+                <div class="step"></div>
+                <div class="step"></div>
+                <div class="step active"></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

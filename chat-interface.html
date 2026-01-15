@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sisters Promise - Central Chat System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+            font-size: 32px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .chat-demo {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            height: 600px;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+        }
+
+        .chat-sidebar {
+            background: #f8f9fa;
+            border-right: 1px solid #dfe6e9;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .chat-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #6c5ce7 0%, #5f3dc4 100%);
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+            border-bottom: 1px solid #dfe6e9;
+        }
+
+        .search-box {
+            padding: 12px;
+            margin: 12px;
+            border: 1px solid #dfe6e9;
+            border-radius: 6px;
+            font-size: 13px;
+            background: white;
+        }
+
+        .room-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .room-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid #e8eaed;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .room-item:hover {
+            background: #e8eaed;
+        }
+
+        .room-item.active {
+            background: linear-gradient(135deg, rgba(108, 92, 231, 0.1) 0%, rgba(95, 61, 196, 0.1) 100%);
+            border-left: 4px solid #6c5ce7;
+            padding-left: 12px;
+        }
+
+        .room-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .room-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .room-name {
+            font-weight: 600;
+            font-size: 13px;
+            color: #2d3436;
+            margin-bottom: 4px;
+        }
+
+        .room-preview {
+            font-size: 11px;
+            color: #b2bec3;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .unread-badge {
+            display: inline-block;
+            background: #e17055;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            font-size: 11px;
+            font-weight: 700;
+            line-height: 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .online-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #00b894;
+            margin-right: 4px;
+            display: inline-block;
+        }
+
+        .chat-area {
+            display: flex;
+            flex-direction: column;
+            background: white;
+        }
+
+        .chat-room-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #dfe6e9;
+            background: linear-gradient(135deg, #f5f7ff 0%, #f0f3ff 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .room-title {
+            font-weight: 700;
+            color: #2d3436;
+            font-size: 14px;
+        }
+
+        .room-members {
+            font-size: 12px;
+            color: #636e72;
+            margin-top: 4px;
+        }
+
+        .room-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            width: 36px;
+            height: 36px;
+            border: 1px solid #dfe6e9;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: #f0f3ff;
+            border-color: #6c5ce7;
+        }
+
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .message.own {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .message-bubble {
+            max-width: 60%;
+            background: #f0f3ff;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 13px;
+            color: #2d3436;
+            word-wrap: break-word;
+            line-height: 1.4;
+        }
+
+        .message.own .message-bubble {
+            background: linear-gradient(135deg, #6c5ce7 0%, #5f3dc4 100%);
+            color: white;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #b2bec3;
+            margin-top: 4px;
+            margin-left: 42px;
+        }
+
+        .message.own .message-time {
+            text-align: right;
+            margin-left: 0;
+            margin-right: 42px;
+        }
+
+        .system-message {
+            text-align: center;
+            color: #b2bec3;
+            font-size: 12px;
+            padding: 10px;
+            margin: 10px 0;
+            font-style: italic;
+        }
+
+        .input-area {
+            padding: 16px;
+            border-top: 1px solid #dfe6e9;
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            background: #f8f9fa;
+        }
+
+        .message-input {
+            flex: 1;
+            border: 1px solid #dfe6e9;
+            border-radius: 20px;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-family: inherit;
+            resize: none;
+            max-height: 100px;
+        }
+
+        .message-input:focus {
+            outline: none;
+            border-color: #6c5ce7;
+            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+        }
+
+        .send-btn {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #6c5ce7 0%, #5f3dc4 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
+        }
+
+        .features-section {
+            margin-top: 50px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .feature-icon {
+            font-size: 28px;
+            margin-bottom: 12px;
+        }
+
+        .feature-title {
+            font-weight: 700;
+            color: #2d3436;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .feature-desc {
+            font-size: 13px;
+            color: #636e72;
+            line-height: 1.6;
+        }
+
+        .chat-section-title {
+            color: white;
+            font-size: 24px;
+            margin-bottom: 30px;
+            text-align: center;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .desktop-chat-demo {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin-bottom: 50px;
+        }
+
+        .tab-navigation {
+            display: flex;
+            border-bottom: 1px solid #dfe6e9;
+            background: #f8f9fa;
+        }
+
+        .tab {
+            padding: 16px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            font-weight: 600;
+            font-size: 13px;
+            color: #b2bec3;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            color: #6c5ce7;
+            border-bottom-color: #6c5ce7;
+        }
+
+        .tab:hover {
+            color: #6c5ce7;
+        }
+
+        .tab-content {
+            padding: 20px;
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .code-block {
+            background: #2d3436;
+            color: #00ff00;
+            padding: 16px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+
+        .specs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .spec-item {
+            background: #f0f3ff;
+            padding: 16px;
+            border-radius: 8px;
+            border-left: 4px solid #6c5ce7;
+        }
+
+        .spec-label {
+            font-size: 12px;
+            color: #636e72;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .spec-value {
+            font-size: 14px;
+            color: #2d3436;
+            font-weight: 700;
+        }
+
+        .member-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        .member-badge.admin {
+            background: linear-gradient(135deg, #e17055 0%, #d63031 100%);
+        }
+
+        .member-badge.owner {
+            background: linear-gradient(135deg, #fdcb6e 0%, #f39c12 100%);
+            color: #2d3436;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            color: #b2bec3;
+            margin: 10px 0;
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #b2bec3;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                opacity: 0.3;
+                transform: translateY(0);
+            }
+            30% {
+                opacity: 1;
+                transform: translateY(-8px);
+            }
+        }
+
+        .timestamp-divider {
+            text-align: center;
+            color: #b2bec3;
+            font-size: 11px;
+            margin: 16px 0;
+            position: relative;
+        }
+
+        .timestamp-divider::before,
+        .timestamp-divider::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 50%;
+            height: 1px;
+            background: #dfe6e9;
+        }
+
+        .timestamp-divider span {
+            position: relative;
+            background: white;
+            padding: 0 8px;
+        }
+
+        .privacy-info {
+            background: #fff3cd;
+            border-left: 4px solid #fdcb6e;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #856404;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .mobile-chat-frame {
+            background: white;
+            border-radius: 40px;
+            padding: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 350px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .phone-screen {
+            background: white;
+            border-radius: 35px;
+            overflow: hidden;
+            aspect-ratio: 9/16;
+            display: flex;
+            flex-direction: column;
+            font-size: 14px;
+            position: relative;
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05);
+        }
+
+        .phone-notch {
+            height: 30px;
+            background: #000;
+            border-radius: 0 0 20px 20px;
+        }
+
+        .mobile-screens-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .screen-label {
+            text-align: center;
+            margin-top: 15px;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .list-section {
+            margin-bottom: 24px;
+        }
+
+        .list-title {
+            font-weight: 700;
+            color: #2d3436;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .list-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 8px 0;
+            font-size: 13px;
+            color: #636e72;
+            line-height: 1.5;
+        }
+
+        .list-item::before {
+            content: '✓';
+            color: #00b894;
+            font-weight: 700;
+            min-width: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💬 Sisters Promise - Central Chat System</h1>
+
+        <!-- DESKTOP CHAT DEMO -->
+        <div class="chat-section-title">Desktop Chat Interface</div>
+        <div class="desktop-chat-demo">
+            <div class="tab-navigation">
+                <div class="tab active" onclick="showTab('overview')">💬 Chat Room</div>
+                <div class="tab" onclick="showTab('features')">✨ Features</div>
+                <div class="tab" onclick="showTab('specs')">⚙️ Specifications</div>
+            </div>
+
+            <div id="overview" class="tab-content active">
+                <div class="chat-demo">
+                    <div class="chat-sidebar">
+                        <div class="chat-header">💬 Channels</div>
+                        <input type="text" class="search-box" placeholder="Search channels...">
+                        <div class="room-list">
+                            <div class="room-item active">
+                                <div class="room-avatar">👥</div>
+                                <div class="room-info">
+                                    <div class="room-name">General Discussion</div>
+                                    <div class="room-preview">Sarah: Excited to launch...</div>
+                                </div>
+                            </div>
+                            <div class="room-item">
+                                <div class="room-avatar">📦</div>
+                                <div class="room-info">
+                                    <div class="room-name">Product Updates</div>
+                                    <div class="room-preview">Admin: New collection available</div>
+                                </div>
+                                <div class="unread-badge">3</div>
+                            </div>
+                            <div class="room-item">
+                                <div class="room-avatar">🎯</div>
+                                <div class="room-info">
+                                    <div class="room-name">VIP Exclusive</div>
+                                    <div class="room-preview">Owner: VIP rewards updated</div>
+                                </div>
+                            </div>
+                            <div class="room-item">
+                                <div class="room-avatar">⚙️</div>
+                                <div class="room-info">
+                                    <div class="room-name">Admin Operations</div>
+                                    <div class="room-preview">Denise: System maintenance scheduled</div>
+                                </div>
+                            </div>
+                            <div class="room-item">
+                                <div class="room-avatar">💳</div>
+                                <div class="room-info">
+                                    <div class="room-name">Payments & Billing</div>
+                                    <div class="room-preview">Financial updates</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chat-area">
+                        <div class="chat-room-header">
+                            <div>
+                                <div class="room-title">👥 General Discussion</div>
+                                <div class="room-members">
+                                    <span class="online-indicator"></span>
+                                    5 members online
+                                </div>
+                            </div>
+                            <div class="room-actions">
+                                <button class="action-btn" title="Search">🔍</button>
+                                <button class="action-btn" title="Members">👥</button>
+                                <button class="action-btn" title="Info">ℹ️</button>
+                            </div>
+                        </div>
+
+                        <div class="messages-container">
+                            <div class="system-message">⭐ Welcome to General Discussion Channel</div>
+
+                            <div class="message">
+                                <div class="message-avatar">DJ</div>
+                                <div>
+                                    <div class="message-bubble">Hey everyone! Excited about the new product line launch 🚀</div>
+                                    <div class="message-time">10:30 AM</div>
+                                </div>
+                            </div>
+
+                            <div class="message">
+                                <div class="message-avatar">SP</div>
+                                <div>
+                                    <div class="message-bubble">Thanks for all your support! The response has been amazing 💚</div>
+                                    <div class="message-time">10:32 AM</div>
+                                </div>
+                            </div>
+
+                            <div class="message own">
+                                <div class="message-avatar">SJ</div>
+                                <div>
+                                    <div class="message-bubble">I'm loving the new formulation. Best batch yet!</div>
+                                    <div class="message-time">10:35 AM</div>
+                                </div>
+                            </div>
+
+                            <div class="message">
+                                <div class="message-avatar">AD</div>
+                                <div>
+                                    <div class="message-bubble">Just pushed the new inventory updates to the system 📋</div>
+                                    <div class="message-time">10:37 AM</div>
+                                </div>
+                            </div>
+
+                            <div class="typing-indicator">
+                                <span>Admin is typing</span>
+                                <div class="typing-dot"></div>
+                                <div class="typing-dot"></div>
+                                <div class="typing-dot"></div>
+                            </div>
+                        </div>
+
+                        <div class="input-area">
+                            <input type="text" class="message-input" placeholder="Type a message..." value="">
+                            <button class="send-btn">➤</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="features" class="tab-content">
+                <h2 style="color: #2d3436; margin-bottom: 20px; font-size: 18px;">✨ Chat System Features</h2>
+                
+                <div class="privacy-info">
+                    🔒 All messages are encrypted in transit (HTTPS/TLS) and encrypted at rest in the database.
+                </div>
+
+                <div class="list-section">
+                    <div class="list-title">Real-Time Messaging</div>
+                    <div class="list-item">WebSocket-based real-time message delivery (instant)</div>
+                    <div class="list-item">Message delivery status indicators (sent, delivered, read)</div>
+                    <div class="list-item">Typing indicators showing when others are composing</div>
+                    <div class="list-item">Fallback polling for non-WebSocket clients</div>
+                </div>
+
+                <div class="list-section">
+                    <div class="list-title">Channel Management</div>
+                    <div class="list-item">Dedicated channels for VIP, Admin, and Owner discussions</div>
+                    <div class="list-item">Create and manage group channels for specific topics</div>
+                    <div class="list-item">Channel descriptions and member lists</div>
+                    <div class="list-item">Archive inactive channels after 90 days</div>
+                </div>
+
+                <div class="list-section">
+                    <div class="list-title">User Management</div>
+                    <div class="list-item">Role-based access control (VIP, Admin, Owner)</div>
+                    <div class="list-item">Online/offline presence indicators</div>
+                    <div class="list-item">User profiles with avatar display</div>
+                    <div class="list-item">Admin moderation capabilities</div>
+                </div>
+
+                <div class="list-section">
+                    <div class="list-title">Message Features</div>
+                    <div class="list-item">Rich text formatting (bold, italic, links)</div>
+                    <div class="list-item">Emoji support with emoji picker</div>
+                    <div class="list-item">Message search and filtering</div>
+                    <div class="list-item">Message pinning (Admin only)</div>
+                    <div class="list-item">Edit messages within 24 hours of sending</div>
+                    <div class="list-item">Delete messages (Admin can delete any)</div>
+                </div>
+
+                <div class="list-section">
+                    <div class="list-title">Notifications</div>
+                    <div class="list-item">In-app notifications for new messages</div>
+                    <div class="list-item">Unread message badges</div>
+                    <div class="list-item">Desktop push notifications (browser)</div>
+                    <div class="list-item">Mute/unmute channels individually</div>
+                </div>
+
+                <div class="list-section">
+                    <div class="list-title">Admin Capabilities</div>
+                    <div class="list-item">View all channels and private discussions</div>
+                    <div class="list-item">Moderate messages and remove spam</div>
+                    <div class="list-item">Ban/remove members from channels</div>
+                    <div class="list-item">Create system announcements</div>
+                    <div class="list-item">Export chat logs for compliance</div>
+                </div>
+            </div>
+
+            <div id="specs" class="tab-content">
+                <h2 style="color: #2d3436; margin-bottom: 20px; font-size: 18px;">⚙️ Technical Specifications</h2>
+                
+                <div class="specs-grid">
+                    <div class="spec-item">
+                        <div class="spec-label">Real-Time Protocol</div>
+                        <div class="spec-value">WebSocket (ws/wss)</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Fallback Method</div>
+                        <div class="spec-value">HTTP Long Polling</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Message Retention</div>
+                        <div class="spec-value">Unlimited (Searchable)</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Max Message Size</div>
+                        <div class="spec-value">10,000 characters</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Typing Timeout</div>
+                        <div class="spec-value">3 seconds</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Presence Update</div>
+                        <div class="spec-value">Every 30 seconds</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Database</div>
+                        <div class="spec-value">MongoDB (Indexed)</div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-label">Encryption</div>
+                        <div class="spec-value">TLS 1.2+ in transit</div>
+                    </div>
+                </div>
+
+                <h3 style="color: #2d3436; margin-bottom: 12px; font-size: 14px; margin-top: 24px;">API Endpoints</h3>
+                <div class="code-block">
+POST   /api/chat/rooms                 Create new channel
+GET    /api/chat/rooms                 List all channels
+GET    /api/chat/rooms/:roomId         Get channel details
+PUT    /api/chat/rooms/:roomId         Update channel
+DELETE /api/chat/rooms/:roomId         Archive channel
+
+POST   /api/chat/messages              Send message
+GET    /api/chat/messages/:roomId      Get messages
+PUT    /api/chat/messages/:messageId   Edit message
+DELETE /api/chat/messages/:messageId   Delete message
+
+GET    /api/chat/presence              Get online users
+GET    /api/chat/search                Search messages
+GET    /api/chat/notifications         Get unread count
+                </div>
+
+                <h3 style="color: #2d3436; margin-bottom: 12px; font-size: 14px; margin-top: 24px;">WebSocket Events</h3>
+                <div class="code-block">
+CLIENT → SERVER:
+message           Send new message
+typing            Notify typing status
+presence:online   User came online
+presence:offline  User went offline
+read:message      Mark message as read
+ping              Keep-alive heartbeat
+
+SERVER → CLIENT:
+message:new       New message received
+message:updated   Message edited
+message:deleted   Message deleted
+user:typing       Someone is typing
+user:online       User came online
+user:offline      User went offline
+notification      New notification
+pong              Keep-alive response
+                </div>
+            </div>
+        </div>
+
+        <!-- MOBILE CHAT SCREENS -->
+        <div style="margin-top: 60px;">
+            <div class="chat-section-title">Mobile Chat Screens</div>
+            
+            <div class="mobile-screens-grid">
+                <!-- Screen 1: Chat List -->
+                <div>
+                    <div class="mobile-chat-frame">
+                        <div class="phone-screen">
+                            <div class="phone-notch"></div>
+                            <div style="background: linear-gradient(135deg, #6c5ce7 0%, #5f3dc4 100%); color: white; padding: 16px; text-align: center; font-weight: 700;">💬 Chat Channels</div>
+                            <div style="padding: 12px; background: #f8f9fa;">
+                                <input type="text" placeholder="🔍 Search channels..." style="width: 100%; padding: 10px 12px; border: 1px solid #dfe6e9; border-radius: 20px; font-size: 12px;">
+                            </div>
+                            <div style="flex: 1; overflow-y: auto; padding: 8px 0;">
+                                <div style="padding: 12px 8px; border-bottom: 1px solid #e8eaed; display: flex; align-items: center; gap: 10px; cursor: pointer; background: linear-gradient(135deg, rgba(108, 92, 231, 0.1) 0%, rgba(95, 61, 196, 0.1) 100%);">
+                                    <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700;">👥</div>
+                                    <div style="flex: 1;">
+                                        <div style="font-weight: 600; font-size: 13px; color: #2d3436;">General Discussion</div>
+                                        <div style="font-size: 11px; color: #636e72; margin-top: 2px;">5 members • Last message today</div>
+                                    </div>
+                                </div>
+                                <div style="padding: 12px 8px; border-bottom: 1px solid #e8eaed; display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                    <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700;">🎯</div>
+                                    <div style="flex: 1;">
+                                        <div style="font-weight: 600; font-size: 13px; color: #2d3436;">VIP Exclusive</div>
+                                        <div style="font-size: 11px; color: #636e72; margin-top: 2px;">12 members • 3 new messages</div>
+                                    </div>
+                                    <div style="background: #e17055; color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700;">3</div>
+                                </div>
+                                <div style="padding: 12px 8px; border-bottom: 1px solid #e8eaed; display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                    <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700;">⚙️</div>
+                                    <div style="flex: 1;">
+                                        <div style="font-weight: 600; font-size: 13px; color: #2d3436;">Admin Operations</div>
+                                        <div style="font-size: 11px; color: #636e72; margin-top: 2px;">Admin only • Updated 2h ago</div>
+                                    </div>
+                                </div>
+                                <div style="padding: 12px 8px; border-bottom: 1px solid #e8eaed; display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                    <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700;">📦</div>
+                                    <div style="flex: 1;">
+                                        <div style="font-weight: 600; font-size: 13px; color: #2d3436;">Product Updates</div>
+                                        <div style="font-size: 11px; color: #636e72; margin-top: 2px;">New products just added</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="padding: 12px; border-top: 1px solid #dfe6e9; background: #f8f9fa; display: flex; justify-content: space-around; text-align: center; font-size: 11px; color: #636e72;">
+                                <div style="flex: 1;">🏠</div>
+                                <div style="flex: 1; color: #6c5ce7; font-weight: 700;">💬</div>
+                                <div style="flex: 1;">👤</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="screen-label">Screen 1: Chat Channels</div>
+                </div>
+
+                <!-- Screen 2: Active Chat -->
+                <div>
+                    <div class="mobile-chat-frame">
+                        <div class="phone-screen">
+                            <div class="phone-notch"></div>
+                            <div style="background: linear-gradient(135deg, #6c5ce7 0%, #5f3dc4 100%); color: white; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; font-weight: 600; font-size: 14px;">
+                                <span>👥 General</span>
+                                <div style="font-size: 16px; cursor: pointer;">ℹ️</div>
+                            </div>
+                            <div style="flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto;">
+                                <div style="text-align: center; color: #b2bec3; font-size: 11px; margin: 8px 0;">Today at 10:30 AM</div>
+                                <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                                    <div style="width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; font-weight: 700;">DJ</div>
+                                    <div style="max-width: 70%; background: #f0f3ff; padding: 8px 12px; border-radius: 12px; font-size: 12px; color: #2d3436;">Excited about the new product line launch! 🚀</div>
+                                </div>
+                                <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                                    <div style="width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; font-weight: 700;">SP</div>
+                                    <div style="max-width: 70%; background: #f0f3ff; padding: 8px 12px; border-radius: 12px; font-size: 12px; color: #2d3436;">Thanks for all your support! 💚</div>
+                                </div>
+                                <div style="display: flex; flex-direction: row-reverse; gap: 8px; margin-bottom: 8px;">
+                                    <div style="width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; font-weight: 700;">SJ</div>
+                                    <div style="max-width: 70%; background: linear-gradient(135deg, #6c5ce7 0%, #5f3dc4 100%); color: white; padding: 8px 12px; border-radius: 12px; font-size: 12px; text-align: right;">Best batch yet! ✨</div>
+                                </div>
+                                <div style="text-align: center; color: #b2bec3; font-size: 11px; margin: 8px 0;">Admin is typing...</div>
+                            </div>
+                            <div style="padding: 12px; background: #f8f9fa; border-top: 1px solid #dfe6e9; display: flex; gap: 8px;">
+                                <input type="text" placeholder="Message..." style="flex: 1; padding: 8px 12px; border: 1px solid #dfe6e9; border-radius: 16px; font-size: 12px; font-family: inherit;">
+                                <button style="width: 32px; height: 32px; background: linear-gradient(135deg, #6c5ce7 0%, #5f3dc4 100%); color: white; border: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer;">➤</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="screen-label">Screen 2: Active Chat Room</div>
+                </div>
+
+                <!-- Screen 3: Channel Info -->
+                <div>
+                    <div class="mobile-chat-frame">
+                        <div class="phone-screen">
+                            <div class="phone-notch"></div>
+                            <div style="background: linear-gradient(135deg, #6c5ce7 0%, #5f3dc4 100%); color: white; padding: 16px; text-align: center; font-weight: 700;">👥 Channel Info</div>
+                            <div style="flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 0; overflow-y: auto;">
+                                <div style="background: #f0f3ff; padding: 16px; border-radius: 8px; margin-bottom: 16px; text-align: center;">
+                                    <div style="font-size: 32px; margin-bottom: 8px;">👥</div>
+                                    <div style="font-weight: 600; color: #2d3436; margin-bottom: 4px; font-size: 14px;">General Discussion</div>
+                                    <div style="font-size: 12px; color: #636e72;">Community channel for all members</div>
+                                </div>
+
+                                <div style="margin-bottom: 16px; border-bottom: 1px solid #dfe6e9; padding-bottom: 12px;">
+                                    <div style="font-weight: 600; color: #2d3436; margin-bottom: 12px; font-size: 13px;">📊 Channel Stats</div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: #636e72; margin-bottom: 8px;">
+                                        <span>Total Messages:</span>
+                                        <span style="color: #2d3436; font-weight: 600;">1,247</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: #636e72;">
+                                        <span>Active Members:</span>
+                                        <span style="color: #2d3436; font-weight: 600;">5 online</span>
+                                    </div>
+                                </div>
+
+                                <div style="margin-bottom: 16px; border-bottom: 1px solid #dfe6e9; padding-bottom: 12px;">
+                                    <div style="font-weight: 600; color: #2d3436; margin-bottom: 12px; font-size: 13px;">👥 Members</div>
+                                    <div style="display: flex; align-items: center; margin-bottom: 8px; gap: 8px;">
+                                        <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; font-weight: 700;">DJ</div>
+                                        <div style="flex: 1;">
+                                            <div style="font-weight: 600; font-size: 12px; color: #2d3436;">Deric Johnson</div>
+                                            <div style="font-size: 11px; color: #00b894;">🟢 Online</div>
+                                        </div>
+                                        <div class="member-badge owner">Owner</div>
+                                    </div>
+                                    <div style="display: flex; align-items: center; margin-bottom: 8px; gap: 8px;">
+                                        <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; font-weight: 700;">SP</div>
+                                        <div style="flex: 1;">
+                                            <div style="font-weight: 600; font-size: 12px; color: #2d3436;">Sisters Promise</div>
+                                            <div style="font-size: 11px; color: #00b894;">🟢 Online</div>
+                                        </div>
+                                        <div class="member-badge admin">Admin</div>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; font-weight: 700;">SJ</div>
+                                        <div style="flex: 1;">
+                                            <div style="font-weight: 600; font-size: 12px; color: #2d3436;">Sarah Johnson</div>
+                                            <div style="font-size: 11px; color: #b2bec3;">🔘 Offline • 2m ago</div>
+                                        </div>
+                                        <div class="member-badge">VIP</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="screen-label">Screen 3: Channel Information</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FEATURES SUMMARY -->
+        <div style="margin-top: 60px;">
+            <div class="chat-section-title">Key Capabilities</div>
+            <div class="features-section">
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <div class="feature-title">Real-Time Messaging</div>
+                    <div class="feature-desc">Instant message delivery using WebSocket technology with automatic fallback to polling for maximum compatibility.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <div class="feature-title">End-to-End Security</div>
+                    <div class="feature-desc">All messages encrypted in transit (TLS 1.2+) and at rest in database. Role-based access control ensures data privacy.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">👥</div>
+                    <div class="feature-title">Role-Based Access</div>
+                    <div class="feature-desc">Dedicated channels for VIP, Admin, and Owner roles with granular permission controls and moderation capabilities.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔔</div>
+                    <div class="feature-title">Smart Notifications</div>
+                    <div class="feature-desc">In-app notifications, unread badges, desktop push notifications, and per-channel mute controls keep users informed.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <div class="feature-title">Message Search</div>
+                    <div class="feature-desc">Full-text search with filters by date, user, channel, and keywords. All messages are indexed for instant retrieval.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <div class="feature-title">Multi-Platform</div>
+                    <div class="feature-desc">Works seamlessly on web (desktop/tablet) and native mobile apps (iOS/Android) with full feature parity.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
