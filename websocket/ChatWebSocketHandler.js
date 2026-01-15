@@ -229,6 +229,20 @@ class ChatWebSocketHandler {
         }
 
         try {
+            // Check if user is muted
+            const muteStatus = await ChatService.checkIfUserMuted(userId, roomId);
+            if (muteStatus.isMuted) {
+                ws.send(JSON.stringify({
+                    type: 'error',
+                    message: muteStatus.muteType === 'global' 
+                        ? 'You have been muted from the platform'
+                        : 'You have been muted from this channel',
+                    muteReason: muteStatus.reason,
+                    expiresAt: muteStatus.expiresAt
+                }));
+                return;
+            }
+
             // Validate access
             const hasAccess = await ChatService.validateRoomAccess(roomId, userId, userRole);
             if (!hasAccess) {

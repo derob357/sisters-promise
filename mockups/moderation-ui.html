@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moderation System UI - Sisters Promise</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #7b2cbf;
+            --secondary-color: #c1121f;
+            --success-color: #06a77d;
+            --warning-color: #f77f00;
+            --danger-color: #d62828;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .container-main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* ==================== CHAT MESSAGE WITH REPORT BUTTON ==================== */
+
+        .chat-message {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 12px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .chat-message:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        .chat-message.reported {
+            border-left: 4px solid var(--warning-color);
+            background: #fff8f0;
+        }
+
+        .chat-message.muted {
+            opacity: 0.6;
+            background: #f5f5f5;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .message-content {
+            flex: 1;
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .message-header strong {
+            color: var(--primary-color);
+        }
+
+        .message-time {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .message-body {
+            color: #333;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        .message-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .btn-action {
+            padding: 4px 10px;
+            font-size: 12px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-report {
+            background: #ffe5e5;
+            color: var(--danger-color);
+        }
+
+        .btn-report:hover {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-mute {
+            background: #fff3cd;
+            color: var(--warning-color);
+        }
+
+        .btn-mute:hover {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .badge-role {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-left: 8px;
+        }
+
+        .badge-vip {
+            background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+            color: white;
+        }
+
+        .badge-admin {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+        }
+
+        .badge-owner {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #333;
+        }
+
+        .reported-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: var(--warning-color);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .report-count {
+            background: rgba(255,255,255,0.3);
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        /* ==================== REPORT MODAL ==================== */
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal.show {
+            display: block;
+        }
+
+        .modal-content-custom {
+            background-color: white;
+            margin: 10% auto;
+            padding: 0;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            max-width: 500px;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header-custom {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header-custom h3 {
+            margin: 0;
+            color: var(--primary-color);
+        }
+
+        .close-btn {
+            font-size: 24px;
+            font-weight: bold;
+            color: #999;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .modal-body-custom {
+            padding: 20px;
+        }
+
+        .form-group-custom {
+            margin-bottom: 15px;
+        }
+
+        .form-group-custom label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group-custom select,
+        .form-group-custom textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .form-group-custom textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-group-custom select:focus,
+        .form-group-custom textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(123, 44, 191, 0.1);
+        }
+
+        .reason-description {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .modal-footer-custom {
+            padding: 15px 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn-primary-custom {
+            background: var(--primary-color);
+            color: white;
+            padding: 10px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary-custom:hover {
+            background: #6a25af;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(123, 44, 191, 0.3);
+        }
+
+        .btn-secondary-custom {
+            background: #e0e0e0;
+            color: #333;
+            padding: 10px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary-custom:hover {
+            background: #d0d0d0;
+        }
+
+        /* ==================== MODERATION DASHBOARD ==================== */
+
+        .dashboard-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .dashboard-header h2 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 10px 0;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .dashboard-filters {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #333;
+            white-space: nowrap;
+        }
+
+        .filter-group select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .dashboard-content {
+            padding: 30px;
+        }
+
+        /* ==================== REPORTS TABLE ==================== */
+
+        .reports-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .reports-table thead {
+            background: #f5f5f5;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .reports-table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .reports-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+
+        .reports-table tr:hover {
+            background: #f9f9f9;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-under-review {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-resolved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-dismissed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .reason-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-view {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-view:hover {
+            background: #0056b3;
+        }
+
+        .btn-resolve {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-resolve:hover {
+            background: #048862;
+        }
+
+        /* ==================== MUTED USERS TABLE ==================== */
+
+        .muted-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .muted-table thead {
+            background: #f5f5f5;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .muted-table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .muted-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+
+        .muted-type-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .mute-global {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .mute-room {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .btn-unmute {
+            background: var(--success-color);
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-unmute:hover {
+            background: #048862;
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+
+        @media (max-width: 768px) {
+            .dashboard-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-filters {
+                flex-direction: column;
+            }
+
+            .filter-group {
+                width: 100%;
+            }
+
+            .filter-group select {
+                width: 100%;
+            }
+
+            .reports-table,
+            .muted-table {
+                font-size: 12px;
+            }
+
+            .reports-table th,
+            .reports-table td,
+            .muted-table th,
+            .muted-table td {
+                padding: 8px;
+            }
+        }
+
+        /* ==================== LOADING & SUCCESS STATES ==================== */
+
+        .alert-custom {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-main">
+        <!-- ==================== SECTION 1: CHAT MESSAGE WITH REPORT BUTTON ==================== -->
+        <div style="margin-bottom: 40px;">
+            <h3 style="color: white; margin-bottom: 20px;">
+                <i class="fas fa-comments"></i> Chat Messages with Moderation
+            </h3>
+
+            <!-- Normal Message -->
+            <div class="chat-message">
+                <div class="avatar">JD</div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <div>
+                            <strong>John Doe</strong>
+                            <span class="badge-role badge-vip">VIP</span>
+                        </div>
+                        <span class="message-time">2 minutes ago</span>
+                    </div>
+                    <div class="message-body">
+                        This is a great product! I've been using it for 2 weeks now and I'm really impressed with the quality.
+                    </div>
+                    <div class="message-actions">
+                        <button class="btn-action btn-report">
+                            <i class="fas fa-flag"></i> Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reported Message -->
+            <div class="chat-message reported">
+                <div class="avatar">SM</div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <div>
+                            <strong>Sarah Miller</strong>
+                        </div>
+                        <span class="message-time">5 minutes ago</span>
+                    </div>
+                    <div class="message-body">
+                        This product is terrible! Don't waste your money...
+                    </div>
+                    <div class="message-actions">
+                        <button class="btn-action btn-report">
+                            <i class="fas fa-flag"></i> Report
+                        </button>
+                    </div>
+                </div>
+                <div class="reported-indicator">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span class="report-count">3 reports</span>
+                </div>
+            </div>
+
+            <!-- Muted Message -->
+            <div class="chat-message muted">
+                <div class="avatar">DT</div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <div>
+                            <strong>Disruptive User</strong>
+                            <span class="badge-role" style="background: #ccc; color: #666;">MUTED</span>
+                        </div>
+                        <span class="message-time">10 minutes ago</span>
+                    </div>
+                    <div class="message-body">
+                        [This user has been muted and cannot post messages]
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Message -->
+            <div class="chat-message">
+                <div class="avatar">AD</div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <div>
+                            <strong>Admin</strong>
+                            <span class="badge-role badge-admin">ADMIN</span>
+                        </div>
+                        <span class="message-time">1 minute ago</span>
+                    </div>
+                    <div class="message-body">
+                        Community reminder: Please be respectful to all members. Harassment will result in muting.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== SECTION 2: REPORT MODAL ==================== -->
+        <div style="margin-bottom: 40px;">
+            <h3 style="color: white; margin-bottom: 20px;">
+                <i class="fas fa-exclamation-triangle"></i> Report Modal
+            </h3>
+
+            <div class="modal show" id="reportModal">
+                <div class="modal-content-custom">
+                    <div class="modal-header-custom">
+                        <h3><i class="fas fa-flag"></i> Report Message</h3>
+                        <button class="close-btn">&times;</button>
+                    </div>
+                    <div class="modal-body-custom">
+                        <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
+                            <small style="color: #666;">
+                                <strong>Reported Message:</strong> "This product is terrible! Don't waste your money..."
+                            </small>
+                        </div>
+
+                        <div class="form-group-custom">
+                            <label>Reason for Report *</label>
+                            <select>
+                                <option value="">-- Select a reason --</option>
+                                <option value="spam">Spam</option>
+                                <option value="harassment">Harassment</option>
+                                <option value="inappropriate">Inappropriate Content</option>
+                                <option value="misinformation">Misinformation</option>
+                                <option value="offensive">Offensive Language</option>
+                                <option value="advertising">Advertising</option>
+                                <option value="other">Other</option>
+                            </select>
+                            <div class="reason-description">
+                                Select the category that best describes why you're reporting this message.
+                            </div>
+                        </div>
+
+                        <div class="form-group-custom">
+                            <label>Additional Details (Optional)</label>
+                            <textarea placeholder="Provide any additional context that would help our moderation team..."></textarea>
+                            <div class="reason-description">
+                                Max 500 characters. Be specific and constructive.
+                            </div>
+                        </div>
+
+                        <div style="background: #f0f8ff; padding: 12px; border-radius: 8px; border-left: 4px solid #007bff;">
+                            <small style="color: #333;">
+                                <i class="fas fa-info-circle"></i> Your report is anonymous. Our moderation team will review it within 24 hours.
+                            </small>
+                        </div>
+                    </div>
+                    <div class="modal-footer-custom">
+                        <button class="btn-secondary-custom">Cancel</button>
+                        <button class="btn-primary-custom">
+                            <i class="fas fa-paper-plane"></i> Submit Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== SECTION 3: MODERATION DASHBOARD ==================== -->
+        <div style="margin-bottom: 40px;">
+            <h3 style="color: white; margin-bottom: 20px;">
+                <i class="fas fa-shield-alt"></i> Moderation Dashboard (Admin/Owner)
+            </h3>
+
+            <div class="dashboard-container">
+                <div class="dashboard-header">
+                    <h2>Moderation Dashboard</h2>
+                    <p style="margin: 10px 0 0 0; opacity: 0.9;">Manage reports and muted users</p>
+                </div>
+
+                <!-- Stats -->
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <i class="fas fa-flag" style="font-size: 24px; color: var(--warning-color);"></i>
+                        <div class="stat-number">24</div>
+                        <div class="stat-label">Pending Reports</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-check-circle" style="font-size: 24px; color: var(--success-color);"></i>
+                        <div class="stat-number">156</div>
+                        <div class="stat-label">Resolved Reports</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-ban" style="font-size: 24px; color: var(--danger-color);"></i>
+                        <div class="stat-number">8</div>
+                        <div class="stat-label">Muted Users</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-clock" style="font-size: 24px; color: #007bff;"></i>
+                        <div class="stat-number">3</div>
+                        <div class="stat-label">Temp Mutes Expiring</div>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="dashboard-filters">
+                    <div class="filter-group">
+                        <label>Status:</label>
+                        <select>
+                            <option value="">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="under_review">Under Review</option>
+                            <option value="resolved">Resolved</option>
+                            <option value="dismissed">Dismissed</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Reason:</label>
+                        <select>
+                            <option value="">All Reasons</option>
+                            <option value="spam">Spam</option>
+                            <option value="harassment">Harassment</option>
+                            <option value="inappropriate">Inappropriate</option>
+                            <option value="misinformation">Misinformation</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Room:</label>
+                        <select>
+                            <option value="">All Rooms</option>
+                            <option value="general">General</option>
+                            <option value="vip">VIP</option>
+                            <option value="products">Products</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Content -->
+                <div class="dashboard-content">
+                    <h4 style="margin-bottom: 20px; color: var(--primary-color);">
+                        <i class="fas fa-flag"></i> Recent Reports (Pending)
+                    </h4>
+
+                    <table class="reports-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Reported User</th>
+                                <th>Reason</th>
+                                <th>Room</th>
+                                <th>Reports</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Dec 10, 2024 - 2:45 PM</td>
+                                <td>Sarah Miller</td>
+                                <td><span class="reason-badge">Harassment</span></td>
+                                <td>General</td>
+                                <td><strong style="color: var(--danger-color);">3</strong></td>
+                                <td><span class="status-badge status-pending">Pending</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-small btn-view">View</button>
+                                        <button class="btn-small btn-resolve">Resolve</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Dec 10, 2024 - 1:30 PM</td>
+                                <td>John Smith</td>
+                                <td><span class="reason-badge">Spam</span></td>
+                                <td>VIP</td>
+                                <td><strong>2</strong></td>
+                                <td><span class="status-badge status-under-review">Under Review</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-small btn-view">View</button>
+                                        <button class="btn-small btn-resolve">Resolve</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Dec 10, 2024 - 11:15 AM</td>
+                                <td>Mike Johnson</td>
+                                <td><span class="reason-badge">Inappropriate</span></td>
+                                <td>General</td>
+                                <td><strong>5</strong></td>
+                                <td><span class="status-badge status-pending">Pending</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-small btn-view">View</button>
+                                        <button class="btn-small btn-resolve">Resolve</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <hr style="margin: 40px 0;">
+
+                    <h4 style="margin-bottom: 20px; color: var(--primary-color);">
+                        <i class="fas fa-ban"></i> Active Muted Users
+                    </h4>
+
+                    <table class="muted-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Mute Type</th>
+                                <th>Reason</th>
+                                <th>Muted By</th>
+                                <th>Muted At</th>
+                                <th>Expires At</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>DisruptiveUser123</strong></td>
+                                <td><span class="muted-type-badge mute-global">GLOBAL</span></td>
+                                <td>Harassment</td>
+                                <td>Admin</td>
+                                <td>Dec 8, 2024</td>
+                                <td>Dec 15, 2024</td>
+                                <td>
+                                    <button class="btn-unmute">Unmute</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Spammer456</strong></td>
+                                <td><span class="muted-type-badge mute-room">ROOM</span></td>
+                                <td>Spam</td>
+                                <td>Owner</td>
+                                <td>Dec 9, 2024</td>
+                                <td>Permanent</td>
+                                <td>
+                                    <button class="btn-unmute">Unmute</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>OffensiveUser789</strong></td>
+                                <td><span class="muted-type-badge mute-global">GLOBAL</span></td>
+                                <td>Offensive Language</td>
+                                <td>Admin</td>
+                                <td>Dec 10, 2024</td>
+                                <td>Dec 10, 2024</td>
+                                <td>
+                                    <button class="btn-unmute">Unmute</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== SECTION 4: SUCCESS/ERROR ALERTS ==================== -->
+        <div style="margin-bottom: 40px;">
+            <h3 style="color: white; margin-bottom: 20px;">
+                <i class="fas fa-bell"></i> Notification States
+            </h3>
+
+            <div class="alert-custom alert-success">
+                <i class="fas fa-check-circle"></i>
+                <span><strong>Success!</strong> Report submitted successfully. Our moderation team will review it shortly.</span>
+            </div>
+
+            <div class="alert-custom alert-error">
+                <i class="fas fa-times-circle"></i>
+                <span><strong>Error!</strong> User is already muted from this channel. Please check the muted users list.</span>
+            </div>
+
+            <div class="alert-custom alert-warning">
+                <i class="fas fa-exclamation-circle"></i>
+                <span><strong>Warning:</strong> This user has been reported 5 times in the last 24 hours. Consider escalating this case.</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple modal functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('reportModal');
+            const closeBtn = document.querySelector('.close-btn');
+
+            closeBtn.onclick = function() {
+                modal.classList.remove('show');
+            }
+
+            window.onclick = function(event) {
+                if (event.target === modal) {
+                    modal.classList.remove('show');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

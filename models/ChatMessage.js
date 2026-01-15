@@ -90,6 +90,27 @@ const chatMessageSchema = new mongoose.Schema(
         isDeleted: {
             type: Boolean,
             default: false
+        },
+        isMuted: {
+            type: Boolean,
+            default: false
+        },
+        mutedAt: Date,
+        mutedBy: String,
+        muteReason: String,
+        reportCount: {
+            type: Number,
+            default: 0
+        },
+        reports: [{
+            reportId: String,
+            reportedBy: String,
+            reportedAt: Date,
+            reason: String
+        }],
+        isReported: {
+            type: Boolean,
+            default: false
         }
     },
     { timestamps: true }

@@ -2356,6 +2356,316 @@ app.post('/api/chat/rooms/:roomId/unmute', authenticate, asyncHandler(async (req
   }
 }));
 
+// ==================== MODERATION ENDPOINTS ====================
+
+/**
+ * POST /api/chat/messages/:messageId/report
+ * Report a message (All users)
+ */
+app.post('/api/chat/messages/:messageId/report', authenticate, asyncHandler(async (req, res) => {
+  const { messageId } = req.params;
+  const { reason, description } = req.body;
+
+  if (!reason) {
+    return res.status(400).json({
+      success: false,
+      error: 'Reason is required',
+    });
+  }
+
+  const validReasons = ['spam', 'harassment', 'inappropriate_content', 'misinformation', 'offensive_language', 'advertising', 'other'];
+  if (!validReasons.includes(reason)) {
+    return res.status(400).json({
+      success: false,
+      error: 'Invalid reason provided',
+    });
+  }
+
+  try {
+    const report = await ChatService.reportMessage(
+      messageId,
+      req.user.id,
+      req.user.name,
+      req.user.role,
+      reason,
+      description || ''
+    );
+
+    res.json({
+      success: true,
+      report,
+      message: 'Message reported successfully',
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+}));
+
+/**
+ * GET /api/chat/reports
+ * Get all reports (Admin/Owner only)
+ */
+app.get('/api/chat/reports', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
+  const { status, roomId, reason, reportedUser, page = 1, limit = 20 } = req.query;
+
+  try {
+    const filters = {};
+    if (status) filters.status = status;
+    if (roomId) filters.roomId = roomId;
+    if (reason) filters.reason = reason;
+    if (reportedUser) filters.reportedUser = reportedUser;
+
+    const result = await ChatService.getReports(filters, parseInt(page), parseInt(limit));
+
+    res.json({
+      success: true,
+      ...result,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+}));
+
+/**
+ * GET /api/chat/reports/:reportId
+ * Get report details (Admin/Owner only)
+ */
+app.get('/api/chat/reports/:reportId', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
+  const { reportId } = req.params;
+
+  try {
+    const Report = require('./models/Report');
+    const report = await Report.findOne({ id: reportId });
+
+    if (!report) {
+      return res.status(404).json({
+        success: false,
+        error: 'Report not found',
+      });
+    }
+
+    res.json({
+      success: true,
+      report,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+}));
+
+/**
+ * POST /api/chat/reports/:reportId/resolve
+ * Resolve a report (Admin/Owner only)
+ */
+app.post('/api/chat/reports/:reportId/resolve', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
+  const { reportId } = req.params;
+  const { action, notes } = req.body;
+
+  const validActions = ['message_removed', 'user_muted', 'warning_sent', 'no_action'];
+  if (!validActions.includes(action)) {
+    return res.status(400).json({
+      success: false,
+      error: 'Invalid action provided',
+    });
+  }
+
+  try {
+    const report = await ChatService.resolveReport(
+      reportId,
+      action,
+      notes || '',
+      req.user.id,
+      req.user.name
+    );
+
+    res.json({
+      success: true,
+      report,
+      message: 'Report resolved successfully',
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+}));
+
+/**
+ * POST /api/chat/mute
+ * Mute a user globally or in a specific room (Admin/Owner only)
+ */
+app.post('/api/chat/mute', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
+  const { userId, userName, reason, duration, roomId } = req.body;
+
+  if (!userId || !userName) {
+    return res.status(400).json({
+      success: false,
+      error: 'userId and userName are required',
+    });
+  }
+
+  const validReasons = ['spam', 'harassment', 'inappropriate_content', 'repeated_violations', 'other'];
+  if (reason && !validReasons.includes(reason)) {
+    return res.status(400).json({
+      success: false,
+      error: 'Invalid reason provided',
+    });
+  }
+
+  try {
+    const mute = await ChatService.muteUser(
+      userId,
+      userName,
+      reason || 'other',
+      duration || null,
+      req.user.id,
+      req.user.name,
+      roomId || null
+    );
+
+    res.json({
+      success: true,
+      mute,
+      message: 'User muted successfully',
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+}));
+
+/**
+ * DELETE /api/chat/mute/:userId
+ * Unmute a user (Admin/Owner only)
+ */
+app.delete('/api/chat/mute/:userId', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+  const { roomId } = req.query;
+
+  if (!userId) {
+    return res.status(400).json({
+      success: false,
+      error: 'userId is required',
+    });
+  }
+
+  try {
+    const mute = await ChatService.unmuteUser(
+      userId,
+      req.user.id,
+      req.user.name,
+      roomId || null
+    );
+
+    res.json({
+      success: true,
+      mute,
+      message: 'User unmuted successfully',
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+}));
+
+/**
+ * GET /api/chat/muted
+ * Get list of muted users (Admin/Owner only)
+ */
+app.get('/api/chat/muted', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
+  const { muteType, roomId, page = 1, limit = 20 } = req.query;
+
+  try {
+    const filters = {};
+    if (muteType) filters.muteType = muteType;
+    if (roomId) filters.roomId = roomId;
+
+    const result = await ChatService.getMutedUsers(filters, parseInt(page), parseInt(limit));
+
+    res.json({
+      success: true,
+      ...result,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+}));
+
+/**
+ * POST /api/chat/violations
+ * Track violation for a user (Internal use)
+ */
+app.post('/api/chat/violations', authenticate, asyncHandler(async (req, res) => {
+  const { userId, violationType, reason } = req.body;
+
+  if (!userId || !violationType) {
+    return res.status(400).json({
+      success: false,
+      error: 'userId and violationType are required',
+    });
+  }
+
+  try {
+    await ChatService.trackViolation(userId, violationType, reason || '');
+
+    res.json({
+      success: true,
+      message: 'Violation tracked',
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+}));
+
+/**
+ * POST /api/chat/mute-check
+ * Check if user is muted (for UI display)
+ */
+app.post('/api/chat/mute-check', authenticate, asyncHandler(async (req, res) => {
+  const { userId, roomId } = req.body;
+
+  if (!userId) {
+    return res.status(400).json({
+      success: false,
+      error: 'userId is required',
+    });
+  }
+
+  try {
+    const muteStatus = await ChatService.checkIfUserMuted(userId, roomId || null);
+
+    res.json({
+      success: true,
+      ...muteStatus,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+}));
+
 // ==================== ANALYTICS ENDPOINTS ====================
 
 /**
@@ -2684,5 +2994,3 @@ if (fs.existsSync(certPath) && fs.existsSync(keyPath)) {
     });
   }
 }
-  console.log('\n');
-});
