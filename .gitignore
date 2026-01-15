@@ -13,3 +13,9 @@ build/
 .gitignore_backup
 credentials.json
 *.json.backup
+# SSL/TLS Certificates (Keep private keys out of version control!)
+certs/
+*.key
+*.pem
+*.crt
+!.gitkeep

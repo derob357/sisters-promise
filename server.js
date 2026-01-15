@@ -1,5 +1,9 @@
 // Square Payment Integration Server for Sisters Promise
 const express = require('express');
+const https = require('https');
+const http = require('http');
+const fs = require('fs');
+const path = require('path');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const helmet = require('helmet');
@@ -42,14 +46,38 @@ app.use(helmet({
       scriptSrc: ["'self'", "'unsafe-inline'", 'https://recaptcha.net', 'https://www.google.com/recaptcha/', 'https://www.gstatic.com/recaptcha/', 'https://cdn.jsdelivr.net'],
       frameSrc: ['https://recaptcha.net', 'https://www.google.com/recaptcha/'],
       styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://cdnjs.cloudflare.com', 'https://cdn.jsdelivr.net'],
-      connectSrc: ["'self'", 'https://cdn.jsdelivr.net'],
+      connectSrc: ["'self'", 'https://cdn.jsdelivr.net', 'https://googletagmanager.com', 'https://www.googletagmanager.com'],
     },
   },
-  hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
+  // HSTS - Force HTTPS for 1 year
+  hsts: { 
+    maxAge: 31536000, // 1 year in seconds
+    includeSubDomains: true, 
+    preload: true,
+  },
   frameguard: { action: 'deny' },
   noSniff: true,
   xssFilter: true,
+  // Enforce HTTPS
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
 }));
+
+// Additional security headers for HTTPS
+app.use((req, res, next) => {
+  // Enforce HTTPS
+  if (process.env.NODE_ENV === 'production' && req.protocol !== 'https') {
+    return res.redirect(301, `https://${req.get('host')}${req.originalUrl}`);
+  }
+  
+  // Additional security headers
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+  
+  next();
+});
 
 // Rate limiting - protect against brute force attacks
 const generalLimiter = rateLimit({
@@ -73,7 +101,6 @@ const checkoutLimiter = rateLimit({
   max: 10, // max 10 checkout attempts per minute
   message: 'Too many checkout attempts, please try again later.',
 });
-
 app.use(generalLimiter);
 
 // CORS configuration - restrict origins
@@ -1731,27 +1758,97 @@ app.post('/api/analytics/form', async (req, res) => {
 });
 
 process.on('SIGTERM', () => {
-  console.log('SIGTERM signal received: closing HTTP server');
+  console.log('SIGTERM signal received: closing HTTPS server');
   process.exit(0);
 });
 
-app.listen(PORT, () => {
-  console.log(`\n✓ Sisters Promise API server running on http://localhost:${PORT}`);
-  console.log(`✓ Environment: ${process.env.SQUARE_ENVIRONMENT || 'sandbox'}`);
-  console.log(`✓ Security: Helmet enabled, Rate limiting active, Input sanitization enabled`);
-  console.log(`✓ Max payload size: 10KB`);
-  console.log(`✓ Authentication: JWT enabled with role-based access control`);
-  console.log(`✓ Default Users: Owner (denise@sisterspromise.com), Admin (deric.robinson71@gmail.com)`);
-  console.log(`✓ Analytics: Google Analytics 4 and Apple Analytics enabled`);
-  
-  if (!process.env.SQUARE_ACCESS_TOKEN) {
-    console.warn('\n⚠️  Warning: SQUARE_ACCESS_TOKEN not configured');
+// Load SSL certificates for HTTPS
+const certPath = path.join(__dirname, 'certs', 'server.crt');
+const keyPath = path.join(__dirname, 'certs', 'server.key');
+
+let httpsServer;
+let httpServer;
+
+if (fs.existsSync(certPath) && fs.existsSync(keyPath)) {
+  try {
+    const sslOptions = {
+      cert: fs.readFileSync(certPath),
+      key: fs.readFileSync(keyPath),
+    };
+
+    // Create HTTPS server
+    httpsServer = https.createServer(sslOptions, app);
+
+    // Create HTTP server that redirects to HTTPS
+    httpServer = http.createServer((req, res) => {
+      res.writeHead(301, { Location: `https://${req.headers.host}${req.url}` });
+      res.end();
+    });
+
+    // Start both servers
+    const HTTPS_PORT = process.env.HTTPS_PORT || 443;
+    const HTTP_PORT = process.env.PORT || 3000;
+
+    httpsServer.listen(HTTPS_PORT, () => {
+      console.log(`\n✓ Sisters Promise API server running on https://localhost:${HTTPS_PORT}`);
+      console.log(`✓ HTTP server redirecting to HTTPS on port ${HTTP_PORT}`);
+      console.log(`✓ Environment: ${process.env.SQUARE_ENVIRONMENT || 'sandbox'}`);
+      console.log(`✓ Security: HTTPS/TLS enabled, Helmet enabled, Rate limiting active`);
+      console.log(`✓ Max payload size: 10KB`);
+      console.log(`✓ Authentication: JWT enabled with role-based access control`);
+      console.log(`✓ Default Users: Owner (denise@sisterspromise.com), Admin (deric.robinson71@gmail.com)`);
+      console.log(`✓ Analytics: Google Analytics 4 and Apple Analytics enabled`);
+      console.log(`✓ Encryption: All API traffic encrypted with SSL/TLS\n`);
+
+      if (!process.env.SQUARE_ACCESS_TOKEN) {
+        console.warn('⚠️  Warning: SQUARE_ACCESS_TOKEN not configured');
+      }
+      if (!process.env.RECAPTCHA_SECRET_KEY) {
+        console.warn('⚠️  Warning: RECAPTCHA_SECRET_KEY not configured for contact form');
+      }
+      if (!process.env.JWT_SECRET) {
+        console.warn('⚠️  Warning: JWT_SECRET not configured - using default (not secure for production)');
+      }
+    });
+
+    httpServer.listen(HTTP_PORT, () => {
+      console.log(`✓ HTTP redirect server listening on http://localhost:${HTTP_PORT}`);
+    });
+  } catch (error) {
+    console.error('Failed to load SSL certificates:', error.message);
+    console.log('Falling back to HTTP only...\n');
+    
+    app.listen(PORT, () => {
+      console.log(`\n✓ Sisters Promise API server running on http://localhost:${PORT}`);
+      console.log(`⚠️  WARNING: Running on HTTP (unencrypted) - Not recommended for production`);
+      console.log(`✓ Environment: ${process.env.SQUARE_ENVIRONMENT || 'sandbox'}`);
+      console.log(`✓ Security: Helmet enabled, Rate limiting active, Input sanitization enabled`);
+      console.log(`✓ Max payload size: 10KB`);
+      console.log(`✓ Authentication: JWT enabled with role-based access control`);
+      console.log(`✓ Default Users: Owner (denise@sisterspromise.com), Admin (deric.robinson71@gmail.com)`);
+      console.log(`✓ Analytics: Google Analytics 4 and Apple Analytics enabled\n`);
+    });
   }
-  if (!process.env.RECAPTCHA_SECRET_KEY) {
-    console.warn('⚠️  Warning: RECAPTCHA_SECRET_KEY not configured for contact form');
+} else {
+  console.log('SSL certificates not found. Generating...\n');
+  try {
+    const { execSync } = require('child_process');
+    execSync('node generate-certs.js', { stdio: 'inherit' });
+    console.log('Certificates generated. Please restart the server.\n');
+    process.exit(0);
+  } catch (error) {
+    console.error('Failed to generate certificates. Running HTTP only.\n');
+    app.listen(PORT, () => {
+      console.log(`\n✓ Sisters Promise API server running on http://localhost:${PORT}`);
+      console.log(`⚠️  WARNING: Running on HTTP (unencrypted) - Not recommended for production`);
+      console.log(`✓ Environment: ${process.env.SQUARE_ENVIRONMENT || 'sandbox'}`);
+      console.log(`✓ Security: Helmet enabled, Rate limiting active, Input sanitization enabled`);
+      console.log(`✓ Max payload size: 10KB`);
+      console.log(`✓ Authentication: JWT enabled with role-based access control`);
+      console.log(`✓ Default Users: Owner (denise@sisterspromise.com), Admin (deric.robinson71@gmail.com)`);
+      console.log(`✓ Analytics: Google Analytics 4 and Apple Analytics enabled\n`);
+    });
   }
-  if (!process.env.JWT_SECRET) {
-    console.warn('⚠️  Warning: JWT_SECRET not configured - using default (not secure for production)');
-  }
+}
   console.log('\n');
 });
