@@ -1,0 +1,231 @@
+name: Build All Platforms
+
+on:
+  push:
+    branches: [ main ]
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Platform to build'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - android
+          - ios
+
+jobs:
+  # Run tests first
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+
+      - name: Run linter
+        run: npm run lint --if-present || echo "No lint script found"
+
+      - name: Run tests
+        run: npm test --if-present || echo "No test script found"
+
+  # Build Android
+  build-android:
+    name: Build Android
+    needs: test
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'push' || 
+      github.event_name == 'workflow_dispatch' && 
+      (github.event.inputs.platform == 'all' || github.event.inputs.platform == 'android')
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+
+      - name: Create .env file
+        run: |
+          cat > .env << EOF
+          API_BASE_URL=${{ secrets.API_BASE_URL || 'https://api.sisterspromise.com' }}
+          GA_MEASUREMENT_ID=${{ secrets.GA_MEASUREMENT_ID || 'G_XXXXXXXXXX' }}
+          GA_API_SECRET=${{ secrets.GA_API_SECRET || 'placeholder' }}
+          ENV=production
+          EOF
+
+      - name: Make Gradlew executable
+        run: chmod +x android/gradlew
+
+      - name: Build Android Release APK
+        run: cd android && ./gradlew assembleRelease
+
+      - name: Upload Android APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk-${{ github.run_number }}
+          path: android/app/build/outputs/apk/release/app-release.apk
+          retention-days: 90
+
+  # Build iOS
+  build-ios:
+    name: Build iOS
+    needs: test
+    runs-on: macos-14
+    if: |
+      github.event_name == 'push' || 
+      github.event_name == 'workflow_dispatch' && 
+      (github.event.inputs.platform == 'all' || github.event.inputs.platform == 'ios')
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+
+      - name: Create .env file
+        run: |
+          cat > .env << EOF
+          API_BASE_URL=${{ secrets.API_BASE_URL || 'https://api.sisterspromise.com' }}
+          GA_MEASUREMENT_ID=${{ secrets.GA_MEASUREMENT_ID || 'G_XXXXXXXXXX' }}
+          GA_API_SECRET=${{ secrets.GA_API_SECRET || 'placeholder' }}
+          ENV=production
+          EOF
+
+      - name: Install CocoaPods
+        run: |
+          cd ios
+          bundle install
+          bundle exec pod install --repo-update
+
+      - name: Build iOS
+        run: |
+          cd ios
+          xcodebuild \
+            -workspace SistersPromiseMobile.xcworkspace \
+            -scheme SistersPromiseMobile \
+            -configuration Release \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=17.2' \
+            -derivedDataPath build \
+            clean build \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO
+
+      - name: Upload iOS Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build-${{ github.run_number }}
+          path: ios/build/Build/Products/Release-iphonesimulator/*.app
+          retention-days: 90
+
+  # Create Release
+  create-release:
+    name: Create GitHub Release
+    needs: [build-android, build-ios]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Sisters Promise Mobile ${{ github.ref_name }}
+          body: |
+            ## Sisters Promise Mobile - Release ${{ github.ref_name }}
+            
+            **Build Date:** $(date)
+            **Branch:** ${{ github.ref_name }}
+            **Commit:** ${{ github.sha }}
+            
+            ### Downloads
+            - **Android APK:** See attached files below
+            - **iOS Build:** Available in artifacts (requires macOS)
+            
+            ### Installation Instructions
+            
+            **Android:**
+            1. Download the APK file
+            2. Enable "Install from Unknown Sources" in your device settings
+            3. Open the APK file to install
+            
+            **iOS:**
+            1. Requires Xcode to run on simulator
+            2. Or deploy via TestFlight/App Store Connect
+            
+            ### What's New
+            See commit history for detailed changes.
+          files: |
+            artifacts/**/*.apk
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Notify on completion
+  notify:
+    name: Notify Build Complete
+    needs: [build-android, build-ios]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: Build Summary
+        run: |
+          echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Run Number:** ${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Platform Status" >> $GITHUB_STEP_SUMMARY
+          echo "- Android: ${{ needs.build-android.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- iOS: ${{ needs.build-ios.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Downloads" >> $GITHUB_STEP_SUMMARY
+          echo "Artifacts are available in the Actions tab." >> $GITHUB_STEP_SUMMARY

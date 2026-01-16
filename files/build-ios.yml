@@ -1,0 +1,205 @@
+name: Build iOS App
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  build-ios:
+    name: Build iOS App
+    runs-on: macos-14  # macOS 14 (Sonoma) with Xcode 15+
+    
+    steps:
+      # Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # Set up Ruby (for CocoaPods)
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+
+      # Install dependencies
+      - name: Install npm dependencies
+        run: |
+          npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+
+      # Create .env file from secrets
+      - name: Create .env file
+        run: |
+          cat > .env << EOF
+          API_BASE_URL=${{ secrets.API_BASE_URL || 'https://api.sisterspromise.com' }}
+          GA_MEASUREMENT_ID=${{ secrets.GA_MEASUREMENT_ID || 'G_XXXXXXXXXX' }}
+          GA_API_SECRET=${{ secrets.GA_API_SECRET || 'placeholder' }}
+          APPLE_APP_ID=${{ secrets.APPLE_APP_ID || 'com.sisterspromise.app' }}
+          APPLE_TEAM_ID=${{ secrets.APPLE_TEAM_ID || 'XXXXXXXXXX' }}
+          ENV=production
+          EOF
+
+      # Install CocoaPods dependencies
+      - name: Install CocoaPods dependencies
+        run: |
+          cd ios
+          bundle install
+          bundle exec pod install --repo-update
+
+      # Cache CocoaPods
+      - name: Cache CocoaPods
+        uses: actions/cache@v4
+        with:
+          path: ios/Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-
+
+      # Select Xcode version
+      - name: Select Xcode version
+        run: sudo xcode-select -s /Applications/Xcode_15.2.app/Contents/Developer
+
+      # Build iOS app (Debug)
+      - name: Build iOS Debug
+        run: |
+          cd ios
+          xcodebuild \
+            -workspace SistersPromiseMobile.xcworkspace \
+            -scheme SistersPromiseMobile \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=17.2' \
+            -derivedDataPath build \
+            clean build \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+
+      # Build iOS app (Release) - Requires Apple Developer Account
+      - name: Build iOS Release
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        run: |
+          cd ios
+          # Note: This requires proper code signing certificates and provisioning profiles
+          # You'll need to set up these secrets in your GitHub repository:
+          # - APPLE_CERTIFICATE_BASE64
+          # - APPLE_CERTIFICATE_PASSWORD
+          # - PROVISIONING_PROFILE_BASE64
+          # - APPLE_TEAM_ID
+          
+          if [ -n "${{ secrets.APPLE_CERTIFICATE_BASE64 }}" ]; then
+            # Decode and install certificate
+            echo "${{ secrets.APPLE_CERTIFICATE_BASE64 }}" | base64 -d > certificate.p12
+            security create-keychain -p "" build.keychain
+            security import certificate.p12 -k build.keychain -P "${{ secrets.APPLE_CERTIFICATE_PASSWORD }}" -T /usr/bin/codesign
+            security list-keychains -s build.keychain
+            security default-keychain -s build.keychain
+            security unlock-keychain -p "" build.keychain
+            security set-key-partition-list -S apple-tool:,apple: -s -k "" build.keychain
+            
+            # Install provisioning profile
+            mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+            echo "${{ secrets.PROVISIONING_PROFILE_BASE64 }}" | base64 -d > ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision
+            
+            # Build for release
+            xcodebuild \
+              -workspace SistersPromiseMobile.xcworkspace \
+              -scheme SistersPromiseMobile \
+              -configuration Release \
+              -sdk iphoneos \
+              -derivedDataPath build \
+              -archivePath build/SistersPromiseMobile.xcarchive \
+              archive \
+              CODE_SIGN_STYLE=Manual \
+              DEVELOPMENT_TEAM="${{ secrets.APPLE_TEAM_ID }}"
+            
+            # Export IPA
+            xcodebuild \
+              -exportArchive \
+              -archivePath build/SistersPromiseMobile.xcarchive \
+              -exportPath build \
+              -exportOptionsPlist exportOptions.plist
+          else
+            echo "⚠️ No Apple certificates found - skipping release build"
+            echo "To enable release builds, add these secrets to your repository:"
+            echo "  - APPLE_CERTIFICATE_BASE64"
+            echo "  - APPLE_CERTIFICATE_PASSWORD"
+            echo "  - PROVISIONING_PROFILE_BASE64"
+            echo "  - APPLE_TEAM_ID"
+          fi
+
+      # Upload iOS build artifacts
+      - name: Upload iOS Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build
+          path: |
+            ios/build/Build/Products/Debug-iphonesimulator/*.app
+          retention-days: 30
+
+      # Upload IPA (if release build succeeded)
+      - name: Upload IPA
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-ipa
+          path: ios/build/*.ipa
+          retention-days: 90
+
+      # Generate build info
+      - name: Generate build info
+        run: |
+          mkdir -p build-info
+          cat > build-info/ios-build-info.txt << EOF
+          iOS Build Information
+          =====================
+          Date: $(date)
+          Branch: ${{ github.ref_name }}
+          Commit: ${{ github.sha }}
+          Actor: ${{ github.actor }}
+          Run Number: ${{ github.run_number }}
+          Xcode Version: $(xcodebuild -version)
+          
+          Note: iOS builds require:
+          - Valid Apple Developer Account
+          - Code signing certificates
+          - Provisioning profiles
+          
+          For TestFlight distribution, use Fastlane or App Store Connect API.
+          EOF
+
+      # Upload build info
+      - name: Upload iOS build info
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build-info
+          path: build-info/ios-build-info.txt
+
+      # Notify on success
+      - name: Build Success Notification
+        if: success()
+        run: |
+          echo "✅ iOS Build completed successfully!"
+          echo "📦 Build artifacts are available in the artifacts section"
+          echo "🔗 Download from: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+      # Notify on failure
+      - name: Build Failure Notification
+        if: failure()
+        run: |
+          echo "❌ iOS Build failed!"
+          echo "📋 Check the logs above for details"
+          echo ""
+          echo "Common issues:"
+          echo "  - Missing CocoaPods dependencies"
+          echo "  - Xcode version mismatch"
+          echo "  - Code signing issues"

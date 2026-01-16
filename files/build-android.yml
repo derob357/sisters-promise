@@ -1,0 +1,169 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # Set up Java (required for Android builds)
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      # Install dependencies
+      - name: Install dependencies
+        run: |
+          npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+
+      # Create .env file from secrets
+      - name: Create .env file
+        run: |
+          cat > .env << EOF
+          API_BASE_URL=${{ secrets.API_BASE_URL || 'https://api.sisterspromise.com' }}
+          GA_MEASUREMENT_ID=${{ secrets.GA_MEASUREMENT_ID || 'G_XXXXXXXXXX' }}
+          GA_API_SECRET=${{ secrets.GA_API_SECRET || 'placeholder' }}
+          APPLE_APP_ID=${{ secrets.APPLE_APP_ID || 'com.sisterspromise.app' }}
+          APPLE_TEAM_ID=${{ secrets.APPLE_TEAM_ID || 'XXXXXXXXXX' }}
+          ENV=production
+          EOF
+
+      # Make Gradlew executable
+      - name: Make Gradlew executable
+        run: chmod +x android/gradlew
+
+      # Clean previous builds
+      - name: Clean build directory
+        run: cd android && ./gradlew clean
+
+      # Build Debug APK (for testing)
+      - name: Build Debug APK
+        run: cd android && ./gradlew assembleDebug
+
+      # Build Release APK (for production)
+      - name: Build Release APK
+        run: cd android && ./gradlew assembleRelease
+
+      # Sign APK (if keystore secrets are provided)
+      - name: Sign APK
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        run: |
+          if [ -n "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" ]; then
+            echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 -d > android/app/release.keystore
+            cd android
+            ./gradlew assembleRelease \
+              -Pandroid.injected.signing.store.file=$(pwd)/app/release.keystore \
+              -Pandroid.injected.signing.store.password="${{ secrets.RELEASE_KEYSTORE_PASSWORD }}" \
+              -Pandroid.injected.signing.key.alias="${{ secrets.RELEASE_KEY_ALIAS }}" \
+              -Pandroid.injected.signing.key.password="${{ secrets.RELEASE_KEY_PASSWORD }}"
+          else
+            echo "⚠️ No keystore found - using debug signing"
+          fi
+
+      # Upload Debug APK as artifact
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30
+
+      # Upload Release APK as artifact
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release
+          path: android/app/build/outputs/apk/release/app-release.apk
+          retention-days: 90
+
+      # Generate build info
+      - name: Generate build info
+        run: |
+          mkdir -p build-info
+          cat > build-info/build-info.txt << EOF
+          Build Information
+          ==================
+          Date: $(date)
+          Branch: ${{ github.ref_name }}
+          Commit: ${{ github.sha }}
+          Actor: ${{ github.actor }}
+          Run Number: ${{ github.run_number }}
+          
+          APK Locations:
+          - Debug: android/app/build/outputs/apk/debug/app-debug.apk
+          - Release: android/app/build/outputs/apk/release/app-release.apk
+          EOF
+
+      # Upload build info
+      - name: Upload build info
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-info
+          path: build-info/build-info.txt
+
+      # Create release (only on main branch push)
+      - name: Create GitHub Release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: Release v1.0.${{ github.run_number }}
+          body: |
+            ## Sisters Promise Mobile - Release Build
+            
+            **Build Date:** $(date)
+            **Branch:** ${{ github.ref_name }}
+            **Commit:** ${{ github.sha }}
+            
+            ### Downloads
+            - Android APK (attached below)
+            
+            ### Installation
+            1. Download the APK file
+            2. Enable "Install from Unknown Sources" on your Android device
+            3. Install the APK
+            
+            ### Changes
+            See commit history for detailed changes.
+          files: |
+            android/app/build/outputs/apk/release/app-release.apk
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Notify on success
+      - name: Build Success Notification
+        if: success()
+        run: |
+          echo "✅ Build completed successfully!"
+          echo "📦 APK files are available in the artifacts section"
+          echo "🔗 Download from: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+      # Notify on failure
+      - name: Build Failure Notification
+        if: failure()
+        run: |
+          echo "❌ Build failed!"
+          echo "📋 Check the logs above for details"
