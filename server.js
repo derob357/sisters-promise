@@ -2974,23 +2974,42 @@ if (fs.existsSync(certPath) && fs.existsSync(keyPath)) {
     });
   }
 } else {
-  console.log('SSL certificates not found. Generating...\n');
-  try {
-    const { execSync } = require('child_process');
-    execSync('node generate-certs.js', { stdio: 'inherit' });
-    console.log('Certificates generated. Please restart the server.\n');
-    process.exit(0);
-  } catch (error) {
-    console.error('Failed to generate certificates. Running HTTP only.\n');
+  // In production (Render, Heroku, etc.), TLS is handled by the platform's load balancer
+  // Just run HTTP on the assigned PORT - the platform handles HTTPS termination
+  const isCloudPlatform = process.env.NODE_ENV === 'production' || process.env.RENDER;
+
+  if (isCloudPlatform) {
+    console.log('Running on cloud platform - TLS handled by load balancer\n');
     app.listen(PORT, () => {
-      console.log(`\n✓ Sisters Promise API server running on http://localhost:${PORT}`);
-      console.log(`⚠️  WARNING: Running on HTTP (unencrypted) - Not recommended for production`);
+      console.log(`\n✓ Sisters Promise API server running on port ${PORT}`);
       console.log(`✓ Environment: ${process.env.SQUARE_ENVIRONMENT || 'sandbox'}`);
       console.log(`✓ Security: Helmet enabled, Rate limiting active, Input sanitization enabled`);
       console.log(`✓ Max payload size: 10KB`);
       console.log(`✓ Authentication: JWT enabled with role-based access control`);
       console.log(`✓ Default Users: Owner (denise@sisterspromise.com), Admin (deric.robinson71@gmail.com)`);
-      console.log(`✓ Analytics: Google Analytics 4 and Apple Analytics enabled\n`);
+      console.log(`✓ Analytics: Google Analytics 4 and Apple Analytics enabled`);
+      console.log(`✓ TLS/HTTPS: Handled by platform load balancer\n`);
     });
+  } else {
+    // Local development - try to generate certs
+    console.log('SSL certificates not found. Generating for local development...\n');
+    try {
+      const { execSync } = require('child_process');
+      execSync('node generate-certs.js', { stdio: 'inherit' });
+      console.log('Certificates generated. Please restart the server.\n');
+      process.exit(0);
+    } catch (error) {
+      console.error('Failed to generate certificates. Running HTTP only.\n');
+      app.listen(PORT, () => {
+        console.log(`\n✓ Sisters Promise API server running on http://localhost:${PORT}`);
+        console.log(`⚠️  WARNING: Running on HTTP (unencrypted) - Not recommended for production`);
+        console.log(`✓ Environment: ${process.env.SQUARE_ENVIRONMENT || 'sandbox'}`);
+        console.log(`✓ Security: Helmet enabled, Rate limiting active, Input sanitization enabled`);
+        console.log(`✓ Max payload size: 10KB`);
+        console.log(`✓ Authentication: JWT enabled with role-based access control`);
+        console.log(`✓ Default Users: Owner (denise@sisterspromise.com), Admin (deric.robinson71@gmail.com)`);
+        console.log(`✓ Analytics: Google Analytics 4 and Apple Analytics enabled\n`);
+      });
+    }
   }
 }
