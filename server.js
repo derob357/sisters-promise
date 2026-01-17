@@ -32,6 +32,7 @@ const { connectDB, isConnected } = require('./config/database');
 const UserService = require('./services/UserService');
 const AnalyticsService = require('./services/AnalyticsService');
 const { authenticate, adminOrOwner, ownerOnly } = require('./middleware/auth');
+const Product = require('./models/Product');
 
 const app = express();
 
@@ -287,46 +288,30 @@ app.get('/api/health', generalLimiter, (req, res) => {
 });
 
 /**
- * Get all products from Square Catalog
+ * Get all products from MongoDB
  * GET /api/products
  */
 app.get('/api/products', asyncHandler(async (req, res) => {
-  if (!process.env.SQUARE_ACCESS_TOKEN) {
-    return res.status(500).json({
-      error: 'Configuration Error',
-      message: 'Square API not properly configured'
-    });
-  }
-
   try {
-    const response = await catalogApi.listCatalog();
+    // Fetch all active products from MongoDB
+    const products = await Product.find({ isActive: true })
+      .select('-__v')
+      .lean()
+      .exec();
     
-    if (!response.result?.objects) {
+    if (!products || products.length === 0) {
       return res.json({ 
         success: true,
         count: 0,
-        products: []
+        products: [],
+        timestamp: new Date().toISOString()
       });
     }
-
-    // Filter and sanitize products
-    const products = response.result.objects
-      .filter(item => item.type === 'ITEM' && item.itemData)
-      .map(item => ({
-        id: sanitizeInput(item.id),
-        name: sanitizeInput(item.itemData?.name || 'Unnamed Product'),
-        description: sanitizeInput(item.itemData?.description || ''),
-        variations: item.itemData?.variations || [],
-        imageUrl: item.itemData?.imageIds?.[0] || null,
-        categoryId: item.itemData?.categoryId || null
-      }))
-      .slice(0, 100); // Limit to 100 products
 
     res.json({ 
       success: true,
       count: products.length,
       products,
-      cached: false,
       timestamp: new Date().toISOString()
     });
   } catch (error) {
@@ -339,23 +324,19 @@ app.get('/api/products', asyncHandler(async (req, res) => {
 }));
 
 /**
- * Get single product by ID
+ * Get single product by ID from MongoDB
  * GET /api/products/:id
  */
 app.get('/api/products/:id', asyncHandler(async (req, res) => {
-  const productId = sanitizeInput(req.params.id);
+  const productId = req.params.id;
   
-  if (!productId || productId.length < 5) {
-    return res.status(400).json({ 
-      error: 'Invalid product ID format' 
-    });
-  }
-
   try {
-    const response = await catalogApi.retrieveCatalogObject(productId);
-    const item = response.result?.object;
+    const product = await Product.findById(productId)
+      .select('-__v')
+      .lean()
+      .exec();
 
-    if (!item || item.type !== 'ITEM') {
+    if (!product) {
       return res.status(404).json({ 
         error: 'Product not found' 
       });
@@ -363,14 +344,7 @@ app.get('/api/products/:id', asyncHandler(async (req, res) => {
 
     res.json({
       success: true,
-      product: {
-        id: sanitizeInput(item.id),
-        name: sanitizeInput(item.itemData?.name || 'Unnamed Product'),
-        description: sanitizeInput(item.itemData?.description || ''),
-        variations: item.itemData?.variations || [],
-        imageUrl: item.itemData?.imageIds?.[0] || null,
-        categoryId: item.itemData?.categoryId || null
-      }
+      product
     });
   } catch (error) {
     console.error('Error fetching product:', error.message);
