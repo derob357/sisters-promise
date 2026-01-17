@@ -4,7 +4,16 @@
  */
 
 const mongoose = require('mongoose');
-require('dotenv').config();
+const path = require('path');
+const fs = require('fs');
+const dotenv = require('dotenv');
+
+// Load environment based on NODE_ENV (don't override if already set by server.js)
+const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env';
+const envPath = path.resolve(envFile);
+if (!process.env.MONGODB_URI && fs.existsSync(envPath)) {
+  dotenv.config({ path: envPath });
+}
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/sisters-promise';
 

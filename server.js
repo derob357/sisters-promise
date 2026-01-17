@@ -1,11 +1,24 @@
 // Square Payment Integration Server for Sisters Promise
+
+// CRITICAL: Load environment FIRST, before any requires that need env vars
+const dotenv = require('dotenv');
+const fs = require('fs');
+const path = require('path');
+
+const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env';
+const envPath = path.resolve(envFile);
+if (fs.existsSync(envPath)) {
+  dotenv.config({ path: envPath });
+  console.log(`📋 Loaded config from ${envFile}`);
+} else {
+  dotenv.config();
+}
+
+// NOW require other modules that need environment variables
 const express = require('express');
 const https = require('https');
 const http = require('http');
-const fs = require('fs');
-const path = require('path');
 const cors = require('cors');
-const dotenv = require('dotenv');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
@@ -19,16 +32,6 @@ const { connectDB, isConnected } = require('./config/database');
 const UserService = require('./services/UserService');
 const AnalyticsService = require('./services/AnalyticsService');
 const { authenticate, adminOrOwner, ownerOnly } = require('./middleware/auth');
-
-// Load environment based on NODE_ENV
-const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env';
-const envPath = path.resolve(envFile);
-if (fs.existsSync(envPath)) {
-  dotenv.config({ path: envPath });
-  console.log(`📋 Loaded config from ${envFile}`);
-} else {
-  dotenv.config();
-}
 
 const app = express();
 
