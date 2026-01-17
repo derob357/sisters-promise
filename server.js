@@ -33,6 +33,10 @@ const UserService = require('./services/UserService');
 const AnalyticsService = require('./services/AnalyticsService');
 const { authenticate, adminOrOwner, ownerOnly } = require('./middleware/auth');
 const Product = require('./models/Product');
+const User = require('./models/User');
+const ManualOrder = require('./models/ManualOrder');
+const bcryptjs = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const app = express();
 
@@ -288,6 +292,237 @@ app.get('/api/health', generalLimiter, (req, res) => {
 });
 
 /**
+ * ===== USER AUTHENTICATION ENDPOINTS =====
+ */
+
+/**
+ * User Registration
+ * POST /users/register
+ */
+app.post('/users/register', asyncHandler(async (req, res) => {
+  const { email, password, firstName, lastName } = req.body;
+  
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password are required' });
+  }
+  
+  const existingUser = await User.findOne({ email: email.toLowerCase() });
+  if (existingUser) {
+    return res.status(409).json({ error: 'User already exists' });
+  }
+  
+  const hashedPassword = await bcryptjs.hash(password, 12);
+  const newUser = new User({
+    id: require('uuid').v4(),
+    email: email.toLowerCase(),
+    password: hashedPassword,
+    firstName: firstName || '',
+    lastName: lastName || '',
+    role: 'standard'
+  });
+  
+  await newUser.save();
+  
+  const token = jwt.sign(
+    { userId: newUser.id, email: newUser.email },
+    process.env.JWT_SECRET,
+    { expiresIn: '24h' }
+  );
+  
+  res.status(201).json({
+    success: true,
+    message: 'User registered successfully',
+    user: {
+      id: newUser.id,
+      email: newUser.email,
+      firstName: newUser.firstName,
+      lastName: newUser.lastName
+    },
+    token
+  });
+}));
+
+/**
+ * User Login
+ * POST /users/login
+ */
+app.post('/users/login', asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+  
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password are required' });
+  }
+  
+  const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
+  if (!user) {
+    return res.status(401).json({ error: 'Invalid credentials' });
+  }
+  
+  const passwordMatch = await bcryptjs.compare(password, user.password);
+  if (!passwordMatch) {
+    return res.status(401).json({ error: 'Invalid credentials' });
+  }
+  
+  const token = jwt.sign(
+    { userId: user.id, email: user.email },
+    process.env.JWT_SECRET,
+    { expiresIn: '24h' }
+  );
+  
+  res.json({
+    success: true,
+    message: 'Login successful',
+    user: {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role
+    },
+    token
+  });
+}));
+
+/**
+ * Get User Profile
+ * GET /users/profile
+ */
+app.get('/users/profile', asyncHandler(async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Missing authorization token' });
+  }
+  
+  const token = authHeader.substring(7);
+  let decoded;
+  try {
+    decoded = jwt.verify(token, process.env.JWT_SECRET);
+  } catch (error) {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+  
+  const user = await User.findOne({ id: decoded.userId });
+  if (!user) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+  
+  res.json({
+    success: true,
+    user: {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role,
+      createdAt: user.createdAt
+    }
+  });
+}));
+
+/**
+ * Change Password
+ * POST /users/change-password
+ */
+app.post('/users/change-password', asyncHandler(async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Missing authorization token' });
+  }
+  
+  const token = authHeader.substring(7);
+  let decoded;
+  try {
+    decoded = jwt.verify(token, process.env.JWT_SECRET);
+  } catch (error) {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+  
+  const { oldPassword, newPassword } = req.body;
+  if (!oldPassword || !newPassword) {
+    return res.status(400).json({ error: 'Old and new passwords are required' });
+  }
+  
+  const user = await User.findOne({ id: decoded.userId }).select('+password');
+  if (!user) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+  
+  const passwordMatch = await bcryptjs.compare(oldPassword, user.password);
+  if (!passwordMatch) {
+    return res.status(401).json({ error: 'Current password is incorrect' });
+  }
+  
+  user.password = await bcryptjs.hash(newPassword, 12);
+  await user.save();
+  
+  res.json({
+    success: true,
+    message: 'Password changed successfully'
+  });
+}));
+
+/**
+ * ===== PRODUCT ENDPOINTS =====
+ */
+
+/**
+ * Get Product Categories
+ * GET /api/products/categories
+ */
+app.get('/api/products/categories', asyncHandler(async (req, res) => {
+  const products = await Product.find({ isActive: true })
+    .select('category')
+    .distinct('category')
+    .lean()
+    .exec();
+  
+  const categories = products.filter(cat => cat && cat.trim());
+  
+  res.json({
+    success: true,
+    categories: categories.sort(),
+    timestamp: new Date().toISOString()
+  });
+}));
+
+/**
+ * Search Products
+ * GET /api/products/search?q=query
+ */
+app.get('/api/products/search', asyncHandler(async (req, res) => {
+  const { q } = req.query;
+  
+  if (!q || q.trim().length === 0) {
+    return res.json({
+      success: true,
+      results: [],
+      query: q
+    });
+  }
+  
+  const searchRegex = new RegExp(q.trim(), 'i');
+  const results = await Product.find({
+    isActive: true,
+    $or: [
+      { name: searchRegex },
+      { description: searchRegex },
+      { category: searchRegex }
+    ]
+  })
+    .select('-__v')
+    .lean()
+    .exec();
+  
+  res.json({
+    success: true,
+    count: results.length,
+    query: q,
+    results,
+    timestamp: new Date().toISOString()
+  });
+}));
+
+/**
  * Get all products from MongoDB
  * GET /api/products
  */
@@ -415,6 +650,146 @@ app.post('/api/checkout', checkoutLimiter, asyncHandler(async (req, res) => {
       message: process.env.NODE_ENV === 'development' ? error.message : 'Unable to process payment'
     });
   }
+}));
+
+/**
+ * Create Order (Mobile App)
+ * POST /api/orders
+ * Mobile orders endpoint - simpler than Square checkout
+ */
+app.post('/api/orders', asyncHandler(async (req, res) => {
+  const { items, total, email, firstName, lastName } = req.body;
+  
+  if (!items || !Array.isArray(items) || items.length === 0) {
+    return res.status(400).json({ error: 'Order must contain items' });
+  }
+  
+  if (!total || typeof total !== 'number' || total <= 0) {
+    return res.status(400).json({ error: 'Invalid total amount' });
+  }
+  
+  if (!email) {
+    return res.status(400).json({ error: 'Email is required' });
+  }
+  
+  const order = new ManualOrder({
+    id: require('uuid').v4(),
+    email: email.toLowerCase(),
+    firstName: firstName || 'Mobile User',
+    lastName: lastName || '',
+    items: items,
+    total: total,
+    status: 'pending',
+    source: 'mobile-app'
+  });
+  
+  await order.save();
+  
+  res.status(201).json({
+    success: true,
+    message: 'Order created successfully',
+    order: {
+      id: order.id,
+      total: order.total,
+      status: order.status,
+      createdAt: order.createdAt
+    }
+  });
+}));
+
+/**
+ * ===== ANALYTICS ENDPOINTS =====
+ */
+
+/**
+ * Track Analytics Event
+ * POST /api/analytics/event
+ */
+app.post('/api/analytics/event', asyncHandler(async (req, res) => {
+  const { event, properties } = req.body;
+  
+  if (!event) {
+    return res.status(400).json({ error: 'Event name is required' });
+  }
+  
+  // Log analytics event (in production, save to database)
+  console.log(`[ANALYTICS] Event: ${event}`, properties);
+  
+  res.json({
+    success: true,
+    message: 'Event tracked',
+    event
+  });
+}));
+
+/**
+ * Track Signup Event
+ * POST /api/analytics/signup
+ */
+app.post('/api/analytics/signup', asyncHandler(async (req, res) => {
+  const { email, source } = req.body;
+  console.log(`[ANALYTICS] Signup: ${email} (source: ${source})`);
+  
+  res.json({
+    success: true,
+    message: 'Signup tracked'
+  });
+}));
+
+/**
+ * Track Purchase Event
+ * POST /api/analytics/purchase
+ */
+app.post('/api/analytics/purchase', asyncHandler(async (req, res) => {
+  const { orderId, total, items } = req.body;
+  console.log(`[ANALYTICS] Purchase: ${orderId}, Total: ${total}`, items);
+  
+  res.json({
+    success: true,
+    message: 'Purchase tracked'
+  });
+}));
+
+/**
+ * Track Product View/Interaction
+ * POST /api/analytics/product
+ */
+app.post('/api/analytics/product', asyncHandler(async (req, res) => {
+  const { productId, action, properties } = req.body;
+  console.log(`[ANALYTICS] Product Action: ${action} on ${productId}`, properties);
+  
+  res.json({
+    success: true,
+    message: 'Product interaction tracked'
+  });
+}));
+
+/**
+ * Track Email Subscription Event
+ * POST /api/analytics/email-subscription
+ */
+app.post('/api/analytics/email-subscription', asyncHandler(async (req, res) => {
+  const { email, action } = req.body;
+  console.log(`[ANALYTICS] Email Subscription: ${action} for ${email}`);
+  
+  res.json({
+    success: true,
+    message: 'Email subscription event tracked'
+  });
+}));
+
+/**
+ * Track Form Submission
+ * POST /api/analytics/form
+ */
+app.post('/api/analytics/form', asyncHandler(async (req, res) => {
+  const { formType, data } = req.body;
+  console.log(`[ANALYTICS] Form Submission: ${formType}`, data);
+  
+  res.json({
+    success: true,
+    message: 'Form submission tracked'
+  });
 }));
 
 // ============================================================================
