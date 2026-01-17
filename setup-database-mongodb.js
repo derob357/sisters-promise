@@ -6,7 +6,19 @@
 
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-require('dotenv').config();
+const fs = require('fs');
+const path = require('path');
+
+// Load environment based on NODE_ENV
+const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env';
+const envPath = path.resolve(envFile);
+
+if (fs.existsSync(envPath)) {
+  require('dotenv').config({ path: envPath });
+  console.log(`📋 Loaded config from ${envFile}`);
+} else {
+  require('dotenv').config();
+}
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/sisters_promise';
 
