@@ -20,7 +20,15 @@ const UserService = require('./services/UserService');
 const AnalyticsService = require('./services/AnalyticsService');
 const { authenticate, adminOrOwner, ownerOnly } = require('./middleware/auth');
 
-dotenv.config();
+// Load environment based on NODE_ENV
+const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env';
+const envPath = path.resolve(envFile);
+if (fs.existsSync(envPath)) {
+  dotenv.config({ path: envPath });
+  console.log(`📋 Loaded config from ${envFile}`);
+} else {
+  dotenv.config();
+}
 
 const app = express();
 
