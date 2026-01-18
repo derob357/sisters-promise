@@ -3283,11 +3283,9 @@ if (fs.existsSync(certPath) && fs.existsSync(keyPath)) {
     // Create HTTPS server
     httpsServer = https.createServer(sslOptions, app);
 
-    // Create HTTP server that redirects to HTTPS
-    httpServer = http.createServer((req, res) => {
-      res.writeHead(301, { Location: `https://${req.headers.host}${req.url}` });
-      res.end();
-    });
+    // Create HTTP server - serves API directly for mobile app development
+    // In production, use a reverse proxy (nginx) to enforce HTTPS
+    httpServer = http.createServer(app);
 
     // Start both servers
     const HTTPS_PORT = process.env.HTTPS_PORT || 443;
@@ -3295,7 +3293,7 @@ if (fs.existsSync(certPath) && fs.existsSync(keyPath)) {
 
     httpsServer.listen(HTTPS_PORT, () => {
       console.log(`\n✓ Sisters Promise API server running on https://localhost:${HTTPS_PORT}`);
-      console.log(`✓ HTTP server redirecting to HTTPS on port ${HTTP_PORT}`);
+      console.log(`✓ HTTP server also available on port ${HTTP_PORT} (for mobile app development)`);
       console.log(`✓ Environment: ${process.env.SQUARE_ENVIRONMENT || 'sandbox'}`);
       console.log(`✓ Security: HTTPS/TLS enabled, Helmet enabled, Rate limiting active`);
       console.log(`✓ Max payload size: 10KB`);
