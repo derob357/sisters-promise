@@ -404,9 +404,18 @@ class EmailService {
     }
 
     try {
-      const productsList = products.map(p => 
-        `<tr><td>${p.name}</td><td>${p.quantity}</td><td>$${p.price.toFixed(2)}</td><td>$${(p.quantity * p.price).toFixed(2)}</td></tr>`
-      ).join('');
+      // Validate products is an array before mapping
+      if (!Array.isArray(products)) {
+        console.error('Invalid products data - expected array, got:', typeof products);
+        products = [];
+      }
+      
+      const productsList = products
+        .filter(p => p && p.name && typeof p.quantity === 'number' && typeof p.price === 'number') // Filter invalid entries
+        .map(p => 
+          `<tr><td>${p.name}</td><td>${p.quantity}</td><td>$${p.price.toFixed(2)}</td><td>$${(p.quantity * p.price).toFixed(2)}</td></tr>`
+        )
+        .join('');
 
       const htmlContent = `
         <h2>Order Confirmation</h2>

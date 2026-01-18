@@ -299,7 +299,7 @@ app.get('/api/health', generalLimiter, (req, res) => {
  * User Registration
  * POST /users/register
  */
-app.post('/users/register', asyncHandler(async (req, res) => {
+app.post('/api/users/register', asyncHandler(async (req, res) => {
   const { email, password, firstName, lastName } = req.body;
   
   if (!email || !password) {
@@ -332,21 +332,25 @@ app.post('/users/register', asyncHandler(async (req, res) => {
   res.status(201).json({
     success: true,
     message: 'User registered successfully',
-    user: {
-      id: newUser.id,
-      email: newUser.email,
-      firstName: newUser.firstName,
-      lastName: newUser.lastName
+    data: {
+      user: {
+        id: newUser.id,
+        email: newUser.email,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+        role: newUser.role,
+      }
     },
-    token
+    token,
+    timestamp: new Date().toISOString()
   });
 }));
 
 /**
  * User Login
- * POST /users/login
+ * POST /api/users/login
  */
-app.post('/users/login', asyncHandler(async (req, res) => {
+app.post('/api/users/login', asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   
   if (!email || !password) {
@@ -377,7 +381,11 @@ app.post('/users/login', asyncHandler(async (req, res) => {
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
-      role: user.role
+      role: user.role,
+      status: user.status,
+      permissions: user.permissions,
+      profileImage: user.profileImage,
+      phone: user.phone,
     },
     token
   });
@@ -385,9 +393,9 @@ app.post('/users/login', asyncHandler(async (req, res) => {
 
 /**
  * Get User Profile
- * GET /users/profile
+ * GET /api/users/profile
  */
-app.get('/users/profile', asyncHandler(async (req, res) => {
+app.get('/api/users/profile', asyncHandler(async (req, res) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Missing authorization token' });
@@ -414,16 +422,21 @@ app.get('/users/profile', asyncHandler(async (req, res) => {
       firstName: user.firstName,
       lastName: user.lastName,
       role: user.role,
-      createdAt: user.createdAt
+      status: user.status,
+      permissions: user.permissions,
+      profileImage: user.profileImage,
+      phone: user.phone,
+      createdAt: user.createdAt,
+      lastLogin: user.lastLogin,
     }
   });
 }));
 
 /**
  * Change Password
- * POST /users/change-password
+ * POST /api/users/change-password
  */
-app.post('/users/change-password', asyncHandler(async (req, res) => {
+app.post('/api/users/change-password', asyncHandler(async (req, res) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Missing authorization token' });
@@ -495,7 +508,10 @@ app.get('/api/products/search', asyncHandler(async (req, res) => {
   if (!q || q.trim().length === 0) {
     return res.json({
       success: true,
-      results: [],
+      data: {
+        count: 0,
+        products: []
+      },
       query: q
     });
   }
@@ -513,11 +529,16 @@ app.get('/api/products/search', asyncHandler(async (req, res) => {
     .lean()
     .exec();
   
+  // Ensure results is always an array
+  const validResults = Array.isArray(results) ? results : [];
+  
   res.json({
     success: true,
-    count: results.length,
+    data: {
+      count: validResults.length,
+      products: validResults
+    },
     query: q,
-    results,
     timestamp: new Date().toISOString()
   });
 }));
@@ -528,32 +549,42 @@ app.get('/api/products/search', asyncHandler(async (req, res) => {
  */
 app.get('/api/products', asyncHandler(async (req, res) => {
   try {
-    // Fetch all active products from MongoDB
-    const products = await Product.find({ isActive: true })
+    // Build query filter
+    const filter = { isActive: true };
+    
+    // Add category filter if provided
+    if (req.query.category && req.query.category !== 'all') {
+      filter.category = req.query.category;
+    }
+    
+    // Fetch products from MongoDB
+    const products = await Product.find(filter)
       .select('-__v')
       .lean()
       .exec();
     
-    if (!products || products.length === 0) {
-      return res.json({ 
-        success: true,
-        count: 0,
-        products: [],
-        timestamp: new Date().toISOString()
-      });
-    }
+    // Ensure products is always an array
+    const validProducts = Array.isArray(products) ? products : [];
 
     res.json({ 
       success: true,
-      count: products.length,
-      products,
+      data: {
+        count: validProducts.length,
+        products: validProducts
+      },
       timestamp: new Date().toISOString()
     });
   } catch (error) {
     console.error('Error fetching products:', error.message);
     res.status(500).json({
+      success: false,
+      data: {
+        count: 0,
+        products: []
+      },
       error: 'Failed to fetch products',
-      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
+      timestamp: new Date().toISOString()
     });
   }
 }));
@@ -579,7 +610,10 @@ app.get('/api/products/:id', asyncHandler(async (req, res) => {
 
     res.json({
       success: true,
-      product
+      data: {
+        product
+      },
+      timestamp: new Date().toISOString()
     });
   } catch (error) {
     console.error('Error fetching product:', error.message);
@@ -655,10 +689,10 @@ app.post('/api/checkout', checkoutLimiter, asyncHandler(async (req, res) => {
 /**
  * Create Order (Mobile App)
  * POST /api/orders
- * Mobile orders endpoint - simpler than Square checkout
+ * Mobile orders endpoint - requires authentication to prevent abuse
  */
-app.post('/api/orders', asyncHandler(async (req, res) => {
-  const { items, total, email, firstName, lastName } = req.body;
+app.post('/api/orders', authenticate, asyncHandler(async (req, res) => {
+  const { items, total, email, firstName, lastName, phone, address, city, state, zip } = req.body;
   
   if (!items || !Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ error: 'Order must contain items' });
@@ -672,15 +706,34 @@ app.post('/api/orders', asyncHandler(async (req, res) => {
     return res.status(400).json({ error: 'Email is required' });
   }
   
+  // Convert items to products format for ManualOrder schema
+  const products = items.map(item => ({
+    name: item.productId || 'Product',
+    quantity: item.quantity || 1,
+    price: item.price || 0,
+  }));
+
   const order = new ManualOrder({
     id: require('uuid').v4(),
-    email: email.toLowerCase(),
-    firstName: firstName || 'Mobile User',
-    lastName: lastName || '',
-    items: items,
+    customerName: `${firstName || ''} ${lastName || ''}`.trim() || 'Mobile User',
+    customerEmail: email.toLowerCase(),
+    customerPhone: phone || '',
+    shippingAddress: {
+      street: address || '',
+      city: city || '',
+      state: state || '',
+      zip: zip || '',
+      country: 'USA',
+    },
+    products: products,
+    paymentMethod: 'online',
+    subtotal: total,
+    shipping: 0,
+    tax: 0,
     total: total,
-    status: 'pending',
-    source: 'mobile-app'
+    paymentStatus: 'pending',
+    orderStatus: 'confirmed',
+    createdBy: req.user?.id || 'mobile-app',
   });
   
   await order.save();
@@ -688,12 +741,16 @@ app.post('/api/orders', asyncHandler(async (req, res) => {
   res.status(201).json({
     success: true,
     message: 'Order created successfully',
-    order: {
-      id: order.id,
-      total: order.total,
-      status: order.status,
-      createdAt: order.createdAt
-    }
+    data: {
+      orderId: order.id,
+      order: {
+        id: order.id,
+        total: order.total,
+        status: order.orderStatus,
+        createdAt: order.createdAt
+      }
+    },
+    timestamp: new Date().toISOString()
   });
 }));
 
@@ -1528,163 +1585,8 @@ process.on('unhandledRejection', (err) => {
 
 // ==================== USER MANAGEMENT ENDPOINTS ====================
 
-/**
- * POST /api/auth/register
- * Register a new standard user account
- */
-app.post('/api/auth/register', async (req, res) => {
-  try {
-    const { email, firstName, lastName, password, confirmPassword } = req.body;
-
-    if (!email || !password || !confirmPassword) {
-      return res.status(400).json({
-        success: false,
-        error: 'Email and password are required',
-      });
-    }
-
-    if (password !== confirmPassword) {
-      return res.status(400).json({
-        success: false,
-        error: 'Passwords do not match',
-      });
-    }
-
-    const user = await UserService.createUser(email, firstName, lastName, password, 'standard');
-
-    const { generateToken } = require('./middleware/auth');
-    const token = generateToken(user.id);
-
-    res.status(201).json({
-      success: true,
-      message: 'User registered successfully',
-      token,
-      user,
-    });
-  } catch (error) {
-    console.error('Registration error:', error.message);
-    res.status(400).json({
-      success: false,
-      error: error.message,
-    });
-  }
-});
-
-/**
- * POST /api/auth/login
- * Authenticate user and return JWT token
- */
-app.post('/api/auth/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-      return res.status(400).json({
-        success: false,
-        error: 'Email and password are required',
-      });
-    }
-
-    const result = await UserService.authenticateUser(email, password);
-
-    res.json({
-      success: true,
-      message: 'Login successful',
-      token: result.token,
-      user: result.user,
-    });
-  } catch (error) {
-    console.error('Login error:', error.message);
-    res.status(401).json({
-      success: false,
-      error: error.message,
-    });
-  }
-});
-
-/**
- * GET /api/auth/me
- * Get current user profile (requires authentication)
- */
-app.get('/api/auth/me', authenticate, (req, res) => {
-  try {
-    res.json({
-      success: true,
-      user: UserService.sanitizeUser(req.user),
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message,
-    });
-  }
-});
-
-/**
- * POST /api/auth/change-password
- * Change user password (requires authentication)
- */
-app.post('/api/auth/change-password', authenticate, async (req, res) => {
-  try {
-    const { currentPassword, newPassword, confirmPassword } = req.body;
-
-    if (!currentPassword || !newPassword) {
-      return res.status(400).json({
-        success: false,
-        error: 'Current and new passwords are required',
-      });
-    }
-
-    if (newPassword !== confirmPassword) {
-      return res.status(400).json({
-        success: false,
-        error: 'New passwords do not match',
-      });
-    }
-
-    await UserService.changePassword(req.user.id, currentPassword, newPassword);
-
-    res.json({
-      success: true,
-      message: 'Password changed successfully',
-    });
-  } catch (error) {
-    console.error('Password change error:', error.message);
-    res.status(400).json({
-      success: false,
-      error: error.message,
-    });
-  }
-});
-
-/**
- * PUT /api/auth/profile
- * Update user profile (requires authentication)
- */
-app.put('/api/auth/profile', authenticate, async (req, res) => {
-  try {
-    const { firstName, lastName, phone, profileImage } = req.body;
-
-    const user = await UserService.updateUser(req.user.id, {
-      firstName,
-      lastName,
-      phone,
-      profileImage,
-    });
-
-    res.json({
-      success: true,
-      message: 'Profile updated successfully',
-      user,
-    });
-  } catch (error) {
-    console.error('Profile update error:', error.message);
-    res.status(400).json({
-      success: false,
-      error: error.message,
-    });
-  }
-});
+// ==================== USER MANAGEMENT ENDPOINTS ====================
+// Duplicate /api/auth endpoints removed - use /api/users/* instead
 
 /**
  * GET /api/admin/users
