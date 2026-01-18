@@ -1551,6 +1551,112 @@ app.post('/api/contact', contactLimiter, asyncHandler(async (req, res) => {
   }
 }));
 
+// ==================== ADMIN DASHBOARD ENDPOINTS ====================
+
+/**
+ * GET /api/admin/stats
+ * Get admin dashboard statistics (admin/owner only)
+ */
+app.get('/api/admin/stats', authenticate, adminOrOwner, async (req, res) => {
+  try {
+    // Get total orders count
+    const totalOrders = await ManualOrder.countDocuments();
+
+    // Get pending orders count
+    const pendingOrders = await ManualOrder.countDocuments({
+      orderStatus: { $in: ['pending', 'processing'] }
+    });
+
+    // Get total revenue
+    const revenueResult = await ManualOrder.aggregate([
+      { $match: { paymentStatus: 'paid' } },
+      { $group: { _id: null, total: { $sum: '$totalAmount' } } }
+    ]);
+    const totalRevenue = revenueResult.length > 0 ? revenueResult[0].total : 0;
+
+    // Get total users count
+    const totalUsers = await User.countDocuments({ status: 'active' });
+
+    // Get total products count
+    const totalProducts = await Product.countDocuments();
+
+    // Get recent orders (last 10)
+    const recentOrders = await ManualOrder.find()
+      .sort({ createdAt: -1 })
+      .limit(10)
+      .lean();
+
+    // Format recent orders for response
+    const formattedOrders = recentOrders.map(order => ({
+      id: order.orderId || order._id,
+      customerName: `${order.customer?.firstName || ''} ${order.customer?.lastName || ''}`.trim() || 'Unknown',
+      customerEmail: order.customer?.email || 'N/A',
+      total: order.totalAmount || 0,
+      status: order.orderStatus || 'pending',
+      items: order.items?.length || 0,
+      createdAt: order.createdAt
+    }));
+
+    res.json({
+      success: true,
+      stats: {
+        totalOrders,
+        pendingOrders,
+        totalRevenue,
+        totalUsers,
+        totalProducts,
+        recentOrders: formattedOrders
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching admin stats:', error.message);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/admin/orders
+ * Get all orders with optional status filter (admin/owner only)
+ */
+app.get('/api/admin/orders', authenticate, adminOrOwner, async (req, res) => {
+  try {
+    const { status } = req.query;
+
+    let query = {};
+    if (status && status !== 'all') {
+      query.orderStatus = status;
+    }
+
+    const orders = await ManualOrder.find(query)
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const formattedOrders = orders.map(order => ({
+      id: order.orderId || order._id,
+      customerName: `${order.customer?.firstName || ''} ${order.customer?.lastName || ''}`.trim() || 'Unknown',
+      customerEmail: order.customer?.email || 'N/A',
+      total: order.totalAmount || 0,
+      status: order.orderStatus || 'pending',
+      items: order.items?.length || 0,
+      createdAt: order.createdAt
+    }));
+
+    res.json({
+      success: true,
+      orders: formattedOrders
+    });
+  } catch (error) {
+    console.error('Error fetching orders:', error.message);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 // 404 Not Found handler
 app.use((req, res) => {
   res.status(404).json({
@@ -1583,10 +1689,7 @@ process.on('unhandledRejection', (err) => {
   process.exit(1);
 });
 
-// ==================== USER MANAGEMENT ENDPOINTS ====================
-
-// ==================== USER MANAGEMENT ENDPOINTS ====================
-// Duplicate /api/auth endpoints removed - use /api/users/* instead
+// Routes after 404 handler removed - they were unreachable
 
 /**
  * GET /api/admin/users
