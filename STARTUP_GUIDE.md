@@ -1,18 +1,24 @@
 # Sisters Promise - Startup Guide
 
+**Current Build Version:** v009.6 (Updated January 19, 2026)
+
 ## Quick Start (All-in-One)
 
 ```bash
 # Terminal 1: Backend Server
 cd /Users/drob/Documents/SistersPromise
-NODE_ENV=production npm start
+npm start
 
 # Terminal 2: Metro Bundler (new terminal)
 cd /Users/drob/Documents/SistersPromise/SistersPromiseMobile
-npm start
+npm start -- --reset-cache
 
-# Terminal 3: Launch App (after Metro is ready)
-xcrun simctl launch booted org.reactjs.native.example.SistersPromiseMobile
+# Terminal 3: Deploy to Simulator (after Metro is ready)
+cd /Users/drob/Documents/SistersPromise/SistersPromiseMobile
+npx react-native run-ios --simulator="iPhone 16 Pro"
+
+# Optional: Deploy to iPad Simulator
+npx react-native run-ios --simulator="iPad Pro (11-inch) (4th generation)"
 ```
 
 ## System Architecture
@@ -32,7 +38,11 @@ xcrun simctl launch booted org.reactjs.native.example.SistersPromiseMobile
 - **React**: 18.2.0
 - **iOS Target**: 16.0 minimum
 - **Metro Bundler**: Port 8081
-- **Simulator**: iPhone 16 Pro (iOS 18.6)
+- **Current Simulators Running**: 
+  - iPhone 16 Pro (iOS 18.6) with app deployed
+  - iPad Pro 11-inch (4th generation) with app deployed
+- **App Bundle ID**: `com.sisterspromise.app`
+- **App Icon**: Sisters Promise logo (all sizes)
 
 ## Key Versions (DO NOT CHANGE)
 - React Native: **0.72.13** (downgraded from 0.83.1 due to incompatibility)

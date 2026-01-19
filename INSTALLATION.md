@@ -1,83 +1,50 @@
-# Sisters Promise - Installation & Quick Start Guide
+# Sisters Promise - Installation & Setup Guide
 
-## Overview
+**Updated:** January 19, 2026  
+**Current Version:** v009.6
 
-Sisters Promise is a modern, secure e-commerce website built with Node.js, Express, Square payments, and Bootstrap. It includes comprehensive security features, contact forms with bot protection, and real-time product integration.
+## Project Structure
+
+```
+/Users/drob/Documents/SistersPromise/
+├── server.js                          # Express backend
+├── package.json                       # Backend dependencies
+├── .env                               # Backend configuration
+├── ios/                               # iOS build files
+├── android/                           # Android build files (not yet built)
+└── SistersPromiseMobile/              # React Native mobile app
+    ├── package.json
+    ├── App.tsx
+    ├── src/
+    │   ├── screens/                   # 11 app screens
+    │   ├── services/                  # API services
+    │   ├── context/                   # Auth & Cart contexts
+    │   ├── components/                # Reusable components
+    │   ├── navigation/                # React Navigation setup
+    │   └── utils/                     # Helpers & utilities
+    └── ios/                           # iOS-specific code
+```
 
 ## Prerequisites
 
-- **Node.js** 14.x or higher
-- **npm** 6.x or higher
-- **Git** for version control
-- A **Square** account with API credentials
-- A **Google reCAPTCHA** account for contact form protection
+### For Backend
+- **Node.js** 18.x or higher
+- **npm** 8.x or higher
+- **MongoDB Atlas** account (cloud) or local MongoDB
 
-## Installation Steps
+### For Mobile App (iOS)
+- **macOS** 12.0 or higher
+- **Xcode** 14.0 or higher
+- **iOS Simulator** or physical device
+- **CocoaPods** (usually installed with Xcode)
 
-### 1. Clone or Navigate to Project
+### For Mobile App (Android)
+- **Android Studio** or Android command-line tools
+- **Java Development Kit** 11+
+- **Android SDK** API 21+
+- **Android Emulator** or physical device
 
-```bash
-cd /Users/drob/Documents/SistersPromise
-```
-
-### 2. Install Dependencies
-
-```bash
-npm install
-```
-
-This installs all required packages:
-- `express` - Web server framework
-- `helmet` - Security headers
-- `express-rate-limit` - Rate limiting
-- `express-mongo-sanitize` - Input sanitization
-- `cors` - Cross-origin resource sharing
-- `square` - Square payment SDK
-- `axios` - HTTP client
-- `dotenv` - Environment variables
-- `uuid` - Unique identifiers
-- `concurrently` - Multiple processes
-
-### 3. Configure Environment Variables
-
-Copy the example file:
-```bash
-cp .env.example .env
-```
-
-Edit `.env` and add your credentials:
-
-```env
-# Square API Configuration
-SQUARE_APPLICATION_ID=your_app_id_here
-SQUARE_ACCESS_TOKEN=your_access_token_here
-SQUARE_LOCATION_ID=your_location_id_here
-SQUARE_ENVIRONMENT=sandbox
-
-# reCAPTCHA Configuration
-RECAPTCHA_SITE_KEY=your_site_key_here
-RECAPTCHA_SECRET_KEY=your_secret_key_here
-
-# Server Configuration
-NODE_ENV=development
-PORT=3000
-ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5000
-```
-
-### 4. Get Your Credentials
-
-#### Square API Credentials
-1. Go to https://squareup.com/dashboard
-2. Navigate to **Developer** → **Applications**
-3. Create a new application or select existing
-4. Get **Application ID** and **Access Token** from Credentials
-5. Get **Location ID** from Locations section
-
-#### reCAPTCHA Credentials
-1. Go to https://www.google.com/recaptcha/admin
-2. Click **Create** and add new site
-3. Type: **reCAPTCHA v3**
-4. Add domains: `localhost`, `sisterspromise.com`
+## Backend Installation
 5. Copy **Site Key** and **Secret Key**
 
 ### 5. Update Contact Form

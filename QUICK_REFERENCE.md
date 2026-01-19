@@ -1,153 +1,154 @@
-# Quick Reference - API Fixes Applied
+# Quick Reference - Sisters Promise Mobile App (v009.6)
 
-## Summary: All 12 Critical Issues ✅ FIXED
+**Last Updated:** January 19, 2026
 
-### Files Modified: 8
-- ✅ server.js (backend endpoints)
-- ✅ authService.js (frontend auth)
-- ✅ productService.js (frontend products)
-- ✅ cartService.js (frontend cart)
-- ✅ CheckoutScreen.js (frontend checkout)
+## ✅ Current Build Status
 
-### Key Changes by Issue
+### Mobile App Features Implemented
+- ✅ User authentication (login/register)
+- ✅ Product browsing with search & categories
+- ✅ Shopping cart management
+- ✅ Order checkout & creation
+- ✅ User profile screen
+- ✅ Blog posts display
+- ✅ Admin dashboard (role-based)
+- ✅ Order management (admin)
+- ✅ Error boundary with logging
+- ✅ App restart functionality
+- ✅ Custom Sisters Promise app icon
+- ✅ Multi-screen layout (iPhone & iPad)
 
-| # | Issue | Status | Impact |
-|---|-------|--------|--------|
-| 1 | Order creation data format | ✅ FIXED | Orders can now be created successfully |
-| 2 | Product image handling | ✅ FIXED | Images display correctly in cart |
-| 3 | Duplicate auth endpoints | ✅ FIXED | Removed `/api/auth/*`, kept `/api/users/*` |
-| 4 | User endpoint /api prefix | ✅ FIXED | Consistent naming convention |
-| 5 | Order endpoint security | ✅ FIXED | Requires authentication now |
-| 6 | Admin vs customer orders | ✅ FIXED | Both use same data structure |
-| 7 | User response fields | ✅ FIXED | Include permissions, status, phone |
-| 8 | Response format | ✅ FIXED | Standardized with `data` wrapper |
-| 9 | Product filtering | ✅ FIXED | Category filtering now works |
-| 10 | DB field naming | ✅ DOCUMENTED | Ready for future migration |
-| 11 | API versioning | ✅ FIXED | All endpoints use `/api` prefix |
-| 12 | Email subscription | ✅ READY | Endpoints exist, optional UI later |
+### Backend Endpoints Implemented
+| Endpoint | Method | Auth | Purpose |
+|----------|--------|------|---------|
+| `/api/health` | GET | No | Server health check |
+| `/api/users/register` | POST | No | User registration |
+| `/api/users/login` | POST | No | User authentication |
+| `/api/users/profile` | GET | Yes | Get user profile |
+| `/api/users/change-password` | POST | Yes | Change password |
+| `/api/products` | GET | No | Get all products |
+| `/api/products/:id` | GET | No | Get single product |
+| `/api/products/categories` | GET | No | Get product categories |
+| `/api/products/search` | GET | No | Search products |
+| `/api/checkout` | POST | No | Square payment |
+| `/api/orders` | POST | Yes | Create order |
+| `/api/admin/stats` | GET | Yes* | Admin statistics |
+| `/api/admin/orders` | GET | Yes* | Admin order list |
+| `/api/analytics/*` | POST | No | Track analytics events |
+| `/api/email/subscribe` | POST | No | Newsletter subscription |
 
----
+*Requires admin/owner role
 
-## Critical Path Changes
+## 📲 Mobile App Screens
 
-### Before → After
+### Public Screens (No Auth Required)
+1. **LoginScreen** - Login with email/password
+2. **RegisterScreen** - Create new account
+3. **HomeScreen** - Browse products with search/filter
+4. **ProductDetailScreen** - Product information
+5. **CartScreen** - View & manage cart items
+6. **CheckoutScreen** - Enter shipping & create order
+7. **PrivacyPolicyScreen** - Privacy policy text
+8. **BlogScreen** - Blog posts (placeholder)
+
+### Protected Screens (Auth Required)
+9. **ProfileScreen** - User account settings
+10. **AdminDashboardScreen** - Admin stats (admin/owner only)
+11. **OrderManagementScreen** - Order list & updates (admin/owner only)
+
+## 🔐 Test Credentials
 
 ```
-/users/login → /api/users/login
-/users/register → /api/users/register
-/users/profile → /api/users/profile
-/users/change-password → /api/users/change-password
-
-/api/auth/login ❌ REMOVED
-/api/auth/register ❌ REMOVED
-/api/auth/me ❌ REMOVED
-/api/auth/change-password ❌ REMOVED
-/api/auth/profile ❌ REMOVED
+Admin Account:
+  Email: deric.robinson71@gmail.com
+  Password: (set during registration)
+  Role: admin
+  
+Test Customer:
+  Email: customer@example.com
+  Password: customer123
+  Role: standard
 ```
 
----
+## 📊 Database Structure
 
-## Order Creation - NEW FORMAT
+### Users Collection
+- `_id` - MongoDB ID
+- `firstName`, `lastName` - Name
+- `email` - Unique email
+- `passwordHash` - Hashed password
+- `phone` - Contact number
+- `role` - [standard, subscriber, admin, owner]
+- `status` - [active, inactive, suspended]
+- `createdAt` - Registration timestamp
 
-```javascript
-POST /api/orders
-Headers: { Authorization: "Bearer <token>" }
-Body: {
-  items: [
-    { productId: "...", quantity: 2, price: 19.99 }
-  ],
-  total: 39.98,
-  email: "user@example.com",
-  firstName: "John",
-  lastName: "Doe",
-  phone: "555-1234",
-  address: "123 Main St",
-  city: "Portland",
-  state: "OR",
-  zip: "97201"
-}
+### Products Collection
+- `_id` - MongoDB ID
+- `name` - Product name
+- `category` - Product category
+- `price` - Product price
+- `description` - Description
+- `images` - Image URLs array
+- `etsyListingId` - Etsy integration ID (if applicable)
+- `stock` - Quantity available
+
+### Orders Collection
+- `_id` - MongoDB ID
+- `userId` - Reference to user
+- `items` - Array of order items
+- `total` - Order total
+- `status` - [pending, processing, shipped, delivered, cancelled]
+- `shippingAddress` - Address details
+- `createdAt` - Order date
+
+## 🔧 Important Fixes (v009 Series)
+
+| Version | Fix |
+|---------|-----|
+| v009.0 | Fixed bottom tab bar icons |
+| v009.1 | Added Blog & Admin tabs |
+| v009.2 | Added admin stats/orders endpoints |
+| v009.3 | Implemented error boundary |
+| v009.4 | Added admin error logs |
+| v009.5 | Fixed React key prop warning |
+| v009.6 | Added custom app icon & iPad support |
+
+## 🚀 Git Commits
+
+Latest commits in order:
+```
+v009.6 - Update app icon to Sisters Promise logo for iOS
+v009.5 - Fix key prop warning - use MongoDB _id for all list renders
+v009.4 - Add admin/owner error view with copyable logs
+v009.3 - Add friendly error screen with app restart
+v009.2 - Add admin dashboard API endpoints (backend)
+v009.1 - Add Blog and Admin tabs with role-based navigation
+v009.0 - Fix bottom tab bar icons
 ```
 
----
+## 🐛 Known Limitations
 
-## Response Format Changes
+- ⏳ Physical iOS device deployment requires code signing
+- ⏳ Android APK not yet built
+- ⏳ Production deployment not yet configured
+- ⏳ Email integration in progress
 
-### Products List
-```javascript
-// OLD
-{ success: true, count: 10, products: [...], timestamp: "..." }
-
-// NEW
-{ success: true, data: { count: 10, products: [...] }, timestamp: "..." }
-```
-
-### User Login
-```javascript
-// OLD
-{ success: true, message: "...", user: {...}, token: "..." }
-
-// NEW
-{ success: true, message: "...", user: {...}, token: "...", timestamp: "..." }
-```
-
-### Order Creation
-```javascript
-// OLD
-{ success: true, message: "...", orderId: "...", order: {...} }
-
-// NEW
-{ success: true, message: "...", data: { orderId: "...", order: {...} }, timestamp: "..." }
-```
-
----
-
-## Testing Quick Start
+## 💡 Quick Start
 
 ```bash
-# 1. Restart backend
-cd /Users/drob/Documents/SistersPromise
-npm start
+# 1. Start backend
+cd /Users/drob/Documents/SistersPromise && npm start
 
-# 2. Reset Metro cache
+# 2. Start Metro (new terminal)
 cd /Users/drob/Documents/SistersPromise/SistersPromiseMobile
 npm start -- --reset-cache
 
-# 3. Rebuild iOS app
-npm run ios
+# 3. Deploy to simulator (new terminal)
+npx react-native run-ios --simulator="iPhone 16 Pro"
 
-# 4. Test login with: d@sp.com / pass123
+# 4. Test login
+Use admin account or register new user
 ```
-
----
-
-## Backward Compatibility
-
-✅ **Frontend updated to handle both old and new response formats**
-
-All services include fallback logic:
-```javascript
-// Handles both formats
-const user = response.data.data?.user || response.data.user;
-const products = response.data.data?.products || response.data.products;
-```
-
----
-
-## Security Improvements
-
-✅ Order endpoint now requires JWT authentication  
-✅ Removed duplicate auth endpoints (reduced attack surface)  
-✅ Consistent middleware across all protected endpoints  
-
----
-
-## Documentation Files
-
-- **API_DATA_AUDIT_REPORT.md** - Detailed analysis of all 12 issues
-- **API_FIXES_SUMMARY.md** - Complete fixes documentation
-- **QUICK_REFERENCE.md** - This file
-
----
 
 **Status: READY FOR TESTING**
 
