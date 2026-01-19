@@ -1657,15 +1657,6 @@ app.get('/api/admin/orders', authenticate, adminOrOwner, async (req, res) => {
   }
 });
 
-// 404 Not Found handler
-app.use((req, res) => {
-  res.status(404).json({
-    error: 'Not Found',
-    path: req.originalUrl,
-    method: req.method,
-  });
-});
-
 // Global error handling middleware
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
@@ -3264,6 +3255,416 @@ app.post('/api/analytics/form', async (req, res) => {
       error: error.message,
     });
   }
+});
+
+// =============================================================================
+// REWARDS API ENDPOINTS
+// =============================================================================
+
+const { UserRewards, SpecialOffer, Bundle, RewardsHistory, FreeGift } = require('./models/Rewards');
+
+// Constants for rewards system
+const REWARD_TIERS = {
+  BRONZE: { minPurchases: 0, pointsMultiplier: 1 },
+  SILVER: { minPurchases: 5, pointsMultiplier: 1.5 },
+  GOLD: { minPurchases: 10, pointsMultiplier: 2 },
+  PLATINUM: { minPurchases: 20, pointsMultiplier: 3 },
+};
+const FREE_GIFT_THRESHOLD = 10;
+const POINTS_PER_DOLLAR = 10;
+
+// Helper function to calculate tier
+const calculateTier = (totalPurchases) => {
+  if (totalPurchases >= REWARD_TIERS.PLATINUM.minPurchases) return 'PLATINUM';
+  if (totalPurchases >= REWARD_TIERS.GOLD.minPurchases) return 'GOLD';
+  if (totalPurchases >= REWARD_TIERS.SILVER.minPurchases) return 'SILVER';
+  return 'BRONZE';
+};
+
+/**
+ * GET /api/rewards/user
+ * Get user's rewards data
+ */
+app.get('/api/rewards/user', authenticate, asyncHandler(async (req, res) => {
+  try {
+    let rewards = await UserRewards.findOne({ userId: req.user.id });
+
+    if (!rewards) {
+      rewards = new UserRewards({
+        userId: req.user.id,
+        points: 0,
+        lifetimePoints: 0,
+        totalPurchases: 0,
+        freeGiftsEarned: 0,
+        freeGiftsRedeemed: 0,
+        tier: 'BRONZE',
+      });
+      await rewards.save();
+    }
+
+    res.json({
+      points: rewards.points,
+      lifetimePoints: rewards.lifetimePoints,
+      totalPurchases: rewards.totalPurchases,
+      freeGiftsEarned: rewards.freeGiftsEarned,
+      freeGiftsRedeemed: rewards.freeGiftsRedeemed,
+      tier: rewards.tier,
+      lastPurchaseDate: rewards.lastPurchaseDate,
+    });
+  } catch (error) {
+    console.error('Get user rewards error:', error);
+    res.status(500).json({ error: 'Failed to get rewards' });
+  }
+}));
+
+/**
+ * POST /api/rewards/update
+ * Update rewards after a purchase
+ */
+app.post('/api/rewards/update', authenticate, asyncHandler(async (req, res) => {
+  try {
+    const { pointsEarned, purchaseAmount, purchaseCount = 1 } = req.body;
+
+    let rewards = await UserRewards.findOne({ userId: req.user.id });
+    if (!rewards) {
+      rewards = new UserRewards({ userId: req.user.id });
+    }
+
+    const tierMultiplier = REWARD_TIERS[rewards.tier]?.pointsMultiplier || 1;
+    const actualPointsEarned = Math.floor(purchaseAmount * POINTS_PER_DOLLAR * tierMultiplier);
+
+    rewards.points += actualPointsEarned;
+    rewards.lifetimePoints += actualPointsEarned;
+    rewards.totalPurchases += purchaseCount;
+    rewards.lastPurchaseDate = new Date();
+    rewards.tier = calculateTier(rewards.totalPurchases);
+
+    const newGiftsEarned = Math.floor(rewards.totalPurchases / FREE_GIFT_THRESHOLD);
+    if (newGiftsEarned > rewards.freeGiftsEarned) {
+      rewards.freeGiftsEarned = newGiftsEarned;
+    }
+
+    await rewards.save();
+
+    await RewardsHistory.create({
+      userId: req.user.id,
+      type: 'earned',
+      points: actualPointsEarned,
+      description: `Earned ${actualPointsEarned} points from purchase of $${purchaseAmount.toFixed(2)}`,
+    });
+
+    res.json({
+      success: true,
+      pointsEarned: actualPointsEarned,
+      newTotal: rewards.points,
+      tier: rewards.tier,
+      freeGiftsEarned: rewards.freeGiftsEarned,
+    });
+  } catch (error) {
+    console.error('Update rewards error:', error);
+    res.status(500).json({ error: 'Failed to update rewards' });
+  }
+}));
+
+/**
+ * POST /api/rewards/redeem-gift
+ * Redeem a free gift
+ */
+app.post('/api/rewards/redeem-gift', authenticate, asyncHandler(async (req, res) => {
+  try {
+    const rewards = await UserRewards.findOne({ userId: req.user.id });
+    if (!rewards) {
+      return res.status(404).json({ error: 'Rewards not found' });
+    }
+
+    const availableGifts = rewards.freeGiftsEarned - rewards.freeGiftsRedeemed;
+    if (availableGifts <= 0) {
+      return res.status(400).json({ error: 'No free gifts available' });
+    }
+
+    rewards.freeGiftsRedeemed += 1;
+    await rewards.save();
+
+    await RewardsHistory.create({
+      userId: req.user.id,
+      type: 'gift_redeemed',
+      points: 0,
+      description: 'Redeemed free gift',
+    });
+
+    res.json({
+      success: true,
+      message: 'Free gift redeemed!',
+      remainingGifts: rewards.freeGiftsEarned - rewards.freeGiftsRedeemed,
+    });
+  } catch (error) {
+    console.error('Redeem gift error:', error);
+    res.status(500).json({ error: 'Failed to redeem gift' });
+  }
+}));
+
+/**
+ * POST /api/rewards/redeem-points
+ * Redeem points for discount
+ */
+app.post('/api/rewards/redeem-points', authenticate, asyncHandler(async (req, res) => {
+  try {
+    const { points } = req.body;
+
+    if (!points || points <= 0) {
+      return res.status(400).json({ error: 'Invalid points amount' });
+    }
+
+    const rewards = await UserRewards.findOne({ userId: req.user.id });
+    if (!rewards) {
+      return res.status(404).json({ error: 'Rewards not found' });
+    }
+
+    if (points > rewards.points) {
+      return res.status(400).json({ error: 'Not enough points' });
+    }
+
+    rewards.points -= points;
+    await rewards.save();
+
+    await RewardsHistory.create({
+      userId: req.user.id,
+      type: 'redeemed',
+      points: -points,
+      description: `Redeemed ${points} points for $${(points / 100).toFixed(2)} discount`,
+    });
+
+    res.json({
+      success: true,
+      discount: points / 100,
+      remainingPoints: rewards.points,
+    });
+  } catch (error) {
+    console.error('Redeem points error:', error);
+    res.status(500).json({ error: 'Failed to redeem points' });
+  }
+}));
+
+/**
+ * GET /api/rewards/history
+ * Get user's rewards history
+ */
+app.get('/api/rewards/history', authenticate, asyncHandler(async (req, res) => {
+  try {
+    const history = await RewardsHistory.find({ userId: req.user.id })
+      .sort({ createdAt: -1 })
+      .limit(50);
+    res.json(history);
+  } catch (error) {
+    console.error('Get rewards history error:', error);
+    res.status(500).json({ error: 'Failed to get history' });
+  }
+}));
+
+/**
+ * GET /api/rewards/offers
+ * Get active special offers
+ */
+app.get('/api/rewards/offers', asyncHandler(async (req, res) => {
+  try {
+    const now = new Date();
+    let offers = await SpecialOffer.find({
+      active: true,
+      validFrom: { $lte: now },
+      validUntil: { $gte: now },
+    }).sort({ createdAt: -1 });
+
+    if (offers.length === 0) {
+      offers = [
+        {
+          id: 'bogo-seamoss',
+          type: 'bogo',
+          title: 'Buy 1 Get 1 FREE',
+          description: 'Sea Moss Soap - Buy one, get one free!',
+          productCategory: 'Sea Moss',
+          discountPercent: 100,
+          minQuantity: 1,
+          active: true,
+          validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        },
+        {
+          id: 'bogo-weekend',
+          type: 'bogo',
+          title: 'Weekend Special',
+          description: 'Buy any 2 soaps, get the 3rd 50% off!',
+          productCategory: 'All',
+          discountPercent: 50,
+          minQuantity: 2,
+          active: true,
+          validUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        },
+      ];
+    }
+
+    res.json(offers);
+  } catch (error) {
+    console.error('Get offers error:', error);
+    res.status(500).json({ error: 'Failed to get offers' });
+  }
+}));
+
+/**
+ * GET /api/rewards/bundles
+ * Get active product bundles
+ */
+app.get('/api/rewards/bundles', asyncHandler(async (req, res) => {
+  try {
+    let bundles = await Bundle.find({ active: true }).sort({ sortOrder: 1 });
+
+    if (bundles.length === 0) {
+      bundles = [
+        {
+          id: 'bundle-sampler',
+          name: 'Sisters Sampler Bundle',
+          description: 'Try our best sellers! Includes Pink Soap, Kush Soap, and Sea Moss Soap.',
+          items: [
+            { name: 'Pink Soap', quantity: 1, originalPrice: 12.99 },
+            { name: 'Kush Soap', quantity: 1, originalPrice: 12.99 },
+            { name: 'Sea Moss Soap', quantity: 1, originalPrice: 14.99 },
+          ],
+          originalPrice: 40.97,
+          bundlePrice: 32.99,
+          savings: 7.98,
+          savingsPercent: 19,
+          active: true,
+          isCustomizable: false,
+        },
+        {
+          id: 'bundle-seamoss-3',
+          name: 'Sea Moss Triple Pack',
+          description: 'Stock up on our popular Sea Moss Soap! 3 bars at a great price.',
+          items: [{ name: 'Sea Moss Soap', quantity: 3, originalPrice: 44.97 }],
+          originalPrice: 44.97,
+          bundlePrice: 36.99,
+          savings: 7.98,
+          savingsPercent: 18,
+          active: true,
+          isCustomizable: false,
+        },
+        {
+          id: 'bundle-mix-10',
+          name: 'Mix & Match 10-Pack',
+          description: 'Choose any 10 soaps and save big! Perfect for gifts or stocking up.',
+          items: [{ name: 'Any Soap (Your Choice)', quantity: 10, originalPrice: 129.90 }],
+          originalPrice: 129.90,
+          bundlePrice: 89.99,
+          savings: 39.91,
+          savingsPercent: 31,
+          active: true,
+          isCustomizable: true,
+        },
+      ];
+    }
+
+    res.json(bundles);
+  } catch (error) {
+    console.error('Get bundles error:', error);
+    res.status(500).json({ error: 'Failed to get bundles' });
+  }
+}));
+
+/**
+ * GET /api/rewards/bundles/:bundleId
+ * Get bundle details
+ */
+app.get('/api/rewards/bundles/:bundleId', asyncHandler(async (req, res) => {
+  try {
+    const bundle = await Bundle.findById(req.params.bundleId);
+    if (!bundle) {
+      return res.status(404).json({ error: 'Bundle not found' });
+    }
+    res.json(bundle);
+  } catch (error) {
+    console.error('Get bundle details error:', error);
+    res.status(500).json({ error: 'Failed to get bundle' });
+  }
+}));
+
+/**
+ * GET /api/rewards/free-gifts
+ * Get available free gift options
+ */
+app.get('/api/rewards/free-gifts', asyncHandler(async (req, res) => {
+  try {
+    let gifts = await FreeGift.find({ active: true }).sort({ sortOrder: 1 });
+
+    if (gifts.length === 0) {
+      gifts = [
+        { id: 'gift-sample', name: 'Sample Size Soap', description: 'A travel-size soap of your choice', value: 5.99, active: true },
+        { id: 'gift-full', name: 'Full Size Soap', description: 'Any full-size soap from our collection', value: 12.99, active: true },
+      ];
+    }
+
+    res.json(gifts);
+  } catch (error) {
+    console.error('Get free gifts error:', error);
+    res.status(500).json({ error: 'Failed to get free gifts' });
+  }
+}));
+
+// Admin rewards management endpoints
+app.post('/api/admin/rewards/offers', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
+  const offer = new SpecialOffer(req.body);
+  await offer.save();
+  res.status(201).json(offer);
+}));
+
+app.put('/api/admin/rewards/offers/:offerId', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
+  const offer = await SpecialOffer.findByIdAndUpdate(req.params.offerId, req.body, { new: true });
+  if (!offer) return res.status(404).json({ error: 'Offer not found' });
+  res.json(offer);
+}));
+
+app.delete('/api/admin/rewards/offers/:offerId', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
+  const offer = await SpecialOffer.findByIdAndDelete(req.params.offerId);
+  if (!offer) return res.status(404).json({ error: 'Offer not found' });
+  res.json({ success: true, message: 'Offer deleted' });
+}));
+
+app.post('/api/admin/rewards/bundles', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
+  const bundle = new Bundle(req.body);
+  await bundle.save();
+  res.status(201).json(bundle);
+}));
+
+app.put('/api/admin/rewards/bundles/:bundleId', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
+  const bundle = await Bundle.findByIdAndUpdate(req.params.bundleId, { ...req.body, updatedAt: new Date() }, { new: true });
+  if (!bundle) return res.status(404).json({ error: 'Bundle not found' });
+  res.json(bundle);
+}));
+
+app.delete('/api/admin/rewards/bundles/:bundleId', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
+  const bundle = await Bundle.findByIdAndDelete(req.params.bundleId);
+  if (!bundle) return res.status(404).json({ error: 'Bundle not found' });
+  res.json({ success: true, message: 'Bundle deleted' });
+}));
+
+app.get('/api/admin/rewards/stats', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
+  const totalUsers = await UserRewards.countDocuments();
+  const totalPointsIssued = await UserRewards.aggregate([{ $group: { _id: null, total: { $sum: '$lifetimePoints' } } }]);
+  const totalGiftsRedeemed = await UserRewards.aggregate([{ $group: { _id: null, total: { $sum: '$freeGiftsRedeemed' } } }]);
+  const tierDistribution = await UserRewards.aggregate([{ $group: { _id: '$tier', count: { $sum: 1 } } }]);
+
+  res.json({
+    totalUsers,
+    totalPointsIssued: totalPointsIssued[0]?.total || 0,
+    totalGiftsRedeemed: totalGiftsRedeemed[0]?.total || 0,
+    tierDistribution: tierDistribution.reduce((acc, item) => { acc[item._id] = item.count; return acc; }, {}),
+  });
+}));
+
+// 404 Not Found handler - placed after all route definitions
+app.use((req, res) => {
+  res.status(404).json({
+    error: 'Not Found',
+    path: req.originalUrl,
+    method: req.method,
+  });
 });
 
 process.on('SIGTERM', () => {
