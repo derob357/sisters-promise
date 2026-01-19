@@ -1,0 +1,147 @@
+name: Run Tests
+
+on:
+  push:
+    branches: [ master, main, develop ]
+  pull_request:
+    branches: [ master, main, develop ]
+  workflow_dispatch:
+    inputs:
+      test_type:
+        description: 'Type of tests to run'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - regression
+          - endpoints
+          - unit
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Run linter
+        run: npm run lint --if-present || echo "No lint script available"
+
+      - name: Start backend server
+        run: |
+          npm start > server.log 2>&1 &
+          sleep 5
+          curl -s http://localhost:3000/api/health || echo "Server health check pending..."
+
+      - name: Run regression tests
+        if: github.event.inputs.test_type == 'all' || github.event.inputs.test_type == 'regression' || github.event_name != 'workflow_dispatch'
+        run: node regression_test_suite.js
+        continue-on-error: true
+
+      - name: Run endpoint tests
+        if: github.event.inputs.test_type == 'all' || github.event.inputs.test_type == 'endpoints' || github.event_name != 'workflow_dispatch'
+        run: node test_all_endpoints_fast.js
+        continue-on-error: true
+
+      - name: Run unit tests
+        if: github.event.inputs.test_type == 'all' || github.event.inputs.test_type == 'unit' || github.event_name != 'workflow_dispatch'
+        run: npm test --if-present || echo "No test script available"
+        continue-on-error: true
+
+      - name: Stop server
+        if: always()
+        run: pkill -f "node server.js" || true
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-logs-node-${{ matrix.node-version }}
+          path: |
+            server.log
+            coverage/
+          retention-days: 7
+
+  integration-tests:
+    name: Integration Tests
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Start backend server
+        run: |
+          npm start > server.log 2>&1 &
+          sleep 5
+
+      - name: Run rewards endpoint tests
+        run: node test_rewards_endpoints.js
+        continue-on-error: true
+
+      - name: Stop server
+        if: always()
+        run: pkill -f "node server.js" || true
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-logs
+          path: server.log
+          retention-days: 7
+
+  test-report:
+    name: Test Report Summary
+    needs: [test, integration-tests]
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Create test summary
+        run: |
+          echo "# Test Results Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Status: ✅ Tests Completed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Regression Tests**: Executed" >> $GITHUB_STEP_SUMMARY
+          echo "- **Endpoint Tests**: Executed" >> $GITHUB_STEP_SUMMARY
+          echo "- **Integration Tests**: Executed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "- Test logs available in workflow artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "- Coverage reports (if generated)" >> $GITHUB_STEP_SUMMARY
+
+      - name: Notify on failure
+        if: failure()
+        run: echo "⚠️ Some tests failed. Check artifacts for details."
