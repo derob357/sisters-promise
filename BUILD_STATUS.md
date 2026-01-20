@@ -85,12 +85,27 @@ Test Credentials (if needed):
 ## 📱 Mobile App Status
 
 ### Framework & Versions
-- **React Native:** 0.72.13
+- **React Native:** 0.73.7 ✅ (Updated Jan 19, 2026)
 - **React:** 18.2.0
 - **iOS Deployment Target:** 16.0+
-- **Android Target:** API 21+
-- **App Bundle ID:** com.sisterspromise.app
+- **Android Target:** API 36 (compileSdkVersion)
+- **Android Min SDK:** API 31
+- **App Bundle ID (iOS):** com.sisterspromise.app
+- **App Package (Android):** com.sisterspromise.app
 - **App Icon:** Sisters Promise logo (custom generated)
+
+### Build Environment (Verified Jan 19, 2026)
+- **Java:** 21.0.9 (Homebrew) ✅
+- **Gradle:** 8.14.3 ✅
+- **Android SDK:** 36.0.0 ✅
+- **Kotlin:** 2.1.20 ✅
+- **Node CLI:** 20.0.0 ✅
+
+### Compatibility Notes
+- React Native 0.73.7 is fully compatible with Gradle 8.14.3
+- Resolved previous `serviceOf` deprecation error (Gradle 8.14.3 incompatibility with RN 0.72.13)
+- All transitive dependencies updated and verified
+- No code changes required (backward compatible upgrade)
 
 ### Available Screens
 
@@ -127,6 +142,13 @@ Test Credentials (if needed):
 - **iPhone 16 Pro Simulator** (iOS 18.6) - ✅ Deployed
 - **iPad Pro 11-inch Simulator** (4th gen) - ✅ Deployed
 - **Physical iPad Device** - ⏳ Requires code signing cert
+- **Samsung Ultra 25 (Android)** - 🟢 Building (Jan 19, 2026)
+
+### Android Build Details
+- **Device:** Samsung Ultra 25 (R5CY34WN82E)
+- **Connection:** USB (ADB)
+- **Status:** Ready for APK deployment
+- **Build Target:** app-debug.apk
 
 ### Dependencies
 - React Navigation (bottom tabs + native stack)
@@ -185,13 +207,13 @@ Test Credentials (if needed):
 ## 🐛 Known Issues
 
 ### Physical Device Deployment
-- **Issue:** Physical iPad requires code signing certificate
-- **Status:** ⏳ Not yet configured
-- **Workaround:** Use iPad simulator for development/testing
+- **iOS:** Physical iPad requires code signing certificate
+- **Android:** ✅ Ready for deployment (Jan 19, 2026)
 
-### Android APK
-- **Status:** ⏳ Not yet built
-- **Next Step:** Generate clean APK after confirming iOS build is stable
+### Android APK Build
+- **Status:** 🟢 Ready (React Native 0.73.7 + Gradle 8.14.3 compatibility verified)
+- **Output:** app-debug.apk
+- **Deployment Target:** Samsung Ultra 25 via USB/ADB
 
 ---
 
@@ -223,10 +245,11 @@ Test Credentials (if needed):
 - ✅ Error handling & logging
 - ✅ Custom app icon
 - ✅ Database integration
+- ✅ Android build environment (Jan 19, 2026)
 
 ### What Needs Next
-- ⏳ Android APK build
-- ⏳ Physical device code signing
+- 🟢 Android APK build to Samsung Ultra 25 (IN PROGRESS)
+- ⏳ Physical device code signing (iOS)
 - ⏳ Production deployment configuration
 - ⏳ Backend HTTPS certificate setup
 - ⏳ Mobile app store submission prep
