@@ -9,6 +9,7 @@ const productSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
   description: { type: String, trim: true },
   shortDescription: { type: String, trim: true },  // For mobile/list views
+  mobileDescription: { type: String, trim: true },  // Optional mobile-only description
   price: { type: Number, required: true, min: 0 },
   category: { type: String, trim: true },
   

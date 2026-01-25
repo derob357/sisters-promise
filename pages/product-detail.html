@@ -331,9 +331,12 @@
       document.getElementById('product-short-desc').textContent = product.shortDescription || product.description || '';
       document.getElementById('product-price').textContent = `$${product.price.toFixed(2)}`;
 
-      // Full description
-      if (product.fullDescription) {
-        document.getElementById('full-description').innerHTML = `<p class="text-muted" style="font-size: 1.1rem; line-height: 1.8;">${product.fullDescription}</p>`;
+      // Full description (use mobile description on mobile devices if available, otherwise use full description)
+      const isMobile = window.innerWidth <= 768;
+      const descriptionToShow = (isMobile && product.mobileDescription) ? product.mobileDescription : product.fullDescription;
+      
+      if (descriptionToShow) {
+        document.getElementById('full-description').innerHTML = `<p class="text-muted" style="font-size: 1.1rem; line-height: 1.8;">${descriptionToShow}</p>`;
       }
 
       // Benefits
