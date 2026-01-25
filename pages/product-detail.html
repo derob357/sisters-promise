@@ -301,7 +301,8 @@
         const response = await fetch(`/api/products/${id}`);
         if (!response.ok) throw new Error('Product not found');
         
-        const product = await response.json();
+        const result = await response.json();
+        const product = result.data.product || result.data || result;
         renderProduct(product);
       } catch (error) {
         console.error('Error loading product:', error);
