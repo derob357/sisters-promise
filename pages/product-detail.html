@@ -14,6 +14,38 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
   <link id="pagestyle" href="../assets/css/material-kit.css?v=3.1.0" rel="stylesheet" />
   <style>
+    .navbar {
+      background: rgba(255, 255, 255, 0.98) !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
+    }
+
+    .navbar-brand {
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: #2d3e50 !important;
+    }
+
+    .navbar-brand img {
+      height: 50px;
+    }
+
+    .nav-link {
+      color: #333 !important;
+      font-weight: 500;
+      padding: 8px 16px !important;
+      transition: all 0.3s ease;
+    }
+
+    .nav-link:hover {
+      color: #C9A961 !important;
+    }
+
+    .nav-link.active {
+      font-weight: 700 !important;
+      color: #C9A961 !important;
+    }
+
     .product-detail-hero {
       background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
       padding: 60px 0 40px 0;
@@ -124,10 +156,10 @@
 
 <body class="product-page">
   <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg position-absolute top-0 z-index-3 w-100 shadow-none my-3 navbar-transparent">
+  <nav class="navbar navbar-expand-lg navbar-light sticky-top">
     <div class="container-fluid px-4">
       <a class="navbar-brand" href="../index.html">
-        <img src="../assets/img/logos/SistersPromise-Logo_bw_500.jpg" alt="Sister's Promise Logo" style="height: 50px;">
+        <img src="../assets/img/logos/SistersPromise-Logo_bw_500.jpg" alt="Sister's Promise Logo">
         <span class="d-none d-md-inline ms-2">Sister's Promise</span>
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -139,7 +171,8 @@
           <li class="nav-item"><a class="nav-link" href="ingredients.html">Ingredients</a></li>
           <li class="nav-item"><a class="nav-link active" href="shop.html">Products</a></li>
           <li class="nav-item"><a class="nav-link" href="about-us.html">About</a></li>
-          <li class="nav-item"><a class="nav-link" href="contact-us.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="shop.html">Shop</a></li>
         </ul>
       </div>
     </div>
@@ -328,10 +361,19 @@
       // Product image
       const primaryImage = product.images?.find(img => img.isPrimary) || product.images?.[0];
       if (primaryImage) {
-        document.getElementById('product-image').src = primaryImage.url;
+        // Fix relative paths from database - if path starts with ./, convert to ../
+        let imagePath = primaryImage.url;
+        if (imagePath.startsWith('./assets/')) {
+          imagePath = imagePath.replace('./', '../');
+        }
+        document.getElementById('product-image').src = imagePath;
         document.getElementById('product-image').alt = primaryImage.alt || product.name;
       } else if (product.imageUrl) {
-        document.getElementById('product-image').src = product.imageUrl;
+        let imagePath = product.imageUrl;
+        if (imagePath.startsWith('./assets/')) {
+          imagePath = imagePath.replace('./', '../');
+        }
+        document.getElementById('product-image').src = imagePath;
         document.getElementById('product-image').alt = product.name;
       }
 
