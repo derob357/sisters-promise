@@ -298,10 +298,18 @@
 
     async function loadProduct(id) {
       try {
-        const response = await fetch(`/api/products/${id}`);
+        // Use window.location.origin to get the base URL
+        const apiUrl = `${window.location.origin}/api/products/${id}`;
+        console.log('Fetching product from:', apiUrl);
+        
+        const response = await fetch(apiUrl);
+        console.log('Response status:', response.status);
+        
         if (!response.ok) throw new Error('Product not found');
         
         const result = await response.json();
+        console.log('API result:', result);
+        
         const product = result.data.product || result.data || result;
         renderProduct(product);
       } catch (error) {
