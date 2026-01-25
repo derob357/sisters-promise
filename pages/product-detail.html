@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en" itemscope itemtype="http://schema.org/Product">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
+  <link rel="icon" type="image/jpeg" href="../assets/img/logos/SistersPromise-Logo_bw_500.jpg">
+  <title>Product Details - Sister's Promise</title>
+  <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900" />
+  <link href="../assets/css/nucleo-icons.css" rel="stylesheet" />
+  <link href="../assets/css/nucleo-svg.css" rel="stylesheet" />
+  <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <link id="pagestyle" href="../assets/css/material-kit.css?v=3.1.0" rel="stylesheet" />
+  <style>
+    .product-detail-hero {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      padding: 60px 0 40px 0;
+    }
+    
+    .product-image-container {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      background: white;
+      padding: 20px;
+    }
+    
+    .product-image-container img {
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+    }
+    
+    .product-info {
+      padding: 20px 0;
+    }
+    
+    .product-price {
+      font-size: 2rem;
+      color: #C9A961;
+      font-weight: 700;
+      margin: 20px 0;
+    }
+    
+    .section-title {
+      color: #2d3e50;
+      font-weight: 700;
+      font-size: 1.5rem;
+      margin-top: 30px;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #C9A961;
+      padding-bottom: 10px;
+    }
+    
+    .benefit-item {
+      padding: 10px 0;
+      padding-left: 30px;
+      position: relative;
+    }
+    
+    .benefit-item:before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: #4CAF50;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+    
+    .ingredient-list {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      line-height: 1.8;
+    }
+    
+    .btn-add-to-cart {
+      background: linear-gradient(135deg, #C9A961, #A0522D);
+      color: white;
+      border: none;
+      padding: 15px 40px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-add-to-cart:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(201, 169, 97, 0.4);
+      color: white;
+    }
+    
+    .aromatherapy-badge {
+      background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+      color: #1976d2;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      display: inline-block;
+      margin: 10px 0;
+    }
+    
+    .navbar {
+      background: white !important;
+    }
+
+    .loading-spinner {
+      text-align: center;
+      padding: 100px 20px;
+    }
+
+    .error-message {
+      text-align: center;
+      padding: 100px 20px;
+      color: #dc3545;
+    }
+  </style>
+</head>
+
+<body class="product-page">
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg position-absolute top-0 z-index-3 w-100 shadow-none my-3 navbar-transparent">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand" href="../index.html">
+        <img src="../assets/img/logos/SistersPromise-Logo_bw_500.jpg" alt="Sister's Promise Logo" style="height: 50px;">
+        <span class="d-none d-md-inline ms-2">Sister's Promise</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="ingredients.html">Ingredients</a></li>
+          <li class="nav-item"><a class="nav-link active" href="shop.html">Products</a></li>
+          <li class="nav-item"><a class="nav-link" href="about-us.html">About</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact-us.html">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Loading Spinner -->
+  <div id="loading" class="loading-spinner">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-3">Loading product details...</p>
+  </div>
+
+  <!-- Error Message -->
+  <div id="error" class="error-message" style="display: none;">
+    <i class="fas fa-exclamation-circle fa-3x mb-3"></i>
+    <h3>Product Not Found</h3>
+    <p>The product you're looking for could not be found.</p>
+    <a href="shop.html" class="btn btn-primary">Back to Shop</a>
+  </div>
+
+  <!-- Product Detail Content -->
+  <div id="product-content" style="display: none;">
+    <!-- Product Detail Hero -->
+    <section class="product-detail-hero">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-lg-6 mb-4 mb-lg-0">
+            <div class="product-image-container">
+              <img id="product-image" src="" alt="">
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="product-info">
+              <h1 id="product-name" class="display-5 fw-bold mb-3" style="color: #2d3e50;"></h1>
+              <p id="product-short-desc" class="lead text-muted"></p>
+              <div id="product-price" class="product-price"></div>
+              <div id="aromatherapy-badge" class="aromatherapy-badge" style="display: none;">
+                <i class="fas fa-spa me-2"></i><span id="aromatherapy-text"></span>
+              </div>
+              <div class="mt-4">
+                <button class="btn btn-add-to-cart btn-lg" onclick="addToCart()">
+                  <i class="fas fa-shopping-cart me-2"></i>Add to Cart
+                </button>
+                <a href="shop.html" class="btn btn-outline-secondary btn-lg ms-2">
+                  <i class="fas fa-arrow-left me-2"></i>Back to Shop
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Product Details -->
+    <section class="py-5">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 mx-auto">
+            
+            <!-- Full Description -->
+            <div id="full-description" class="mb-5"></div>
+
+            <!-- Why You'll Love It -->
+            <div id="benefits-section" style="display: none;">
+              <h2 class="section-title">Why You'll Love It</h2>
+              <div id="benefits-list" class="mb-4"></div>
+            </div>
+
+            <!-- Aromatherapy Experience -->
+            <div id="aromatherapy-section" style="display: none;">
+              <h2 class="section-title">Aromatherapy Experience</h2>
+              <p id="aromatherapy-description" class="text-muted mb-4"></p>
+            </div>
+
+            <!-- Best For -->
+            <div id="best-for-section" style="display: none;">
+              <h2 class="section-title">Best For</h2>
+              <p id="best-for-text" class="text-muted mb-4"></p>
+            </div>
+
+            <!-- Key Ingredients -->
+            <div id="key-ingredients-section" style="display: none;">
+              <h2 class="section-title">Key Ingredients</h2>
+              <div id="key-ingredients-grid" class="row mb-4"></div>
+            </div>
+
+            <!-- How to Use -->
+            <div id="how-to-use-section" style="display: none;">
+              <h2 class="section-title">How to Use</h2>
+              <div id="how-to-use-list" class="bg-light p-4 rounded mb-4"></div>
+            </div>
+
+            <!-- Full Ingredients -->
+            <div id="ingredients-section" style="display: none;">
+              <h2 class="section-title">Full Ingredients</h2>
+              <div class="ingredient-list">
+                <p id="ingredients-text" class="mb-2"></p>
+                <p id="ingredient-note" class="small text-muted mb-0"></p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer pt-5 mt-5 bg-light">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 mb-4">
+          <h6 class="font-weight-bolder mb-4">Sister's Promise</h6>
+          <p class="text-sm">Natural, handmade skincare products crafted with love and intention.</p>
+        </div>
+        <div class="col-md-4 mb-4">
+          <h6 class="font-weight-bolder mb-4">Quick Links</h6>
+          <ul class="list-unstyled">
+            <li><a href="../index.html" class="text-secondary">Home</a></li>
+            <li><a href="shop.html" class="text-secondary">Shop</a></li>
+            <li><a href="about-us.html" class="text-secondary">About Us</a></li>
+            <li><a href="contact-us.html" class="text-secondary">Contact</a></li>
+          </ul>
+        </div>
+        <div class="col-md-4 mb-4">
+          <h6 class="font-weight-bolder mb-4">Connect</h6>
+          <p class="text-sm">Follow us on social media for updates and special offers.</p>
+        </div>
+      </div>
+      <hr class="horizontal dark mt-4 mb-4">
+      <div class="row">
+        <div class="col-12 text-center">
+          <p class="text-secondary text-sm mb-0">© 2026 Sister's Promise. All rights reserved.</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Core JS Files -->
+  <script src="../assets/js/core/popper.min.js" type="text/javascript"></script>
+  <script src="../assets/js/core/bootstrap.min.js" type="text/javascript"></script>
+  <script src="../assets/js/plugins/perfect-scrollbar.min.js"></script>
+  <script src="../assets/js/material-kit.min.js?v=3.1.0" type="text/javascript"></script>
+  
+  <script>
+    // Get product ID from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = urlParams.get('id');
+
+    if (!productId) {
+      showError();
+    } else {
+      loadProduct(productId);
+    }
+
+    async function loadProduct(id) {
+      try {
+        const response = await fetch(`/api/products/${id}`);
+        if (!response.ok) throw new Error('Product not found');
+        
+        const product = await response.json();
+        renderProduct(product);
+      } catch (error) {
+        console.error('Error loading product:', error);
+        showError();
+      }
+    }
+
+    function renderProduct(product) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('product-content').style.display = 'block';
+
+      // Update title
+      document.title = `${product.name} - Sister's Promise`;
+
+      // Product image
+      const primaryImage = product.images?.find(img => img.isPrimary) || product.images?.[0];
+      if (primaryImage) {
+        document.getElementById('product-image').src = primaryImage.url;
+        document.getElementById('product-image').alt = primaryImage.alt || product.name;
+      } else if (product.imageUrl) {
+        document.getElementById('product-image').src = product.imageUrl;
+        document.getElementById('product-image').alt = product.name;
+      }
+
+      // Basic info
+      document.getElementById('product-name').textContent = product.name;
+      document.getElementById('product-short-desc').textContent = product.shortDescription || product.description || '';
+      document.getElementById('product-price').textContent = `$${product.price.toFixed(2)}`;
+
+      // Full description
+      if (product.fullDescription) {
+        document.getElementById('full-description').innerHTML = `<p class="text-muted" style="font-size: 1.1rem; line-height: 1.8;">${product.fullDescription}</p>`;
+      }
+
+      // Benefits
+      if (product.benefits && product.benefits.length > 0) {
+        document.getElementById('benefits-section').style.display = 'block';
+        const benefitsList = document.getElementById('benefits-list');
+        benefitsList.innerHTML = product.benefits.map(b => `<div class="benefit-item">${b}</div>`).join('');
+      }
+
+      // Aromatherapy
+      if (product.aromatherapy) {
+        const shortAroma = product.aromatherapy.split('—')[0].trim();
+        document.getElementById('aromatherapy-badge').style.display = 'inline-block';
+        document.getElementById('aromatherapy-text').textContent = shortAroma;
+        document.getElementById('aromatherapy-section').style.display = 'block';
+        document.getElementById('aromatherapy-description').textContent = product.aromatherapy;
+      }
+
+      // Best For
+      if (product.bestFor) {
+        document.getElementById('best-for-section').style.display = 'block';
+        document.getElementById('best-for-text').textContent = product.bestFor;
+      }
+
+      // Key Ingredients
+      if (product.keyIngredients && product.keyIngredients.length > 0) {
+        document.getElementById('key-ingredients-section').style.display = 'block';
+        const grid = document.getElementById('key-ingredients-grid');
+        grid.innerHTML = product.keyIngredients.map(ing => `
+          <div class="col-md-4 mb-3">
+            <div class="text-center p-3 bg-light rounded">
+              <i class="${ing.icon || 'fas fa-leaf'} fa-2x mb-2" style="color: #4CAF50;"></i>
+              <h6 class="fw-bold">${ing.name}</h6>
+              <p class="small text-muted mb-0">${ing.description}</p>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // How to Use
+      if (product.howToUse && product.howToUse.length > 0) {
+        document.getElementById('how-to-use-section').style.display = 'block';
+        const list = document.getElementById('how-to-use-list');
+        list.innerHTML = product.howToUse.map((step, i) => `<p class="mb-0"><strong>${i + 1}.</strong> ${step}</p>`).join('');
+      }
+
+      // Ingredients
+      if (product.ingredients) {
+        document.getElementById('ingredients-section').style.display = 'block';
+        document.getElementById('ingredients-text').textContent = product.ingredients;
+        if (product.ingredientNote) {
+          document.getElementById('ingredient-note').innerHTML = `<em>${product.ingredientNote}</em>`;
+        }
+      }
+    }
+
+    function showError() {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('error').style.display = 'block';
+    }
+
+    function addToCart() {
+      alert('Add to cart functionality coming soon!');
+    }
+  </script>
+</body>
+
+</html>
