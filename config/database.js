@@ -22,17 +22,22 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/sister
  */
 const connectDB = async () => {
   try {
-    console.log('Connecting to MongoDB...');
+    console.log('🔌 Attempting to connect to MongoDB...');
+    console.log(`📍 Using URI: ${MONGODB_URI.replace(/\/\/[^:]+:[^@]+@/, '//****:****@')}`);
+    
     await mongoose.connect(MONGODB_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 30000, // Increased from 5000 to 30000ms
       socketTimeoutMS: 45000,
+      connectTimeoutMS: 30000,
     });
-    console.log('✓ MongoDB connected successfully');
+    console.log('✅ MongoDB connected successfully');
+    console.log(`📊 Database: ${mongoose.connection.db.databaseName}`);
     return mongoose.connection;
   } catch (error) {
-    console.error('✗ MongoDB connection error:', error.message);
+    console.error('❌ MongoDB connection error:', error.message);
+    console.error('💡 Tip: Ensure MONGODB_URI is set in Render environment variables');
     // Don't exit, allow app to run with fallback to file-based storage
     return null;
   }

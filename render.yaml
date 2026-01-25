@@ -10,6 +10,10 @@ services:
         value: production
       - key: PORT
         value: 3000
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
       - key: SQUARE_ENVIRONMENT
         value: sandbox
       - key: SQUARE_APPLICATION_ID
