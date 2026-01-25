@@ -1529,11 +1529,33 @@ app.post('/api/contact', contactLimiter, asyncHandler(async (req, res) => {
       ip: req.ip || req.connection.remoteAddress,
     };
 
-    // Here you would typically save to database or send email
+    // Log contact form submission
     console.log('Contact form submission:', sanitizedData);
 
-    // TODO: Implement email sending via nodemailer or similar
-    // TODO: For production, store assessment ID and annotate later based on user behavior
+    // Send notification email to admin
+    try {
+      await emailService.sendContactNotification({
+        name: sanitizedData.name,
+        email: sanitizedData.email,
+        message: sanitizedData.message,
+        timestamp: sanitizedData.timestamp,
+        riskLevel: sanitizedData.riskLevel
+      });
+    } catch (emailError) {
+      console.error('Failed to send contact notification email:', emailError);
+      // Don't fail the request if email fails
+    }
+
+    // Send confirmation email to user
+    try {
+      await emailService.sendContactConfirmation({
+        name: sanitizedData.name,
+        email: sanitizedData.email
+      });
+    } catch (emailError) {
+      console.error('Failed to send contact confirmation email:', emailError);
+      // Don't fail the request if email fails
+    }
     
     // For now, just confirm receipt
     res.status(200).json({

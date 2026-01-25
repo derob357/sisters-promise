@@ -561,6 +561,103 @@ class EmailService {
       console.error('Error sending order status update:', error.message);
     }
   }
+
+  /**
+   * Send contact form notification to admin
+   */
+  async sendContactNotification({ name, email, message, timestamp, riskLevel }) {
+    if (!this.transporter) {
+      console.warn('Email transporter not configured. Skipping contact notification.');
+      return;
+    }
+
+    try {
+      const htmlContent = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #C9A961;">New Contact Form Submission</h2>
+          <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <p><strong>From:</strong> ${name}</p>
+            <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
+            <p><strong>Submitted:</strong> ${new Date(timestamp).toLocaleString()}</p>
+            <p><strong>Risk Level:</strong> ${riskLevel}</p>
+          </div>
+          <div style="background: white; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+            <h3>Message:</h3>
+            <p style="white-space: pre-wrap;">${message}</p>
+          </div>
+          <p style="color: #666; font-size: 12px; margin-top: 20px;">
+            Reply directly to this email to respond to ${name}.
+          </p>
+        </div>
+      `;
+
+      await this.transporter.sendMail({
+        from: process.env.SMTP_USER || 'denise@sisterspromise.com',
+        to: process.env.CONTACT_EMAIL || 'denise@sisterspromise.com',
+        replyTo: email,
+        subject: `New Contact Form: ${name}`,
+        html: htmlContent,
+      });
+
+      console.log(`✓ Contact notification sent to admin`);
+    } catch (error) {
+      console.error('Error sending contact notification:', error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Send contact form confirmation to user
+   */
+  async sendContactConfirmation({ name, email }) {
+    if (!this.transporter) {
+      console.warn('Email transporter not configured. Skipping contact confirmation.');
+      return;
+    }
+
+    try {
+      const htmlContent = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #C9A961 0%, #A0522D 100%); color: white; padding: 40px 20px; text-align: center; border-radius: 8px 8px 0 0;">
+            <h1 style="margin: 0; font-size: 28px;">Thank You for Contacting Us!</h1>
+          </div>
+          <div style="background: white; padding: 30px; border: 1px solid #ddd; border-top: none; border-radius: 0 0 8px 8px;">
+            <p style="font-size: 16px;">Hi ${name},</p>
+            <p>Thank you for reaching out to Sister's Promise! We've received your message and will get back to you as soon as possible.</p>
+            <p>Our team typically responds within 24-48 hours during business days.</p>
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <p style="margin: 0; color: #666;">
+                <strong>In the meantime:</strong><br>
+                ✓ Browse our <a href="https://www.sisterspromise.com/pages/shop.html" style="color: #C9A961;">product collection</a><br>
+                ✓ Learn about our <a href="https://www.sisterspromise.com/pages/ingredients.html" style="color: #C9A961;">natural ingredients</a><br>
+                ✓ Read our <a href="https://www.sisterspromise.com/pages/about-us.html" style="color: #C9A961;">story</a>
+              </p>
+            </div>
+            <p style="color: #666; font-size: 14px;">
+              If you have an urgent matter, please call us at (XXX) XXX-XXXX.
+            </p>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+            <p style="color: #999; font-size: 12px; text-align: center;">
+              Sister's Promise - Natural Skincare<br>
+              <a href="mailto:denise@sisterspromise.com" style="color: #C9A961;">denise@sisterspromise.com</a>
+            </p>
+          </div>
+        </div>
+      `;
+
+      await this.transporter.sendMail({
+        from: process.env.SMTP_USER || 'denise@sisterspromise.com',
+        to: email,
+        subject: 'Thank you for contacting Sister\'s Promise',
+        html: htmlContent,
+      });
+
+      console.log(`✓ Contact confirmation sent to ${email}`);
+    } catch (error) {
+      console.error('Error sending contact confirmation:', error.message);
+      throw error;
+    }
+  }
 }
 
 module.exports = EmailService;
