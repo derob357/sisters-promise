@@ -186,43 +186,30 @@ const SquareIntegration = {
   },
 
   /**
-   * Process payment via Square
+   * Process payment via Square - redirects to Square online store
    */
-  processPayment: async function(sourceId, amount) {
+  processPayment: async function(orderItems) {
     try {
-      if (!sourceId || typeof sourceId !== 'string') {
-        throw new Error('Invalid source ID');
-      }
+      if (!Array.isArray(orderItems) || orderItems.length === 0) {
+        throw new Error('No items in cart');\n      }
 
-      if (!amount || typeof amount !== 'number' || amount < 1) {
-        throw new Error('Invalid amount');
-      }
-
-      const response = await this.fetchWithRetry(`${this.apiUrl}/checkout`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest',
-        },
-        body: JSON.stringify({
-          sourceId: sourceId.substring(0, 100),
-          amount: Math.floor(amount),
-          currency: 'USD',
-          note: 'Sisters Promise purchase'
-        })
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Payment failed');
-      }
-
-      const data = await response.json();
-      return data;
+      // Sisters Promise Square Store URL
+      const squareStoreUrl = 'https://sisters-promise-inc.square.site/';
+      
+      // For now, redirect to the Square store
+      // In the future, you can add product-specific URLs
+      this.showSuccess('Redirecting to checkout...');
+      
+      // Small delay so user sees the message
+      setTimeout(() => {
+        window.location.href = squareStoreUrl;
+      }, 500);
+      
+      return { success: true };
     } catch (error) {
       console.error('Payment error:', error);
       this.showError(`Payment failed: ${error.message}`);
-      throw error;
+      return { success: false, error: error.message };
     }
   },
 

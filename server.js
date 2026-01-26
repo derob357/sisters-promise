@@ -260,6 +260,7 @@ const client = new Client({
 
 const catalogApi = client.catalogApi;
 const paymentsApi = client.paymentsApi;
+const checkoutApi = client.checkoutApi;
 
 // Error handling middleware
 class AppError extends Error {
@@ -1470,14 +1471,69 @@ app.post('/api/email/abandoned-cart', asyncHandler(async (req, res) => {
 // ============================================================================
 
 /**
+ * Create Square Online Checkout
+ * POST /api/create-checkout
+ */
+app.post('/api/create-checkout', checkoutLimiter, asyncHandler(async (req, res) => {
+  const { items } = req.body;
+
+  // Validate items
+  if (!items || !Array.isArray(items) || items.length === 0) {
+    return res.status(400).json({ 
+      error: 'No items provided' 
+    });
+  }
+
+  try {
+    // Create line items for Square Checkout
+    const lineItems = items.map(item => ({
+      quantity: String(item.quantity || 1),
+      name: sanitizeInput(item.name),
+      basePriceMoney: {
+        amount: Math.floor((item.price || 0) * 100), // Convert dollars to cents
+        currency: 'USD'
+      }
+    }));
+
+    // Create checkout using Square Checkout API
+    const checkoutResponse = await checkoutApi.createPaymentLink({
+      idempotencyKey: uuidv4(),
+      order: {
+        locationId: process.env.SQUARE_LOCATION_ID,
+        lineItems: lineItems
+      },
+      checkoutOptions: {
+        redirectUrl: `${process.env.APP_URL || 'http://localhost:3000'}/pages/order-success.html`,
+        askForShippingAddress: true
+      }
+    });
+
+    if (checkoutResponse.result?.paymentLink) {
+      res.json({
+        success: true,
+        checkoutUrl: checkoutResponse.result.paymentLink.url
+      });
+    } else {
+      throw new Error('Failed to create checkout');
+    }
+  } catch (error) {
+    console.error('Create checkout error:', error.message);
+    res.status(500).json({
+      error: 'Failed to create checkout',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Unable to create checkout'
+    });
+  }
+}));
+
+/**
  * Contact Form Submission with reCAPTCHA Enterprise
  * POST /api/contact
  */
 app.post('/api/contact', contactLimiter, asyncHandler(async (req, res) => {
   const { name, email, message, recaptchaToken } = req.body;
 
-  // Validate reCAPTCHA token
-  if (!recaptchaToken) {
+  // Validate reCAPTCHA token (optional if 'no-recaptcha' is sent)
+  if (!recaptchaToken || recaptchaToken === '') {
     return res.status(400).json({ 
       error: 'reCAPTCHA verification required' 
     });
@@ -1504,19 +1560,26 @@ app.post('/api/contact', contactLimiter, asyncHandler(async (req, res) => {
   }
 
   try {
-    // Verify reCAPTCHA token with Google Cloud reCAPTCHA Enterprise
-    const score = await createRecaptchaAssessment(recaptchaToken, 'submit');
+    let score = null;
+    let riskAssessment = { level: 'unknown', description: 'No reCAPTCHA verification' };
 
-    // Check if score is valid and above threshold (0.5)
-    if (score === null || score < 0.5) {
-      return res.status(400).json({ 
-        error: 'reCAPTCHA verification failed. Please try again.' 
-      });
+    // Verify reCAPTCHA token with Google Cloud reCAPTCHA Enterprise (if not 'no-recaptcha')
+    if (recaptchaToken !== 'no-recaptcha') {
+      score = await createRecaptchaAssessment(recaptchaToken, 'submit');
+
+      // Check if score is valid and above threshold (0.5)
+      if (score === null || score < 0.5) {
+        return res.status(400).json({ 
+          error: 'reCAPTCHA verification failed. Please try again.' 
+        });
+      }
+
+      // Interpret the score
+      riskAssessment = interpretRecaptchaScore(score);
+      console.log(`reCAPTCHA Risk Level: ${riskAssessment.level} - ${riskAssessment.description}`);
+    } else {
+      console.log('Contact form submitted without reCAPTCHA (fallback mode)');
     }
-
-    // Interpret the score
-    const riskAssessment = interpretRecaptchaScore(score);
-    console.log(`reCAPTCHA Risk Level: ${riskAssessment.level} - ${riskAssessment.description}`);
 
     // Sanitize inputs
     const sanitizedData = {
