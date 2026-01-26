@@ -469,8 +469,15 @@
             throw new Error('Message must be at least 10 characters');
           }
 
-          // Get reCAPTCHA Enterprise token
-          const token = await grecaptcha.enterprise.execute(window.RECAPTCHA_SITE_KEY, { action: 'submit' });
+          // Get reCAPTCHA Enterprise token (optional - skip if not configured)
+          let token = 'no-recaptcha';
+          if (window.RECAPTCHA_SITE_KEY && window.RECAPTCHA_SITE_KEY !== '' && typeof grecaptcha !== 'undefined') {
+            try {
+              token = await grecaptcha.enterprise.execute(window.RECAPTCHA_SITE_KEY, { action: 'submit' });
+            } catch (e) {
+              console.warn('reCAPTCHA not available, proceeding without it');
+            }
+          }
 
           // Submit form
           const success = await SquareIntegration.submitContactForm(formData, token);
