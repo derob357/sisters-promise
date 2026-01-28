@@ -9,8 +9,8 @@ const fs = require('fs');
 const path = require('path');
 
 const OUTPUT_DIR = 'dist';
-const EXCLUDE_DIRS = ['node_modules', '.git', '.github', 'docs', 'sections', 'dist', '.gitignore'];
-const EXCLUDE_FILES = ['server.js', 'build.js', 'gulpfile.js', 'package-lock.json', 'bower.json', 'genezio.yaml', 'presentation.html', 'template.html', 'index.html.bak'];
+const EXCLUDE_DIRS = ['node_modules', '.git', '.github', 'docs', 'sections', 'dist', '.gitignore', 'SistersPromiseMobile', 'ios', 'android', 'coverage', 'build', '.vscode', '.idea'];
+const EXCLUDE_FILES = ['server.js', 'build.js', 'gulpfile.js', 'package-lock.json', 'bower.json', 'genezio.yaml', 'presentation.html', 'template.html', 'index.html.bak', 'yarn.lock'];
 
 function copyDir(src, dest, isRoot = false) {
   if (!fs.existsSync(dest)) {
