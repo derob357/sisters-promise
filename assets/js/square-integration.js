@@ -193,7 +193,8 @@ const SquareIntegration = {
   processPayment: async function(orderItems) {
     try {
       if (!Array.isArray(orderItems) || orderItems.length === 0) {
-        throw new Error('No items in cart');\n      }
+        throw new Error('No items in cart');
+      }
 
       // Sisters Promise Square Store URL
       const squareStoreUrl = 'https://sisters-promise-inc.square.site/';
@@ -299,9 +300,5 @@ document.addEventListener('DOMContentLoaded', function() {
         SquareIntegration.submitContactForm(formData, token);
       });
     });
-  }
-});
-  if (productContainer) {
-    SquareIntegration.renderProducts('square-products');
   }
 });
