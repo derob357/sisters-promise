@@ -562,6 +562,15 @@
     function closeSuccessModal() {
       const modal = document.getElementById('success-modal');
       modal.classList.remove('show');
+      
+      // Navigate back to referring page after a brief delay
+      setTimeout(() => {
+        if (document.referrer && document.referrer !== window.location.href) {
+          window.location.href = document.referrer;
+        } else {
+          window.location.href = '../index.html';
+        }
+      }, 300);
     }
 
     // Close modal on overlay click
