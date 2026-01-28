@@ -1,0 +1,21 @@
+{
+  "name": "Sister's Promise Natural Skincare",
+  "short_name": "Sister's Promise",
+  "description": "Natural handmade skincare products - organic lotions, sea moss soap, and skin scrubs",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#C9A961",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/assets/img/logos/SistersPromise-Logo_bw_500.jpg",
+      "sizes": "500x500",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["shopping", "lifestyle", "health"],
+  "lang": "en-US",
+  "dir": "ltr"
+}
