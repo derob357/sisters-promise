@@ -431,7 +431,7 @@ class EmailService {
         ${shippingAddress.city}, ${shippingAddress.state} ${shippingAddress.zip}<br>
         ${shippingAddress.country}</p>
         <p>We'll notify you when your order ships!</p>
-        <p>Questions? Contact us at denise@sisterspromise.com</p>
+        <p>Questions? Contact us at info@sisterspromise.com</p>
       `;
 
       await this.transporter.sendMail({
@@ -470,7 +470,7 @@ class EmailService {
 
       await this.transporter.sendMail({
         from: process.env.SMTP_USER || 'denise@sisterspromise.com',
-        to: process.env.ADMIN_EMAIL || 'denise@sisterspromise.com',
+      to: process.env.ADMIN_EMAIL || 'info@sisterspromise.com',
         subject: `New Manual Order - #${orderId.slice(0, 8)}`,
         html: htmlContent,
       });
@@ -506,7 +506,7 @@ class EmailService {
         <p>${statusMessages[paymentStatus] || 'Your payment status has been updated'}</p>
         <p><strong>Order Total:</strong> $${total.toFixed(2)}</p>
         <p>Thank you for your business!</p>
-        <p>Questions? Contact us at denise@sisterspromise.com</p>
+        <p>Questions? Contact us at info@sisterspromise.com</p>
       `;
 
       await this.transporter.sendMail({
@@ -546,7 +546,7 @@ class EmailService {
         <p><strong>Order ID:</strong> ${orderId.slice(0, 8)}</p>
         <p>${statusMessages[orderStatus] || 'Your order status has been updated'}</p>
         <p>Thank you for choosing Sisters Promise!</p>
-        <p>Questions? Contact us at denise@sisterspromise.com</p>
+        <p>Questions? Contact us at info@sisterspromise.com</p>
       `;
 
       await this.transporter.sendMail({
@@ -593,7 +593,7 @@ class EmailService {
 
       await this.transporter.sendMail({
         from: process.env.SMTP_USER || 'denise@sisterspromise.com',
-        to: process.env.CONTACT_EMAIL || 'denise@sisterspromise.com',
+      to: process.env.CONTACT_EMAIL || 'info@sisterspromise.com',
         replyTo: email,
         subject: `New Contact Form: ${name}`,
         html: htmlContent,
@@ -639,7 +639,7 @@ class EmailService {
             <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
             <p style="color: #999; font-size: 12px; text-align: center;">
               Sister's Promise - Natural Skincare<br>
-              <a href="mailto:denise@sisterspromise.com" style="color: #C9A961;">denise@sisterspromise.com</a>
+              <a href="mailto:info@sisterspromise.com" style="color: #C9A961;">info@sisterspromise.com</a>
             </p>
           </div>
         </div>
