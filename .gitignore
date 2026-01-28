@@ -14,6 +14,7 @@ build/
 .gitignore_backup
 credentials.json
 *.json.backup
+sisters-promise-*.json
 # SSL/TLS Certificates (Keep private keys out of version control!)
 certs/
 *.key
