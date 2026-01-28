@@ -390,7 +390,7 @@
               <p style="color: #C9A961; font-weight: bold; font-size: 1.1rem;">$12.00</p>
               <div class="d-flex gap-2">
                 <a href="./pages/product-detail.html?id=69767e7a2c465c385facc9d4" class="btn btn-sm btn-custom btn-custom-outline flex-fill">View Details</a>
-                <button onclick="quickAddToCart('69767e7a2c465c385facc9d4', 'Organic Seamoss Aloe Soap', 12.00, './assets/img/Product/featureProduct01.png')" class="btn btn-sm btn-custom btn-custom-primary flex-fill">
+                <button class="btn btn-sm btn-custom btn-custom-primary flex-fill quick-add-to-cart" data-product-id="69767e7a2c465c385facc9d4" data-product-name="Organic Seamoss Aloe Soap" data-product-price="12.00" data-product-image="./assets/img/Product/featureProduct01.png">
                   <i class="fas fa-shopping-cart"></i> Add to Cart
                 </button>
               </div>
@@ -408,7 +408,7 @@
               <p style="color: #C9A961; font-weight: bold; font-size: 1.1rem;">$10.00</p>
               <div class="d-flex gap-2">
                 <a href="./pages/product-detail.html?id=696be2d06457132c9064b8f1" class="btn btn-sm btn-custom btn-custom-outline flex-fill">View Details</a>
-                <button onclick="quickAddToCart('696be2d06457132c9064b8f1', 'Turmeric Ginger Latte Soap', 10.00, './assets/img/Product/featureProduct02.png')" class="btn btn-sm btn-custom btn-custom-primary flex-fill">
+                <button class="btn btn-sm btn-custom btn-custom-primary flex-fill quick-add-to-cart" data-product-id="696be2d06457132c9064b8f1" data-product-name="Turmeric Ginger Latte Soap" data-product-price="10.00" data-product-image="./assets/img/Product/featureProduct02.png">
                   <i class="fas fa-shopping-cart"></i> Add to Cart
                 </button>
               </div>
@@ -426,7 +426,7 @@
               <p style="color: #C9A961; font-weight: bold; font-size: 1.1rem;">$16.00</p>
               <div class="d-flex gap-2">
                 <a href="./pages/product-detail.html?id=69767e7a2c465c385facc9e2" class="btn btn-sm btn-custom btn-custom-outline flex-fill">View Details</a>
-                <button onclick="quickAddToCart('69767e7a2c465c385facc9e2', 'Bath Salts', 16.00, './assets/img/Product/featureProduct03.png')" class="btn btn-sm btn-custom btn-custom-primary flex-fill">
+                <button class="btn btn-sm btn-custom btn-custom-primary flex-fill quick-add-to-cart" data-product-id="69767e7a2c465c385facc9e2" data-product-name="Bath Salts" data-product-price="16.00" data-product-image="./assets/img/Product/featureProduct03.png">
                   <i class="fas fa-shopping-cart"></i> Add to Cart
                 </button>
               </div>
@@ -777,8 +777,23 @@
         btn.innerHTML = '<i class="fas fa-shopping-cart"></i> Add to Cart';
       }
     }
+
+    // Add event listeners to all quick add to cart buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const quickAddButtons = document.querySelectorAll('.quick-add-to-cart');
+      quickAddButtons.forEach(button => {
+        button.addEventListener('click', function(event) {
+          const productId = this.dataset.productId;
+          const productName = this.dataset.productName;
+          const price = parseFloat(this.dataset.productPrice);
+          const imageUrl = this.dataset.productImage;
+          quickAddToCart(productId, productName, price, imageUrl);
+        });
+      });
+    });
   </script>
 
 </body>
 
 </html>
+
