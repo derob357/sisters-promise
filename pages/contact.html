@@ -71,6 +71,15 @@
     .navbar-toggler {
       visibility: visible !important;
       display: flex !important;
+      border: 2px solid #333 !important;
+      padding: 0.5rem !important;
+    }
+
+    .navbar-toggler-icon {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(0, 0, 0, 0.8)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='3' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+      width: 24px !important;
+      height: 24px !important;
+      display: block !important;
     }
 
     @media (max-width: 768px) {
@@ -523,7 +532,7 @@
       </div>
       <h2>Message Sent!</h2>
       <p>Thank you for reaching out! We've received your message and will get back to you within 24-48 hours.</p>
-      <button class="modal-close-btn" onclick="closeSuccessModal()">Close</button>
+      <button class="modal-close-btn" id="modal-close-btn">Close</button>
     </div>
   </div>
 
@@ -559,6 +568,14 @@
     document.addEventListener('click', function(e) {
       if (e.target.id === 'success-modal') {
         closeSuccessModal();
+      }
+    });
+
+    // Close modal on button click
+    document.addEventListener('DOMContentLoaded', function() {
+      const modalCloseBtn = document.getElementById('modal-close-btn');
+      if (modalCloseBtn) {
+        modalCloseBtn.addEventListener('click', closeSuccessModal);
       }
     });
 
