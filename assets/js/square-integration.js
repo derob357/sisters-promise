@@ -5,7 +5,9 @@
  */
 
 const SquareIntegration = {
-  apiUrl: 'http://localhost:3000/api',
+  apiUrl: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+    ? 'http://localhost:3000/api' 
+    : `${window.location.protocol}//${window.location.host}/api`,
   maxRetries: 3,
   retryDelay: 1000,
 
