@@ -14,6 +14,19 @@ if (fs.existsSync(envPath)) {
   dotenv.config();
 }
 
+// Handle Google credentials for Vercel (stored as JSON string in env var)
+if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON && !process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+  try {
+    const credentialsJson = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
+    const credentialsPath = path.join('/tmp', 'google-credentials.json');
+    fs.writeFileSync(credentialsPath, credentialsJson);
+    process.env.GOOGLE_APPLICATION_CREDENTIALS = credentialsPath;
+    console.log('✓ Google credentials loaded from environment variable');
+  } catch (err) {
+    console.warn('Failed to write Google credentials:', err.message);
+  }
+}
+
 // NOW require other modules that need environment variables
 const express = require('express');
 const https = require('https');
@@ -3862,3 +3875,6 @@ if (fs.existsSync(certPath) && fs.existsSync(keyPath)) {
     }
   }
 }
+
+// Export for Vercel serverless deployment
+module.exports = app;

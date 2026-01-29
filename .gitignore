@@ -4,6 +4,7 @@ npm-debug.log*
 .env.local
 .env.*.local
 .env.production
+import.env
 dist/
 build/
 .DS_Store
