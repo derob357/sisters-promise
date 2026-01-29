@@ -284,21 +284,5 @@ document.addEventListener('DOMContentLoaded', function() {
     SquareIntegration.renderProducts('square-products');
   }
 
-  // Attach contact form handler
-  const contactForm = document.getElementById('contact-form');
-  if (contactForm && typeof grecaptcha !== 'undefined') {
-    contactForm.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      
-      const formData = {
-        name: document.getElementById('contact-name').value || '',
-        email: document.getElementById('contact-email').value || '',
-        message: document.getElementById('contact-message').value || ''
-      };
-
-      grecaptcha.execute(window.RECAPTCHA_SITE_KEY, { action: 'submit' }).then(function(token) {
-        SquareIntegration.submitContactForm(formData, token);
-      });
-    });
-  }
+  // Contact form handler is now in contact.html with reCAPTCHA Enterprise
 });
