@@ -93,8 +93,11 @@ app.use(helmet({
 
 // Additional security headers for HTTPS
 app.use((req, res, next) => {
-  // Enforce HTTPS
-  if (process.env.NODE_ENV === 'production' && req.protocol !== 'https') {
+  // Enforce HTTPS (check X-Forwarded-Proto for reverse proxies like Vercel/Render)
+  const proto = req.headers['x-forwarded-proto'] || req.protocol;
+  const isVercel = process.env.VERCEL;
+  // Skip redirect on Vercel (it enforces HTTPS automatically) or if already HTTPS
+  if (process.env.NODE_ENV === 'production' && !isVercel && proto !== 'https') {
     return res.redirect(301, `https://${req.get('host')}${req.originalUrl}`);
   }
   
