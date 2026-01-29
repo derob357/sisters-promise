@@ -1548,10 +1548,10 @@ app.post('/api/create-checkout', checkoutLimiter, asyncHandler(async (req, res) 
 app.post('/api/contact', contactLimiter, asyncHandler(async (req, res) => {
   const { name, email, message, recaptchaToken } = req.body;
 
-  // Validate reCAPTCHA token (optional if 'no-recaptcha' is sent)
-  if (!recaptchaToken || recaptchaToken === '') {
-    return res.status(400).json({ 
-      error: 'reCAPTCHA verification required' 
+  // Validate reCAPTCHA token (required)
+  if (!recaptchaToken || recaptchaToken === '' || recaptchaToken === 'no-recaptcha') {
+    return res.status(400).json({
+      error: 'reCAPTCHA verification required. Please refresh the page and try again.'
     });
   }
 
@@ -1579,23 +1579,19 @@ app.post('/api/contact', contactLimiter, asyncHandler(async (req, res) => {
     let score = null;
     let riskAssessment = { level: 'unknown', description: 'No reCAPTCHA verification' };
 
-    // Verify reCAPTCHA token with Google Cloud reCAPTCHA Enterprise (if not 'no-recaptcha')
-    if (recaptchaToken !== 'no-recaptcha') {
-      score = await createRecaptchaAssessment(recaptchaToken, 'submit');
+    // Verify reCAPTCHA token with Google Cloud reCAPTCHA Enterprise
+    score = await createRecaptchaAssessment(recaptchaToken, 'submit');
 
-      // Check if score is valid and above threshold (0.5)
-      if (score === null || score < 0.5) {
-        return res.status(400).json({ 
-          error: 'reCAPTCHA verification failed. Please try again.' 
-        });
-      }
-
-      // Interpret the score
-      riskAssessment = interpretRecaptchaScore(score);
-      console.log(`reCAPTCHA Risk Level: ${riskAssessment.level} - ${riskAssessment.description}`);
-    } else {
-      console.log('Contact form submitted without reCAPTCHA (fallback mode)');
+    // Check if score is valid and above threshold (0.5)
+    if (score === null || score < 0.5) {
+      return res.status(400).json({
+        error: 'reCAPTCHA verification failed. Please try again.'
+      });
     }
+
+    // Interpret the score
+    riskAssessment = interpretRecaptchaScore(score);
+    console.log(`reCAPTCHA Risk Level: ${riskAssessment.level} - ${riskAssessment.description}`);
 
     // Sanitize inputs
     const sanitizedData = {

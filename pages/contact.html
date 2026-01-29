@@ -24,10 +24,10 @@
   <link href="../assets/css/material-kit.css?v=3.0.0" rel="stylesheet" />
 
   <!-- reCAPTCHA Enterprise -->
-  <script src="https://www.google.com/recaptcha/enterprise.js" async defer></script>
   <script>
     window.RECAPTCHA_SITE_KEY = '***REMOVED***';
   </script>
+  <script src="https://www.google.com/recaptcha/enterprise.js?render=***REMOVED***"></script>
 
   <style>
     body {
@@ -692,14 +692,30 @@
             throw new Error('Message must be at least 10 characters');
           }
 
-          // Get reCAPTCHA Enterprise token (optional - skip if not configured)
-          let token = 'no-recaptcha';
-          if (window.RECAPTCHA_SITE_KEY && window.RECAPTCHA_SITE_KEY !== '' && typeof grecaptcha !== 'undefined') {
-            try {
-              token = await grecaptcha.enterprise.execute(window.RECAPTCHA_SITE_KEY, { action: 'submit' });
-            } catch (e) {
-              console.warn('reCAPTCHA not available, proceeding without it');
+          // Get reCAPTCHA Enterprise token (required)
+          let token = null;
+          if (typeof grecaptcha === 'undefined' || !grecaptcha.enterprise) {
+            throw new Error('Security verification not loaded. Please refresh the page and try again.');
+          }
+
+          try {
+            // Wait for reCAPTCHA to be ready
+            await new Promise((resolve, reject) => {
+              grecaptcha.enterprise.ready(() => {
+                resolve();
+              });
+              // Timeout after 10 seconds
+              setTimeout(() => reject(new Error('Security verification timed out')), 10000);
+            });
+
+            token = await grecaptcha.enterprise.execute(window.RECAPTCHA_SITE_KEY, { action: 'submit' });
+
+            if (!token) {
+              throw new Error('Failed to get security token');
             }
+          } catch (e) {
+            console.error('reCAPTCHA error:', e);
+            throw new Error('Security verification failed. Please refresh the page and try again.');
           }
 
           // Submit form
