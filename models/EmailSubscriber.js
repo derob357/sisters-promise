@@ -12,13 +12,17 @@ const { Subscriber, Campaign, EmailLog } = require('./emailSchemas');
 class EmailSubscriber {
   constructor(useMongoDB = true) {
     this.useMongoDB = useMongoDB;
-    this.dataDir = path.join(__dirname, '../data');
+    // Use /tmp for serverless environments (Vercel has read-only filesystem)
+    const isServerless = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
+    this.dataDir = isServerless ? '/tmp/data' : path.join(__dirname, '../data');
     this.subscribersFile = path.join(this.dataDir, 'subscribers.json');
     this.campaignsFile = path.join(this.dataDir, 'campaigns.json');
     this.logsFile = path.join(this.dataDir, 'email-logs.json');
-    
-    // Load file-based data as fallback
-    this.ensureDataDir();
+
+    // Load file-based data as fallback (skip if using MongoDB on serverless)
+    if (!useMongoDB || !isServerless) {
+      this.ensureDataDir();
+    }
     this.subscribers = this.loadSubscribers();
     this.campaigns = this.loadCampaigns();
     this.logs = this.loadLogs();
@@ -28,8 +32,13 @@ class EmailSubscriber {
    * Ensure data directory exists for fallback storage
    */
   ensureDataDir() {
-    if (!fs.existsSync(this.dataDir)) {
-      fs.mkdirSync(this.dataDir, { recursive: true });
+    try {
+      if (!fs.existsSync(this.dataDir)) {
+        fs.mkdirSync(this.dataDir, { recursive: true });
+      }
+    } catch (error) {
+      // Silently fail on read-only filesystems (serverless)
+      console.warn('Could not create data directory:', error.message);
     }
   }
 
