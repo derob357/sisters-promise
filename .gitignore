@@ -22,3 +22,10 @@ certs/
 *.pem
 *.crt
 !.gitkeep
+
+# Excel/catalog files
+*.xlsx
+
+# Local scripts and inventory
+list-square-products.js
+PRODUCT_INVENTORY.md
