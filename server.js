@@ -1578,20 +1578,37 @@ app.post('/api/contact', contactLimiter, asyncHandler(async (req, res) => {
   try {
     let score = null;
     let riskAssessment = { level: 'unknown', description: 'No reCAPTCHA verification' };
+    let recaptchaConfigured = !!(process.env.GOOGLE_CLOUD_PROJECT_ID && process.env.RECAPTCHA_ENTERPRISE_KEY && process.env.GOOGLE_APPLICATION_CREDENTIALS);
 
     // Verify reCAPTCHA token with Google Cloud reCAPTCHA Enterprise
-    score = await createRecaptchaAssessment(recaptchaToken, 'submit');
+    if (recaptchaConfigured) {
+      try {
+        score = await createRecaptchaAssessment(recaptchaToken, 'submit');
 
-    // Check if score is valid and above threshold (0.5)
-    if (score === null || score < 0.5) {
-      return res.status(400).json({
-        error: 'reCAPTCHA verification failed. Please try again.'
-      });
+        // Check if score is valid and above threshold (0.5)
+        if (score !== null && score < 0.5) {
+          return res.status(400).json({
+            error: 'reCAPTCHA verification failed - suspicious activity detected. Please try again.'
+          });
+        }
+
+        if (score !== null) {
+          // Interpret the score
+          riskAssessment = interpretRecaptchaScore(score);
+          console.log(`reCAPTCHA Risk Level: ${riskAssessment.level} - ${riskAssessment.description}`);
+        } else {
+          console.warn('reCAPTCHA assessment returned null - allowing submission with rate limiting only');
+          riskAssessment = { level: 'unverified', description: 'reCAPTCHA verification unavailable' };
+        }
+      } catch (recaptchaError) {
+        console.error('reCAPTCHA verification error:', recaptchaError.message);
+        // Allow submission but log the error - rate limiting still protects us
+        riskAssessment = { level: 'error', description: 'reCAPTCHA service error' };
+      }
+    } else {
+      console.warn('reCAPTCHA Enterprise not configured - allowing submission with rate limiting only');
+      riskAssessment = { level: 'unconfigured', description: 'reCAPTCHA not configured' };
     }
-
-    // Interpret the score
-    riskAssessment = interpretRecaptchaScore(score);
-    console.log(`reCAPTCHA Risk Level: ${riskAssessment.level} - ${riskAssessment.description}`);
 
     // Sanitize inputs
     const sanitizedData = {
