@@ -90,9 +90,11 @@
       color: #C9A961 !important;
     }
 
-    .navbar-toggler {
-      visibility: visible !important;
-      display: flex !important;
+    /* Hamburger menu - only show on mobile */
+    @media (min-width: 992px) {
+      .navbar-toggler {
+        display: none !important;
+      }
     }
 
     .hero {
