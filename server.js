@@ -158,56 +158,44 @@ app.use(mongoSanitize({
   },
 }));
 
-// reCAPTCHA Enterprise Assessment Function
-async function createRecaptchaAssessment(token, recaptchaAction = 'submit') {
+// reCAPTCHA v3 Verification Function
+async function verifyRecaptchaV3(token, expectedAction = 'submit') {
   try {
-    const projectID = process.env.GOOGLE_CLOUD_PROJECT_ID;
-    const recaptchaKey = process.env.RECAPTCHA_ENTERPRISE_KEY;
+    const secretKey = process.env.RECAPTCHA_SECRET_KEY;
 
-    if (!projectID || !recaptchaKey) {
-      console.error('Missing reCAPTCHA Enterprise configuration');
+    if (!secretKey) {
+      console.error('Missing RECAPTCHA_SECRET_KEY configuration');
       return null;
     }
 
-    const client = new RecaptchaEnterpriseServiceClient();
-    const projectPath = client.projectPath(projectID);
-
-    const request = {
-      assessment: {
-        event: {
-          token: token,
-          siteKey: recaptchaKey,
-        },
-      },
-      parent: projectPath,
-    };
-
-    const [response] = await client.createAssessment(request);
-
-    // Check if the token is valid
-    if (!response.tokenProperties.valid) {
-      console.log(`reCAPTCHA token invalid: ${response.tokenProperties.invalidReason}`);
-      return null;
-    }
-
-    // Check if the expected action was executed
-    if (response.tokenProperties.action === recaptchaAction) {
-      const score = response.riskAnalysis.score;
-      console.log(`reCAPTCHA risk score: ${score}`);
-      
-      if (response.riskAnalysis.reasons) {
-        response.riskAnalysis.reasons.forEach((reason) => {
-          console.log(`  Reason: ${reason}`);
-        });
+    const response = await axios.post(
+      'https://www.google.com/recaptcha/api/siteverify',
+      null,
+      {
+        params: {
+          secret: secretKey,
+          response: token
+        }
       }
-      
-      return score;
-    } else {
-      console.log(`Action mismatch: expected ${recaptchaAction}, got ${response.tokenProperties.action}`);
+    );
+
+    const data = response.data;
+
+    if (!data.success) {
+      console.log('reCAPTCHA verification failed:', data['error-codes']);
       return null;
     }
+
+    // Check action matches (v3 includes action in response)
+    if (data.action && data.action !== expectedAction) {
+      console.log(`Action mismatch: expected ${expectedAction}, got ${data.action}`);
+      return null;
+    }
+
+    console.log(`reCAPTCHA v3 score: ${data.score}, action: ${data.action}`);
+    return data.score;
   } catch (error) {
-    console.error('reCAPTCHA assessment error:', error.message);
+    console.error('reCAPTCHA verification error:', error.message);
     return null;
   }
 }
@@ -886,17 +874,19 @@ app.post('/api/email/subscribe', contactLimiter, asyncHandler(async (req, res) =
       });
     }
 
-    // reCAPTCHA verification
-    if (recaptchaToken) {
-      const riskScore = await createRecaptchaAssessment(recaptchaToken, 'subscribe');
-      const riskLevel = interpretRecaptchaScore(riskScore);
-      
-      if (riskLevel.action === 'block') {
-        return res.status(403).json({
-          error: 'Subscription Failed',
-          message: 'Unable to process subscription at this time',
-          riskLevel: riskLevel.level
-        });
+    // reCAPTCHA v3 verification
+    if (recaptchaToken && process.env.RECAPTCHA_SECRET_KEY) {
+      const riskScore = await verifyRecaptchaV3(recaptchaToken, 'subscribe');
+      if (riskScore !== null) {
+        const riskLevel = interpretRecaptchaScore(riskScore);
+
+        if (riskLevel.action === 'block') {
+          return res.status(403).json({
+            error: 'Subscription Failed',
+            message: 'Unable to process subscription at this time',
+            riskLevel: riskLevel.level
+          });
+        }
       }
     }
 
@@ -1578,12 +1568,12 @@ app.post('/api/contact', contactLimiter, asyncHandler(async (req, res) => {
   try {
     let score = null;
     let riskAssessment = { level: 'unknown', description: 'No reCAPTCHA verification' };
-    let recaptchaConfigured = !!(process.env.GOOGLE_CLOUD_PROJECT_ID && process.env.RECAPTCHA_ENTERPRISE_KEY && process.env.GOOGLE_APPLICATION_CREDENTIALS);
+    let recaptchaConfigured = !!process.env.RECAPTCHA_SECRET_KEY;
 
-    // Verify reCAPTCHA token with Google Cloud reCAPTCHA Enterprise
+    // Verify reCAPTCHA v3 token
     if (recaptchaConfigured) {
       try {
-        score = await createRecaptchaAssessment(recaptchaToken, 'submit');
+        score = await verifyRecaptchaV3(recaptchaToken, 'submit');
 
         // Check if score is valid and above threshold (0.5)
         if (score !== null && score < 0.5) {
@@ -1597,7 +1587,7 @@ app.post('/api/contact', contactLimiter, asyncHandler(async (req, res) => {
           riskAssessment = interpretRecaptchaScore(score);
           console.log(`reCAPTCHA Risk Level: ${riskAssessment.level} - ${riskAssessment.description}`);
         } else {
-          console.warn('reCAPTCHA assessment returned null - allowing submission with rate limiting only');
+          console.warn('reCAPTCHA verification returned null - allowing submission with rate limiting only');
           riskAssessment = { level: 'unverified', description: 'reCAPTCHA verification unavailable' };
         }
       } catch (recaptchaError) {
@@ -1606,7 +1596,7 @@ app.post('/api/contact', contactLimiter, asyncHandler(async (req, res) => {
         riskAssessment = { level: 'error', description: 'reCAPTCHA service error' };
       }
     } else {
-      console.warn('reCAPTCHA Enterprise not configured - allowing submission with rate limiting only');
+      console.warn('RECAPTCHA_SECRET_KEY not configured - allowing submission with rate limiting only');
       riskAssessment = { level: 'unconfigured', description: 'reCAPTCHA not configured' };
     }
 

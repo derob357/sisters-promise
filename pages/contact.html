@@ -23,11 +23,11 @@
   <!-- Material Kit CSS -->
   <link href="../assets/css/material-kit.css?v=3.0.0" rel="stylesheet" />
 
-  <!-- reCAPTCHA Enterprise -->
+  <!-- reCAPTCHA v3 -->
   <script>
     window.RECAPTCHA_SITE_KEY = '***REMOVED***';
   </script>
-  <script src="https://www.google.com/recaptcha/enterprise.js?render=***REMOVED***"></script>
+  <script src="https://www.google.com/recaptcha/api.js?render=***REMOVED***"></script>
 
   <style>
     body {
@@ -692,23 +692,23 @@
             throw new Error('Message must be at least 10 characters');
           }
 
-          // Get reCAPTCHA Enterprise token (required)
+          // Get reCAPTCHA v3 token (required)
           let token = null;
-          if (typeof grecaptcha === 'undefined' || !grecaptcha.enterprise) {
+          if (typeof grecaptcha === 'undefined') {
             throw new Error('Security verification not loaded. Please refresh the page and try again.');
           }
 
           try {
             // Wait for reCAPTCHA to be ready
             await new Promise((resolve, reject) => {
-              grecaptcha.enterprise.ready(() => {
+              grecaptcha.ready(() => {
                 resolve();
               });
               // Timeout after 10 seconds
               setTimeout(() => reject(new Error('Security verification timed out')), 10000);
             });
 
-            token = await grecaptcha.enterprise.execute(window.RECAPTCHA_SITE_KEY, { action: 'submit' });
+            token = await grecaptcha.execute(window.RECAPTCHA_SITE_KEY, { action: 'submit' });
 
             if (!token) {
               throw new Error('Failed to get security token');
