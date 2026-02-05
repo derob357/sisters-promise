@@ -6,9 +6,114 @@
 
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const fs = require('fs');
+const path = require('path');
 require('dotenv').config();
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/sisters_promise';
+const CSV_FILE = process.env.CSV_FILE || 'products.csv';
+
+// Parse CSV line (handles quotes and commas)
+function parseCSVLine(line) {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+  
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+    
+    if (char === '"') {
+      inQuotes = !inQuotes;
+    } else if (char === ',' && !inQuotes) {
+      result.push(current);
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+  
+  result.push(current);
+  return result;
+}
+
+function parseCSV(csvContent) {
+  const lines = csvContent.split('\n').filter(line => line.trim());
+  if (lines.length < 2) {
+    return [];
+  }
+  
+  const headers = lines[0].split(',').map(h => h.trim());
+  const products = [];
+  
+  for (let i = 1; i < lines.length; i++) {
+    const values = parseCSVLine(lines[i]);
+    if (values.length !== headers.length) {
+      continue;
+    }
+    
+    const rowData = {};
+    headers.forEach((header, index) => {
+      let value = values[index].trim();
+      if (header === 'price' || header === 'stockQuantity') {
+        value = parseFloat(value) || 0;
+      }
+      rowData[header] = value;
+    });
+    
+    if (!rowData.name || !rowData.price) {
+      continue;
+    }
+    
+    const product = {
+      name: rowData.name,
+      description: rowData.description || rowData.name,
+      price: rowData.price,
+      category: rowData.category || 'other',
+      stockQuantity: rowData.stockQuantity || 0,
+      etsyListingId: rowData.etsyListingId || '',
+      isActive: true
+    };
+    
+    if (rowData.imageUrl) {
+      const thumbnailUrl = rowData.thumbnailUrl || rowData.imageUrl.replace('il_fullxfull', 'il_340x270');
+      const alt = rowData.alt || rowData.name;
+      
+      product.images = [{
+        url: rowData.imageUrl,
+        thumbnailUrl: thumbnailUrl,
+        alt: alt,
+        isPrimary: true
+      }];
+      
+      product.imageUrl = rowData.imageUrl;
+      product.thumbnailUrl = thumbnailUrl;
+      product.alt = alt;
+    }
+    
+    products.push(product);
+  }
+  
+  return products;
+}
+
+function loadProductsFromCSV() {
+  const csvPath = path.resolve(CSV_FILE);
+  if (!fs.existsSync(csvPath)) {
+    return [];
+  }
+  
+  try {
+    const csvContent = fs.readFileSync(csvPath, 'utf-8');
+    const products = parseCSV(csvContent);
+    if (products.length > 0) {
+      console.log(`📄 Loaded ${products.length} products from ${CSV_FILE}`);
+    }
+    return products;
+  } catch (error) {
+    console.warn(`⚠️  Failed to read ${CSV_FILE}: ${error.message}`);
+    return [];
+  }
+}
 
 // Define Schemas with ENHANCED IMAGE SUPPORT
 const userSchema = new mongoose.Schema({
@@ -36,6 +141,8 @@ const productSchema = new mongoose.Schema({
   
   // Legacy field for backward compatibility
   imageUrl: { type: String },
+  thumbnailUrl: { type: String },                  // CSV/Square thumbnail URL
+  alt: { type: String },                           // CSV/Square alt text
   
   stockQuantity: { type: Number, default: 0, min: 0 },
   isActive: { type: Boolean, default: true },
@@ -122,7 +229,9 @@ async function setupDatabase() {
     // Insert sample products WITH ENHANCED IMAGE SUPPORT
     console.log('📦 Inserting sample products with image arrays...\n');
     
-    const sampleProducts = [
+    let sampleProducts = loadProductsFromCSV();
+    if (sampleProducts.length === 0) {
+      sampleProducts = [
       {
         name: 'Turmeric Ginger Latte Soap',
         description: 'Handcrafted soap infused with organic turmeric and ginger. This luxurious latte-inspired soap combines the anti-inflammatory properties of turmeric with the warming essence of ginger. Perfect for brightening skin and providing a spa-like experience.',
@@ -208,7 +317,8 @@ async function setupDatabase() {
         stockQuantity: 50,
         etsyListingId: '793802160'
       }
-    ];
+      ];
+    }
     
     const insertedProducts = await Product.insertMany(sampleProducts);
     console.log(`✓ Inserted ${insertedProducts.length} products with image arrays`);

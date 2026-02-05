@@ -26,6 +26,10 @@ certs/
 # Excel/catalog files
 *.xlsx
 
+# Design files
+*.psd
+*.ai
+
 # Local scripts and inventory
 list-square-products.js
 PRODUCT_INVENTORY.md

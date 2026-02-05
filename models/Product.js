@@ -23,6 +23,8 @@ const productSchema = new mongoose.Schema({
   
   // Legacy field for backward compatibility
   imageUrl: { type: String },
+  thumbnailUrl: { type: String },                  // CSV/Square thumbnail URL
+  alt: { type: String },                           // CSV/Square alt text
   
   // Detailed product information
   fullDescription: { type: String, trim: true },    // Long form description

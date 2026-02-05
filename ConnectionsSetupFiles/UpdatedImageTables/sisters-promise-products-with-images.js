@@ -28,6 +28,8 @@ const productSchema = new mongoose.Schema({
   
   // Legacy field for backward compatibility
   imageUrl: { type: String },
+  thumbnailUrl: { type: String },                  // CSV/Square thumbnail URL
+  alt: { type: String },                           // CSV/Square alt text
   
   stockQuantity: { type: Number, default: 0, min: 0 },
   isActive: { type: Boolean, default: true },

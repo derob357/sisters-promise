@@ -35,6 +35,8 @@ const productSchema = new mongoose.Schema({
   
   // Legacy field
   imageUrl: { type: String },
+  thumbnailUrl: { type: String },                  // CSV/Square thumbnail URL
+  alt: { type: String },                           // CSV/Square alt text
   
   stockQuantity: { type: Number, default: 0, min: 0 },
   isActive: { type: Boolean, default: true },
@@ -147,6 +149,8 @@ function parseCSV(csvContent) {
       
       // Legacy field
       product.imageUrl = rowData.imageUrl;
+      product.thumbnailUrl = thumbnailUrl;
+      product.alt = alt;
     }
     
     products.push(product);
