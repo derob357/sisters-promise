@@ -626,6 +626,31 @@ app.get('/api/square/catalog', asyncHandler(async (req, res) => {
     const items = result.objects || [];
     const relatedObjects = result.relatedObjects || [];
 
+    // Filter to only include visible/active items
+    const visibleItems = items.filter(item => {
+      // Exclude deleted items
+      if (item.isDeleted) return false;
+
+      // Exclude items without item data
+      if (!item.itemData) return false;
+
+      // Exclude items that are explicitly not available for pickup/delivery
+      const itemData = item.itemData;
+      if (itemData.availableForPickup === false && itemData.availableElectronically === false && itemData.availableOnline === false) {
+        return false;
+      }
+
+      // Exclude items without any active variations
+      const variations = itemData.variations || [];
+      const hasActiveVariation = variations.some(v =>
+        !v.isDeleted &&
+        v.itemVariationData &&
+        v.itemVariationData.itemId === item.id
+      );
+
+      return hasActiveVariation;
+    });
+
     // Build image lookup from related objects
     const imageMap = {};
     relatedObjects.forEach(obj => {
@@ -643,9 +668,10 @@ app.get('/api/square/catalog', asyncHandler(async (req, res) => {
     });
 
     // Transform to frontend-friendly format
-    const products = items.map(item => {
+    const products = visibleItems.map(item => {
       const itemData = item.itemData || {};
-      const variation = itemData.variations?.[0];
+      // Get first active (non-deleted) variation
+      const variation = itemData.variations?.find(v => !v.isDeleted);
       const variationData = variation?.itemVariationData;
       const priceMoney = variationData?.priceMoney;
       const priceAmount = priceMoney ? Number(priceMoney.amount) : 0;
