@@ -84,11 +84,11 @@ const SquareIntegration = {
    */
   fetchProducts: async function() {
     try {
-      const response = await this.fetchWithRetry(`${this.apiUrl}/products`);
+      const response = await this.fetchWithRetry(`${this.apiUrl}/square/catalog`);
       const data = await response.json();
-      
-      if (data.success && Array.isArray(data.products)) {
-        return data.products;
+
+      if (data.success && data.data && Array.isArray(data.data.products)) {
+        return data.data.products;
       } else {
         console.error('Failed to fetch products:', data.error);
         return [];
@@ -127,7 +127,7 @@ const SquareIntegration = {
   /**
    * Render product gallery
    */
-  renderProducts: async function(containerId, limit = 6) {
+  renderProducts: async function(containerId, limit = 50) {
     const container = document.getElementById(containerId);
     if (!container) {
       console.error(`Container with id '${containerId}' not found`);
@@ -135,12 +135,12 @@ const SquareIntegration = {
     }
 
     // Show loading state
-    container.innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+    container.innerHTML = '<div class="col-12 text-center py-5"><div class="spinner-border" role="status" style="color: #C9A961;"><span class="visually-hidden">Loading...</span></div><p class="text-muted mt-3">Loading products...</p></div>';
 
     const products = await this.fetchProducts();
-    
+
     if (!products || products.length === 0) {
-      container.innerHTML = '<p class="text-center text-muted">No products available at this time.</p>';
+      container.innerHTML = '<div class="col-12 text-center py-5"><p class="text-muted">No products available at this time.</p></div>';
       return;
     }
 
@@ -149,32 +149,41 @@ const SquareIntegration = {
 
     displayProducts.forEach(product => {
       try {
-        const imageUrl = product.imageUrl ? this.sanitize(product.imageUrl) : 'https://via.placeholder.com/400x300?text=Sisters+Promise';
-        const price = product.variations && product.variations.length > 0
-          ? '$' + (product.variations[0].itemVariationData?.priceMoney?.amount / 100 || '0').toFixed(2)
-          : 'Contact for price';
-        
+        const imageUrl = product.imageUrl ? this.sanitize(product.imageUrl) : '../assets/img/logos/SistersPromise-Logo_bw_500.jpg';
+        const price = product.priceFormatted || (product.price ? `$${(product.price / 100).toFixed(2)}` : 'Contact for price');
+        const description = (product.description || '').substring(0, 100);
+        const categoryBadge = product.category
+          ? `<span class="badge" style="background-color: #C9A961;">${this.sanitize(product.category)}</span>`
+          : '';
+        const buyButtonAttr = product.variationId
+          ? `onclick="SquareIntegration.buyNow('${this.sanitize(product.variationId)}')" style="background-color: #C9A961; color: white; border: none; cursor: pointer;"`
+          : `href="https://sisters-promise-inc.square.site/s/shop" target="_blank" rel="noopener noreferrer" style="background-color: #C9A961; color: white; border: none;"`;
+        const buyButtonTag = product.variationId ? 'button' : 'a';
+        const buyButtonClose = product.variationId ? '</button>' : '</a>';
+
         html += `
           <div class="col-lg-4 col-md-6 mb-4">
             <div class="card border-0 shadow-lg hover-shadow transition">
               <div class="position-relative overflow-hidden" style="height: 300px;">
-                <img 
-                  src="${imageUrl}" 
-                  class="card-img-top" 
-                  style="width: 100%; height: 100%; object-fit: cover;" 
+                <img
+                  src="${imageUrl}"
+                  class="card-img-top"
+                  style="width: 100%; height: 100%; object-fit: cover;"
                   alt="${this.sanitize(product.name)}"
                   loading="lazy"
-                  onerror="this.src='https://via.placeholder.com/400x300?text=Sisters+Promise'"
+                  onerror="this.src='../assets/img/logos/SistersPromise-Logo_bw_500.jpg'"
                 >
               </div>
               <div class="card-body">
                 <h5 class="card-title text-dark font-weight-bold">${this.sanitize(product.name)}</h5>
-                <p class="text-muted text-sm mb-2">${this.sanitize((product.description || '').substring(0, 100))}...</p>
+                <p class="text-muted text-sm mb-3">${this.sanitize(description)}${description.length >= 100 ? '...' : ''}</p>
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                  <span class="h5 font-weight-bold text-primary">${price}</span>
-                  <span class="badge bg-gradient-primary">USD</span>
+                  <span style="color: #C9A961; font-weight: bold; font-size: 1.2rem;">${price}</span>
+                  ${categoryBadge}
                 </div>
-                <a href="https://sisters-promise-inc.square.site/s/shop" target="_blank" rel="noopener noreferrer" class="btn btn-sm bg-gradient-dark w-100">Shop on Square</a>
+                <div class="text-center">
+                  <${buyButtonTag} class="btn btn-sm w-100" ${buyButtonAttr}>Buy Now${buyButtonClose}
+                </div>
               </div>
             </div>
           </div>
@@ -188,7 +197,44 @@ const SquareIntegration = {
   },
 
   /**
-   * Process payment via Square - redirects to Square online store
+   * Buy a single product now via Square Checkout
+   */
+  buyNow: async function(variationId, quantity = 1) {
+    try {
+      if (!variationId) {
+        throw new Error('No product selected');
+      }
+
+      this.showSuccess('Redirecting to checkout...');
+
+      const response = await this.fetchWithRetry(`${this.apiUrl}/square/checkout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        body: JSON.stringify({
+          items: [{ variationId, quantity }],
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+        return { success: true };
+      } else {
+        throw new Error(data.error || 'Failed to create checkout');
+      }
+    } catch (error) {
+      console.error('Checkout error:', error);
+      this.showError(`Checkout failed: ${error.message}`);
+      return { success: false, error: error.message };
+    }
+  },
+
+  /**
+   * Process payment via Square Checkout with multiple items
    */
   processPayment: async function(orderItems) {
     try {
@@ -196,19 +242,30 @@ const SquareIntegration = {
         throw new Error('No items in cart');
       }
 
-      // Sisters Promise Square Store URL
-      const squareStoreUrl = 'https://sisters-promise-inc.square.site/';
-      
-      // For now, redirect to the Square store
-      // In the future, you can add product-specific URLs
       this.showSuccess('Redirecting to checkout...');
-      
-      // Small delay so user sees the message
-      setTimeout(() => {
-        window.location.href = squareStoreUrl;
-      }, 500);
-      
-      return { success: true };
+
+      const items = orderItems.map(item => ({
+        variationId: item.variationId,
+        quantity: item.quantity || 1,
+      }));
+
+      const response = await this.fetchWithRetry(`${this.apiUrl}/square/checkout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        body: JSON.stringify({ items }),
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+        return { success: true };
+      } else {
+        throw new Error(data.error || 'Failed to create checkout');
+      }
     } catch (error) {
       console.error('Payment error:', error);
       this.showError(`Payment failed: ${error.message}`);

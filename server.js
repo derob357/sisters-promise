@@ -74,6 +74,7 @@ app.use(helmet({
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'", 'https://recaptcha.net', 'https://www.google.com/recaptcha/', 'https://www.gstatic.com/recaptcha/', 'https://cdn.jsdelivr.net', 'https://www.googletagmanager.com', 'https://www.google-analytics.com'],
       frameSrc: ['https://recaptcha.net', 'https://www.google.com/recaptcha/'],
+      imgSrc: ["'self'", 'data:', 'https://items-images-production.s3.us-west-2.amazonaws.com', 'https://items-images-sandbox.s3.us-west-2.amazonaws.com', 'https://*.squarecdn.com'],
       styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://cdnjs.cloudflare.com', 'https://cdn.jsdelivr.net'],
       connectSrc: ["'self'", 'https://cdn.jsdelivr.net', 'https://googletagmanager.com', 'https://www.googletagmanager.com', 'https://www.google-analytics.com', 'https://analytics.google.com'],
     },
@@ -590,6 +591,176 @@ app.get('/api/products', asyncHandler(async (req, res) => {
       error: 'Failed to fetch products',
       message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
       timestamp: new Date().toISOString()
+    });
+  }
+}));
+
+// ============================================================
+// Square Catalog API
+// ============================================================
+
+// In-memory cache for Square catalog data (5-minute TTL)
+let catalogCache = { data: null, timestamp: 0 };
+const CATALOG_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+/**
+ * Get products from Square Catalog
+ * GET /api/square/catalog
+ */
+app.get('/api/square/catalog', asyncHandler(async (req, res) => {
+  try {
+    const now = Date.now();
+
+    // Return cached data if still fresh
+    if (catalogCache.data && (now - catalogCache.timestamp) < CATALOG_CACHE_TTL) {
+      console.log('Serving Square catalog from cache');
+      return res.json(catalogCache.data);
+    }
+
+    // Fetch catalog items with related objects (images)
+    const { result } = await catalogApi.searchCatalogObjects({
+      objectTypes: ['ITEM'],
+      includeRelatedObjects: true,
+    });
+
+    const items = result.objects || [];
+    const relatedObjects = result.relatedObjects || [];
+
+    // Build image lookup from related objects
+    const imageMap = {};
+    relatedObjects.forEach(obj => {
+      if (obj.type === 'IMAGE' && obj.imageData?.url) {
+        imageMap[obj.id] = obj.imageData.url;
+      }
+    });
+
+    // Build category lookup from related objects
+    const categoryMap = {};
+    relatedObjects.forEach(obj => {
+      if (obj.type === 'CATEGORY' && obj.categoryData?.name) {
+        categoryMap[obj.id] = obj.categoryData.name;
+      }
+    });
+
+    // Transform to frontend-friendly format
+    const products = items.map(item => {
+      const itemData = item.itemData || {};
+      const variation = itemData.variations?.[0];
+      const variationData = variation?.itemVariationData;
+      const priceMoney = variationData?.priceMoney;
+      const priceAmount = priceMoney ? Number(priceMoney.amount) : 0;
+      const currency = priceMoney?.currency || 'USD';
+
+      // Find image URL from item's imageIds
+      let imageUrl = null;
+      if (itemData.imageIds && itemData.imageIds.length > 0) {
+        imageUrl = imageMap[itemData.imageIds[0]] || null;
+      }
+
+      // Find category name
+      let category = null;
+      if (itemData.categoryId) {
+        category = categoryMap[itemData.categoryId] || null;
+      }
+
+      return {
+        id: item.id,
+        name: itemData.name || 'Unnamed Product',
+        description: itemData.description || '',
+        price: priceAmount,
+        priceFormatted: `$${(priceAmount / 100).toFixed(2)}`,
+        currency,
+        imageUrl,
+        variationId: variation?.id || null,
+        category,
+      };
+    });
+
+    const responseData = {
+      success: true,
+      data: {
+        count: products.length,
+        products,
+      },
+      timestamp: new Date().toISOString(),
+    };
+
+    // Update cache
+    catalogCache = { data: responseData, timestamp: now };
+    console.log(`Fetched ${products.length} products from Square catalog`);
+
+    res.json(responseData);
+  } catch (error) {
+    console.error('Error fetching Square catalog:', error.message);
+    res.status(500).json({
+      success: false,
+      data: { count: 0, products: [] },
+      error: 'Failed to fetch catalog',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
+      timestamp: new Date().toISOString(),
+    });
+  }
+}));
+
+/**
+ * Create a Square checkout from catalog variation IDs
+ * POST /api/square/checkout
+ */
+app.post('/api/square/checkout', checkoutLimiter, asyncHandler(async (req, res) => {
+  const { items } = req.body;
+
+  if (!items || !Array.isArray(items) || items.length === 0) {
+    return res.status(400).json({ error: 'No items provided' });
+  }
+
+  // Validate each item
+  for (const item of items) {
+    if (!item.variationId || typeof item.variationId !== 'string') {
+      return res.status(400).json({ error: 'Each item must have a variationId' });
+    }
+    if (!item.quantity || typeof item.quantity !== 'number' || item.quantity < 1 || item.quantity > 100) {
+      return res.status(400).json({ error: 'Each item must have a quantity between 1 and 100' });
+    }
+  }
+
+  if (!process.env.SQUARE_LOCATION_ID) {
+    return res.status(500).json({
+      error: 'Configuration Error',
+      message: 'Location not configured',
+    });
+  }
+
+  try {
+    const lineItems = items.map(item => ({
+      catalogObjectId: sanitizeInput(item.variationId),
+      quantity: String(Math.floor(item.quantity)),
+    }));
+
+    const checkoutResponse = await checkoutApi.createPaymentLink({
+      idempotencyKey: uuidv4(),
+      order: {
+        locationId: process.env.SQUARE_LOCATION_ID,
+        lineItems,
+      },
+      checkoutOptions: {
+        redirectUrl: `${process.env.APP_URL || 'http://localhost:3000'}/pages/order-success.html`,
+        askForShippingAddress: true,
+      },
+    });
+
+    if (checkoutResponse.result?.paymentLink) {
+      res.json({
+        success: true,
+        checkoutUrl: checkoutResponse.result.paymentLink.url,
+      });
+    } else {
+      throw new Error('Failed to create checkout');
+    }
+  } catch (error) {
+    console.error('Square checkout error:', error.message);
+    res.status(500).json({
+      error: 'Failed to create checkout',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Unable to create checkout',
     });
   }
 }));
