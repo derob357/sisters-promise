@@ -627,26 +627,42 @@ app.get('/api/square/catalog', asyncHandler(async (req, res) => {
     const relatedObjects = result.relatedObjects || [];
 
     // Filter to only include visible/active items
+    const locationId = process.env.SQUARE_LOCATION_ID;
     const visibleItems = items.filter(item => {
-      // Exclude deleted items
-      if (item.isDeleted) return false;
+      // Exclude deleted or archived items
+      if (item.isDeleted || item.isArchived) return false;
 
       // Exclude items without item data
       if (!item.itemData) return false;
 
-      // Exclude items that are explicitly not available for pickup/delivery
+      // Exclude items not present at our location
+      if (!item.presentAtAllLocations) {
+        const presentAt = item.presentAtLocationIds || [];
+        if (locationId && !presentAt.includes(locationId)) return false;
+      }
+
+      // Exclude items that are explicitly not visible online
       const itemData = item.itemData;
+      if (itemData.ecomVisibility === 'HIDDEN') return false;
+
+      // Exclude items that are explicitly not available anywhere
       if (itemData.availableForPickup === false && itemData.availableElectronically === false && itemData.availableOnline === false) {
         return false;
       }
 
-      // Exclude items without any active variations
+      // Exclude items without any active variations at our location
       const variations = itemData.variations || [];
-      const hasActiveVariation = variations.some(v =>
-        !v.isDeleted &&
-        v.itemVariationData &&
-        v.itemVariationData.itemId === item.id
-      );
+      const hasActiveVariation = variations.some(v => {
+        if (v.isDeleted || v.isArchived) return false;
+        if (!v.itemVariationData || v.itemVariationData.itemId !== item.id) return false;
+
+        // Check variation is present at our location
+        if (!v.presentAtAllLocations) {
+          const vPresentAt = v.presentAtLocationIds || [];
+          if (locationId && !vPresentAt.includes(locationId)) return false;
+        }
+        return true;
+      });
 
       return hasActiveVariation;
     });
