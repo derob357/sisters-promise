@@ -65,14 +65,14 @@ class UserService {
           firstName: 'Denise',
           lastName: 'Robinson',
           role: 'owner',
-          password: process.env.OWNER_PASSWORD || '***REMOVED***',
+          password: process.env.OWNER_PASSWORD || crypto.randomUUID(),
         },
         {
           email: 'deric.robinson71@gmail.com',
           firstName: 'Deric',
           lastName: 'Robinson',
           role: 'admin',
-          password: process.env.ADMIN_PASSWORD || '***REMOVED***',
+          password: process.env.ADMIN_PASSWORD || crypto.randomUUID(),
         },
       ];
 

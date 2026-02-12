@@ -36,3 +36,18 @@ PRODUCT_INVENTORY.md
 
 # Test/debug pages
 pages/square-test.html
+
+# Test scripts (contain credential references)
+test_all_endpoints.js
+test_all_endpoints_fast.js
+test_rewards_endpoints.js
+regression_test_suite.js
+
+# Backup files
+*.bak
+
+# Material Kit template demo files (not production)
+sections/
+presentation.html
+docs/documentation.html
+pages/author.html

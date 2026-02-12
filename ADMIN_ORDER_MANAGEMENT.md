@@ -28,11 +28,11 @@ https://sisterspromise.com/admin-order-dashboard.html
 ### Default Admin Users
 1. **Owner**: Denise Robinson
    - Email: `denise@sisterspromise.com`
-   - Default Password: `***REMOVED***`
+   - Password: Set via `OWNER_PASSWORD` environment variable
 
 2. **Admin**: Deric Robinson
    - Email: `deric.robinson71@gmail.com`
-   - Default Password: `***REMOVED***`
+   - Password: Set via `ADMIN_PASSWORD` environment variable
 
 ### Login Process
 1. Navigate to the dashboard URL
