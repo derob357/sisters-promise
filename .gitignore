@@ -33,3 +33,6 @@ certs/
 # Local scripts and inventory
 list-square-products.js
 PRODUCT_INVENTORY.md
+
+# Test/debug pages
+pages/square-test.html
