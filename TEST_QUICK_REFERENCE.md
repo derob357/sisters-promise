@@ -2,238 +2,163 @@
 
 ## Running Tests - Fast Reference
 
-### Backend API Tests
+### Backend Tests (Jest)
 
 ```bash
 # All backend tests
 npm test
 
-# Watch mode (re-run on changes)
-npm test -- --watch
+# Verbose output
+npm run test:verbose
 
 # With coverage report
-npm test -- --coverage
+npm run test:coverage
 
 # Specific test file
-npm test cartService.test.js
+npx jest tests/middleware/auth.test.js
+
+# Watch mode (re-run on changes)
+npx jest --watch
+
+# Run by name pattern
+npx jest --testNamePattern="should lock account"
+```
+
+### Mobile App Tests (Jest)
+
+```bash
+cd SistersPromiseMobile
+
+# All mobile tests
+npm test
 
 # Verbose output
 npm test -- --verbose
 
-# Update snapshots
-npm test -- --updateSnapshot
-```
-
-### Regression Test Suite
-
-```bash
-# Full regression suite
-npm run test:regression
-
-# Auth & Security tests
-npm run test:regression -- --category auth
-
-# Order tests
-npm run test:regression -- --category orders
-
-# Rewards system tests
-npm run test:regression -- --category rewards
-
 # With coverage
-npm run test:regression -- --coverage
+npm test -- --coverage
 
-# For CI/CD
-npm run test:regression -- --ci --json --coverage
-```
-
-### Mobile App Tests
-
-```bash
-# All mobile tests
-cd SistersPromiseMobile
-npm test
+# Specific test file
+npm test -- src/__tests__/cartService.test.js
 
 # Watch mode
 npm test -- --watch
-
-# Coverage
-npm test -- --coverage
-
-# E2E tests (Detox)
-npm run test:detox
-
-# Specific component
-npm test HomeScreen
 ```
 
-### API Endpoint Health Check
+### Manual API Health Checks
 
 ```bash
-# Quick endpoint check (requires running server)
+# These require a running server (npm start)
 node endpoint_status_check.js
-
-# Comprehensive rewards test
-node test_rewards_endpoints.js
-
-# All endpoint test
 node test_all_endpoints_fast.js
+node test_rewards_endpoints.js
 ```
 
 ---
 
-## Test Files Overview
+## Test Suites Overview
 
-### Backend Tests
-- `test-error-handling.js` - Error handling verification
-- `test_rewards_endpoints.js` - Rewards system testing
-- `test_all_endpoints.js` - Comprehensive endpoint testing
-- `test_all_endpoints_fast.js` - Quick endpoint status check
-- `endpoint_status_check.js` - Health check utility
+### Backend Tests (`tests/`)
 
-### Mobile Tests
-- `SistersPromiseMobile/src/__tests__/api.test.js` - API service tests
-- `SistersPromiseMobile/src/__tests__/cartService.test.js` - Cart functionality
-- `SistersPromiseMobile/TESTING.md` - Mobile testing guide
+| File | Tests | Coverage |
+|------|-------|----------|
+| `tests/middleware/auth.test.js` | 13 | authenticate, authorize, requirePermission, generateToken |
+| `tests/services/UserService.test.js` | 20 | CRUD, auth flows, account lockout, role management |
+| `tests/services/EmailService.test.js` | 14 | Templates, welcome emails, newsletters, order confirmation |
+| `tests/services/AnalyticsService.test.js` | 9 | GA4 tracking, event sending, hashing, client IDs |
+| `tests/utils/sanitizeInput.test.js` | 8 | XSS prevention, truncation, edge cases |
+| **Total** | **63** | |
 
----
+### Mobile Tests (`SistersPromiseMobile/src/__tests__/`)
 
-## Test Coverage Goals
+| File | Tests | Coverage |
+|------|-------|----------|
+| `api.test.js` | 5 | Request/response interceptors, auth headers |
+| `authService.test.js` | 19 | Login, register, profile, password, token management |
+| `authContext.test.js` | 10 | Bootstrap, login/register/logout flows |
+| `cartService.test.js` | 9 | Cart calculations and AsyncStorage operations |
+| `cartServiceIntegration.test.js` | 22 | Full cart CRUD, image handling, error cases |
+| `cartScreen.test.js` | 10 | Empty cart, calculations, checkout prep, quantity ops |
+| `productService.test.js` | 22 | Multiple response formats, search, categories |
+| `analyticsService.test.js` | 21 | Events, screen views, purchases, user properties |
+| `rewardsService.test.js` | 19 | Rewards, BOGO offers, bundles, points, gift options |
+| `imageUtil.test.js` | 30 | URL encoding, safe image sources, product image extraction |
+| `theme.test.js` | 12 | Colors, typography, spacing, shadows |
+| `homeScreen.test.js` | 18 | Categories, search, BOGO matching, featured bundles |
+| `loginScreen.test.js` | 10 | Email/password validation, form validation |
+| `navigation.test.js` | 15 | Auth navigator, tab structure, stack screens, root logic |
+| `cartContext.test.js` | 11 | Load, add, remove, update, clear, calculations |
+| **Total** | **233** | |
 
-| Component | Target | Current | Status |
-|-----------|--------|---------|--------|
-| Backend API | 80% | 70% | 🟡 In Progress |
-| Mobile Services | 70% | 45% | 🟡 In Progress |
-| Mobile Components | 60% | 30% | 🟡 In Progress |
-| Database Layer | 75% | 60% | 🟡 In Progress |
-| Authentication | 90% | 85% | 🟢 Good |
-| Rewards System | 85% | 90% | 🟢 Good |
+### Manual Test Scripts (root directory)
+
+These are Node.js scripts that test against a running server — not part of the Jest suite:
+
+- `endpoint_status_check.js` — Quick health check of API endpoints
+- `test_all_endpoints_fast.js` — Comprehensive endpoint status check
+- `test_rewards_endpoints.js` — Rewards system endpoint testing
+- `test-error-handling.js` — Error handling verification
 
 ---
 
 ## Pre-Release Checklist
 
-Before deploying to production:
-
 ```
 Backend:
-☐ npm test passes (100%)
-☐ npm run test:regression passes (100%)
-☐ Code coverage ≥80%
-☐ node endpoint_status_check.js passes
-☐ Performance benchmarks met
-☐ Security tests passing
-☐ No console errors/warnings
+☐ npm test passes (all 63 tests)
+☐ npm run test:coverage meets targets
+☐ node endpoint_status_check.js passes (requires running server)
 
 Mobile:
-☐ npm test passes (100%)
-☐ npm run test:detox passes
-☐ All critical user flows tested
-☐ Performance acceptable
-☐ No memory leaks
-☐ App builds successfully
+☐ cd SistersPromiseMobile && npm test passes (all 233 tests)
+☐ App builds successfully (iOS + Android)
+☐ Manual testing of critical user flows
 
 System:
-☐ E2E tests passing
 ☐ No critical bugs
-☐ Security audit passed
 ☐ Documentation updated
-☐ Deployment procedure verified
 ```
-
----
-
-## Performance Benchmarks
-
-### API Response Times
-```
-✓ GET /api/products - < 500ms
-✓ GET /api/rewards/offers - < 300ms
-✓ POST /api/checkout - < 1000ms
-✓ GET /api/admin/stats - < 500ms
-✓ POST /api/orders - < 800ms
-```
-
-### Mobile Performance
-```
-✓ App launch - < 3 seconds
-✓ Screen transition - < 500ms
-✓ List scroll - 60fps
-✓ Memory usage - < 200MB
-✓ Battery drain - minimal
-```
-
----
-
-## CI/CD Integration
-
-Tests run automatically on:
-- ✓ Every commit to main
-- ✓ Every pull request
-- ✓ Nightly full regression
-- ✓ Before production deploy
-
-Status: See GitHub Actions workflow
 
 ---
 
 ## Known Test Gaps
 
 Still need to implement:
-- [ ] Payment processing tests (Square integration)
-- [ ] Email campaign tests
-- [ ] Chat system tests
-- [ ] Admin dashboard tests
-- [ ] Moderation workflow tests
-- [ ] Analytics aggregation tests
-- [ ] Performance load tests
-- [ ] Security penetration tests
+- [ ] Payment processing tests (Square checkout/payment flows)
+- [ ] Chat system tests (ChatService, WebSocket)
+- [ ] Mongoose model tests (Product, EmailSubscriber, etc.)
+- [ ] API route integration tests (server.js endpoints)
+- [ ] Admin route tests
+- [ ] Mobile E2E tests (Detox not yet configured)
+- [ ] Performance / load testing
 
 ---
 
-## Getting Help
+## Test Debugging Tips
 
-### Test Debugging
 ```bash
 # Run with more verbose output
-npm test -- --verbose
+npm run test:verbose
 
 # Run single test in isolation
-npm test -- --testNamePattern="should add item to cart"
+npx jest --testNamePattern="should add item to cart"
 
-# Debug test file
-node --inspect-brk node_modules/.bin/jest --runInBand cartService.test.js
+# Debug a test file
+node --inspect-brk node_modules/.bin/jest --runInBand tests/middleware/auth.test.js
 ```
 
 ### Common Issues
 
-**Issue:** Tests timing out
-```
-Solution: Increase timeout
-jest.setTimeout(10000); // 10 seconds
-```
-
-**Issue:** Async test not working
-```
-Solution: Return promise or use async/await
-it('should fetch data', async () => {
-  const data = await fetchData();
-  expect(data).toBeDefined();
-});
+**Tests timing out:** Increase timeout in jest.config.js (currently 10000ms) or per-test:
+```js
+jest.setTimeout(15000);
 ```
 
-**Issue:** Mock not working
-```
-Solution: Clear mocks between tests
+**Mock not resetting:** Ensure mocks are cleared:
+```js
 beforeEach(() => {
   jest.clearAllMocks();
 });
 ```
 
----
-
-## Contact & Escalation
-
-- Test Framework Issues: Check Jest docs
-- Mobile Testing: See TESTING.md
-- Backend Testing: Check test files
-- CI/CD Pipeline: Review GitHub Actions
+**Module collision warning:** The `dist/` folder has a duplicate package.json. This is a harmless warning.
