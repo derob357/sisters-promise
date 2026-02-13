@@ -780,6 +780,7 @@
           <li class="nav-item"><a class="nav-link" href="ingredients.html">Ingredients</a></li>
           <li class="nav-item"><a class="nav-link" href="about-us.html">About</a></li>
           <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+          <li class="nav-item" id="auth-nav-item"></li>
         </ul>
       </div>
     </div>
@@ -824,6 +825,17 @@
             <p>Use your points for discounts on future orders or claim free gifts. Every 100 points equals $1.00 toward your next purchase.</p>
           </div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- My Rewards Dashboard (Authenticated) -->
+  <section style="padding: 50px 20px; background: white;">
+    <div class="container">
+      <h2 class="section-title">My Rewards</h2>
+      <p class="section-subtitle">Your personal rewards dashboard</p>
+      <div id="rewards-dashboard">
+        <!-- Populated by rewards-dashboard.js -->
       </div>
     </div>
   </section>
@@ -974,13 +986,17 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <p>&copy; 2026 Sister's Promise. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms &amp; Conditions</a></p>
+        <p>&copy; 2026 Sister's Promise. All rights reserved. | <a href="privacy-policy.html">Privacy Policy</a> | <a href="terms-conditions.html">Terms &amp; Conditions</a></p>
       </div>
     </div>
   </footer>
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Auth & Rewards Dashboard -->
+  <script src="../assets/js/auth.js"></script>
+  <script src="../assets/js/rewards-dashboard.js"></script>
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {

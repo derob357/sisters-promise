@@ -26,11 +26,11 @@ const connectDB = async () => {
     console.log(`📍 Using URI: ${MONGODB_URI.replace(/\/\/[^:]+:[^@]+@/, '//****:****@')}`);
     
     await mongoose.connect(MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 30000, // Increased from 5000 to 30000ms
+      serverSelectionTimeoutMS: 30000,
       socketTimeoutMS: 45000,
       connectTimeoutMS: 30000,
+      maxPoolSize: 10,
+      minPoolSize: 2,
     });
     console.log('✅ MongoDB connected successfully');
     console.log(`📊 Database: ${mongoose.connection.db.databaseName}`);

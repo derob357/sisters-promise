@@ -90,15 +90,8 @@ const manualOrderSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-    index: true,
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now,
-  },
+}, {
+  timestamps: true,
 });
 
 // Indexes for performance

@@ -67,6 +67,42 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
+## Claude Code Tooling
+
+### Custom Slash Commands
+
+| Command | Purpose |
+|---------|---------|
+| `/deploy` | Run tests (backend + mobile), commit, push submodule + parent |
+| `/add-to-all-pages` | Bulk-inject HTML snippets across all 12 site pages with correct relative paths |
+| `/check-nav` | Audit navbar consistency (menu order, active states, auth-nav-item, hrefs) |
+| `/refactor-routes` | Plan server.js split into route modules (enters plan mode first) |
+
+Skills are defined in `.claude/skills/*/SKILL.md`.
+
+### Hooks (`.claude/settings.json`)
+
+- **Post-Edit (HTML)**: Warns if an edited HTML file has a navbar but is missing `id="auth-nav-item"`
+- **Post-Bash (git commit)**: Reminds about unpushed SistersPromiseMobile submodule commits
+
+Hook scripts live in `.claude/hooks/`.
+
+### MCP Servers (`.mcp.json`)
+
+| Server | Package | Purpose |
+|--------|---------|---------|
+| `filesystem` | `@modelcontextprotocol/server-filesystem` | Bulk file operations scoped to project directory |
+| `mongodb` | `mongodb-mcp-server` | Read-only DB queries during development (uses `MONGODB_URI` from env) |
+
+Note: `@modelcontextprotocol/server-git` does not exist. Git operations use the Bash tool.
+
+### Site Pages (for /add-to-all-pages and /check-nav)
+
+Root: `index.html` (paths: `./assets/`, `./pages/`)
+Pages: `pages/shop.html`, `pages/ingredients.html`, `pages/about-us.html`, `pages/contact.html`, `pages/product-detail.html`, `pages/order-success.html`, `pages/product-seamoss-aloe.html`, `pages/privacy-policy.html`, `pages/terms-conditions.html`, `pages/rewards.html`, `pages/sign-in.html` (paths: `../assets/`, peer filenames)
+
+---
+
 ## Active Todo List
 
 > All entries include timestamps (date + time). Update timestamps when items are modified or completed.

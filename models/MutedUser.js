@@ -30,7 +30,6 @@ const mutedUserSchema = new mongoose.Schema(
                 'harassment',
                 'inappropriate_content',
                 'repeated_violations',
-                'harassment',
                 'other'
             ]
         },

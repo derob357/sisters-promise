@@ -402,18 +402,22 @@
 
     @media (max-width: 768px) {
       .hero {
-        background-size: 50%;
-        background-repeat: no-repeat;
-        background-color: #1a1a1a;
-        min-height: 350px;
+        background-image: linear-gradient(135deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.25) 100%), url('./assets/img/bg-landing002.png');
+        background-size: 100% 100%;
+        background-position: center;
+        min-height: 325px;
+        padding: 30px 20px;
       }
 
       .hero h1 {
-        font-size: 2rem;
+        font-size: 1.8rem;
+        line-height: 1.2;
+        margin-bottom: 10px;
       }
 
       .hero p {
-        font-size: 1rem;
+        font-size: 0.95rem;
+        margin-bottom: 18px;
       }
 
       .navbar-brand span {
@@ -447,6 +451,7 @@
           <li class="nav-item"><a class="nav-link" href="./pages/ingredients.html">Ingredients</a></li>
           <li class="nav-item"><a class="nav-link" href="./pages/about-us.html">About</a></li>
           <li class="nav-item"><a class="nav-link" href="./pages/contact.html">Contact</a></li>
+          <li class="nav-item" id="auth-nav-item"></li>
         </ul>
       </div>
     </div>
@@ -879,6 +884,8 @@
     });
   </script>
 
+  <!-- Auth -->
+  <script src="./assets/js/auth.js"></script>
 </body>
 
 </html>

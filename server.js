@@ -28,6 +28,7 @@ if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON && !process.env.GOOGLE_APPLI
 }
 
 // NOW require other modules that need environment variables
+const crypto = require('crypto');
 const express = require('express');
 const https = require('https');
 const http = require('http');
@@ -141,11 +142,17 @@ const corsOptions = {
   origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000', 'http://localhost:5000'],
   credentials: true,
   methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'X-Requested-With'],
+  allowedHeaders: ['Content-Type', 'X-Requested-With', 'Authorization'],
   maxAge: 3600,
 };
 
 app.use(cors(corsOptions));
+
+// Request ID tracking
+app.use((req, res, next) => {
+  req.id = crypto.randomUUID();
+  next();
+});
 
 // Body parser middleware with limits
 app.use(express.json({ limit: '10kb' }));
@@ -243,6 +250,16 @@ app.use(express.static(__dirname, {
   maxAge: '1h',
   etag: false,
 }));
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    uptime: process.uptime(),
+    dbConnected: isConnected(),
+    timestamp: new Date().toISOString(),
+  });
+});
 
 // Route handlers for HTML pages
 app.get('/', (req, res) => {
@@ -2000,7 +2017,6 @@ const PORT = process.env.PORT || 3000;
 // Graceful shutdown
 process.on('unhandledRejection', (err) => {
   console.error('Unhandled Rejection:', err);
-  process.exit(1);
 });
 
 // Routes after 404 handler removed - they were unreachable
@@ -2090,7 +2106,7 @@ app.post('/api/admin/users', authenticate, adminOrOwner, async (req, res) => {
  * PUT /api/admin/users/:userId/role
  * Assign role to user (owner only)
  */
-app.put('/api/admin/users/:userId/role', authenticate, ownerOnly, async (req, res) => {
+app.put('/api/admin/users/:userId/role', authenticate, ownerOnly, asyncHandler(async (req, res) => {
   try {
     const { role } = req.body;
 
@@ -2115,13 +2131,13 @@ app.put('/api/admin/users/:userId/role', authenticate, ownerOnly, async (req, re
       error: error.message,
     });
   }
-});
+}));
 
 /**
  * PUT /api/admin/users/:userId/suspend
  * Suspend user account (admin/owner only)
  */
-app.put('/api/admin/users/:userId/suspend', authenticate, adminOrOwner, async (req, res) => {
+app.put('/api/admin/users/:userId/suspend', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
   try {
     const { reason } = req.body;
     const user = await UserService.suspendUser(req.params.userId, reason);
@@ -2137,13 +2153,13 @@ app.put('/api/admin/users/:userId/suspend', authenticate, adminOrOwner, async (r
       error: error.message,
     });
   }
-});
+}));
 
 /**
  * PUT /api/admin/users/:userId/deactivate
  * Deactivate user account (admin/owner only)
  */
-app.put('/api/admin/users/:userId/deactivate', authenticate, adminOrOwner, async (req, res) => {
+app.put('/api/admin/users/:userId/deactivate', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
   try {
     const user = await UserService.deactivateUser(req.params.userId);
 
@@ -2158,13 +2174,13 @@ app.put('/api/admin/users/:userId/deactivate', authenticate, adminOrOwner, async
       error: error.message,
     });
   }
-});
+}));
 
 /**
  * PUT /api/admin/users/:userId/reactivate
  * Reactivate user account (admin/owner only)
  */
-app.put('/api/admin/users/:userId/reactivate', authenticate, adminOrOwner, async (req, res) => {
+app.put('/api/admin/users/:userId/reactivate', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
   try {
     const user = await UserService.reactivateUser(req.params.userId);
 
@@ -2179,13 +2195,13 @@ app.put('/api/admin/users/:userId/reactivate', authenticate, adminOrOwner, async
       error: error.message,
     });
   }
-});
+}));
 
 /**
  * DELETE /api/admin/users/:userId
  * Delete user (owner only)
  */
-app.delete('/api/admin/users/:userId', authenticate, ownerOnly, async (req, res) => {
+app.delete('/api/admin/users/:userId', authenticate, ownerOnly, asyncHandler(async (req, res) => {
   try {
     await UserService.deleteUser(req.params.userId);
 
@@ -2199,7 +2215,7 @@ app.delete('/api/admin/users/:userId', authenticate, ownerOnly, async (req, res)
       error: error.message,
     });
   }
-});
+}));
 
 // ==================== MANUAL ORDER MANAGEMENT (ADMIN/OWNER ONLY) ====================
 
@@ -3345,241 +3361,6 @@ app.post('/api/chat/mute-check', authenticate, asyncHandler(async (req, res) => 
   }
 }));
 
-// ==================== ANALYTICS ENDPOINTS ====================
-
-/**
- * POST /api/analytics/event
- * Track custom event
- */
-app.post('/api/analytics/event', async (req, res) => {
-  try {
-    const { eventName, eventData, userId } = req.body;
-
-    if (!eventName) {
-      return res.status(400).json({
-        success: false,
-        error: 'Event name is required',
-      });
-    }
-
-    await AnalyticsService.trackEvent(eventName, eventData || {}, userId);
-
-    res.json({
-      success: true,
-      message: 'Event tracked successfully',
-    });
-  } catch (error) {
-    console.error('Analytics error:', error.message);
-    res.status(500).json({
-      success: false,
-      error: error.message,
-    });
-  }
-});
-
-/**
- * POST /api/analytics/signup
- * Track user signup
- */
-app.post('/api/analytics/signup', async (req, res) => {
-  try {
-    const { email, userType } = req.body;
-
-    if (!email) {
-      return res.status(400).json({
-        success: false,
-        error: 'Email is required',
-      });
-    }
-
-    await AnalyticsService.trackSignup(email, userType || 'standard');
-
-    res.json({
-      success: true,
-      message: 'Signup tracked successfully',
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message,
-    });
-  }
-});
-
-/**
- * POST /api/analytics/purchase
- * Track purchase event
- */
-app.post('/api/analytics/purchase', async (req, res) => {
-  try {
-    const { userId, transactionId, value, currency, items, paymentMethod } = req.body;
-
-    if (!transactionId || !value) {
-      return res.status(400).json({
-        success: false,
-        error: 'Transaction ID and value are required',
-      });
-    }
-
-    await AnalyticsService.trackPurchase({
-      userId,
-      transactionId,
-      value,
-      currency: currency || 'USD',
-      items: items || [],
-      paymentMethod: paymentMethod || 'card',
-    });
-
-    res.json({
-      success: true,
-      message: 'Purchase tracked successfully',
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message,
-    });
-  }
-});
-
-/**
- * POST /api/analytics/email-subscription
- * Track email subscription
- */
-app.post('/api/analytics/email-subscription', async (req, res) => {
-  try {
-    const { email, subscriptionType } = req.body;
-
-    if (!email) {
-      return res.status(400).json({
-        success: false,
-        error: 'Email is required',
-      });
-    }
-
-    await AnalyticsService.trackEmailSubscription(email, subscriptionType || 'newsletter');
-
-    res.json({
-      success: true,
-      message: 'Email subscription tracked successfully',
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message,
-    });
-  }
-});
-
-/**
- * POST /api/analytics/campaign
- * Track campaign event (sent/opened/clicked)
- */
-app.post('/api/analytics/campaign', async (req, res) => {
-  try {
-    const { action, campaignId, campaignName, email, recipientCount, linkUrl } = req.body;
-
-    if (!action || !campaignId) {
-      return res.status(400).json({
-        success: false,
-        error: 'Action and campaign ID are required',
-      });
-    }
-
-    if (action === 'sent') {
-      await AnalyticsService.trackCampaignSent(campaignId, campaignName, recipientCount);
-    } else if (action === 'opened') {
-      await AnalyticsService.trackCampaignOpened(campaignId, email);
-    } else if (action === 'clicked') {
-      await AnalyticsService.trackCampaignClicked(campaignId, email, linkUrl);
-    } else {
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid action. Must be: sent, opened, or clicked',
-      });
-    }
-
-    res.json({
-      success: true,
-      message: `Campaign ${action} tracked successfully`,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message,
-    });
-  }
-});
-
-/**
- * POST /api/analytics/product
- * Track product events (view, add to cart, etc)
- */
-app.post('/api/analytics/product', async (req, res) => {
-  try {
-    const { action, productId, productName, category, price, userId, quantity } = req.body;
-
-    if (!action || !productId) {
-      return res.status(400).json({
-        success: false,
-        error: 'Action and product ID are required',
-      });
-    }
-
-    if (action === 'view') {
-      await AnalyticsService.trackProductView(productId, productName, category, price);
-    } else if (action === 'add_to_cart') {
-      await AnalyticsService.trackAddToCart(userId, productId, productName, price, quantity);
-    } else if (action === 'search') {
-      await AnalyticsService.trackSearch(productName, 1);
-    } else {
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid action. Must be: view, add_to_cart, or search',
-      });
-    }
-
-    res.json({
-      success: true,
-      message: `Product ${action} tracked successfully`,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message,
-    });
-  }
-});
-
-/**
- * POST /api/analytics/form
- * Track form submission
- */
-app.post('/api/analytics/form', async (req, res) => {
-  try {
-    const { formName, userId } = req.body;
-
-    if (!formName) {
-      return res.status(400).json({
-        success: false,
-        error: 'Form name is required',
-      });
-    }
-
-    await AnalyticsService.trackFormSubmission(formName, userId);
-
-    res.json({
-      success: true,
-      message: 'Form submission tracked successfully',
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message,
-    });
-  }
-});
-
 // =============================================================================
 // REWARDS API ENDPOINTS
 // =============================================================================
@@ -4030,10 +3811,17 @@ app.use((req, res) => {
   });
 });
 
-process.on('SIGTERM', () => {
-  console.log('SIGTERM signal received: closing HTTPS server');
+const gracefulShutdown = async (signal) => {
+  console.log(`${signal} received. Shutting down gracefully...`);
+  if (httpsServer) httpsServer.close();
+  if (httpServer) httpServer.close();
+  const { disconnectDB } = require('./config/database');
+  await disconnectDB();
   process.exit(0);
-});
+};
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 // Load SSL certificates for HTTPS
 const certPath = path.join(__dirname, 'certs', 'server.crt');
