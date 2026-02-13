@@ -53,4 +53,9 @@ const productSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now }
 });
 
+// Indexes for common query patterns
+productSchema.index({ category: 1 });
+productSchema.index({ isActive: 1 });
+productSchema.index({ category: 1, isActive: 1 });
+
 module.exports = mongoose.model('Product', productSchema);

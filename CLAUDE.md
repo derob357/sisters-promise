@@ -75,33 +75,29 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - [ ] `2025-02-12 16:30` Rotate all exposed API keys (Square, MongoDB, JWT, reCAPTCHA, SMTP) — previously committed to git history
 - [ ] `2025-02-12 16:30` Scrub credentials from git history (BFG Repo-Cleaner or git filter-branch)
-- [ ] `2025-02-12 16:30` Remove hardcoded IP in `SistersPromiseMobile/ios/SistersPromiseMobile/AppDelegate.swift:21`
-
-### High
-
-- [ ] `2025-02-12 16:30` Fix `genezio.yaml` — project named `material-kit`, wrong frontend path
-- [ ] `2025-02-12 16:30` Create TermsOfService screen (mobile) — `SistersPromiseMobile/src/navigation/AppNavigator.js:77` falls back to ProfileScreen
-- [ ] `2025-02-12 16:30` Fix hardcoded API base URL (mobile) — `SistersPromiseMobile/src/services/api.js:16` ignores .env config
 
 ### Medium
 
 - [ ] `2025-02-12 16:30` Add input validation library (joi/zod) for API inputs
 - [ ] `2025-02-12 16:30` Replace console.log with structured logging in server.js and mobile App.tsx
-- [ ] `2025-02-12 16:30` Add database indexes on Product.category, Product.isActive, Product.squareVariationId
-- [ ] `2025-02-12 16:30` Standardize API error response format across all endpoints
-- [ ] `2025-02-12 16:30` Fix `render.yaml` — SQUARE_ENVIRONMENT set to sandbox
 - [ ] `2025-02-12 16:30` Complete rewards feature (mobile) — HomeScreen.js:161 shows "coming soon"
 
 ### Low
 
-- [ ] `2025-02-12 16:30` Fix CLAUDE.md version info (React Native 0.83.1 should be 0.73.7 in mobile CLAUDE.md)
 - [ ] `2025-02-12 16:30` Run accessibility audit on HTML pages
 - [ ] `2025-02-12 16:30` Add GitHub Actions CI for automated test/lint on PRs
-- [ ] `2025-02-12 16:30` Clean up unused test scripts in root directory
-- [ ] `2025-02-12 16:30` Remove unused `material-kit` dependency from package.json
 
 ### Completed
 
+- [x] `2026-02-13 12:00` Remove hardcoded IP in AppDelegate.swift — commented out, requires manual config
+- [x] `2026-02-13 12:00` Fix `genezio.yaml` — renamed from `material-kit` to `sisters-promise`
+- [x] `2026-02-13 12:00` Create TermsOfService screen (mobile) — new screen + navigator wired up
+- [x] `2026-02-13 12:00` Fix hardcoded API base URL (mobile) — now reads from env with fallback
+- [x] `2026-02-13 12:00` Add database indexes on Product.category, Product.isActive
+- [x] `2026-02-13 12:00` Fix `render.yaml` — SQUARE_ENVIRONMENT changed to production
+- [x] `2026-02-13 12:00` Fix CLAUDE.md version info (corrected to RN 0.73.7, React 18.2.0)
+- [x] `2026-02-13 12:00` Clean up unused test scripts in root directory
+- [x] `2026-02-13 12:00` Remove unused `material-kit` dependency from package.json
 - [x] `2025-02-12 15:45` Add backend test suite (Jest, 63 tests across 5 suites)
 - [x] `2025-02-12 15:45` Expand mobile test suite (14 → 233 tests across 15 suites)
 - [x] `2025-02-12 15:50` Rewrite TEST_QUICK_REFERENCE.md with accurate info

@@ -1,5 +1,5 @@
 # The name of the project.
-name: material-kit
+name: sisters-promise
 # The region where the project is deployed.
 region: us-east-1
 # The version of the Genezio YAML configuration to parse.
