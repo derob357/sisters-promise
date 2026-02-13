@@ -3930,6 +3930,46 @@ app.get('/api/rewards/free-gifts', asyncHandler(async (req, res) => {
   }
 }));
 
+/**
+ * POST /api/rewards/apply-bogo
+ * Apply a BOGO offer to a product
+ */
+app.post('/api/rewards/apply-bogo', authenticate, asyncHandler(async (req, res) => {
+  try {
+    const { offerId, productId } = req.body;
+
+    if (!offerId || !productId) {
+      return res.status(400).json({ error: 'offerId and productId are required' });
+    }
+
+    // Find the offer
+    const offer = await SpecialOffer.findById(offerId);
+    if (!offer || !offer.active) {
+      return res.status(404).json({ error: 'Offer not found or inactive' });
+    }
+
+    // Check if offer is still valid
+    const now = new Date();
+    if (offer.validUntil && new Date(offer.validUntil) < now) {
+      return res.status(400).json({ error: 'Offer has expired' });
+    }
+
+    // Calculate discount
+    const discount = offer.discountPercent || 0;
+
+    res.json({
+      success: true,
+      applied: true,
+      offerId: offer._id,
+      discountPercent: discount,
+      offerTitle: offer.title,
+    });
+  } catch (error) {
+    console.error('Apply BOGO error:', error);
+    res.status(500).json({ error: 'Failed to apply offer' });
+  }
+}));
+
 // Admin rewards management endpoints
 app.post('/api/admin/rewards/offers', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
   const offer = new SpecialOffer(req.body);
