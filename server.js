@@ -3335,6 +3335,181 @@ app.post('/api/chat/mute-check', authenticate, asyncHandler(async (req, res) => 
   }
 }));
 
+// ==================== BLOG ENDPOINTS ====================
+
+const BlogService = require('./services/BlogService');
+
+// Optional auth - attaches user if token present, otherwise continues
+const optionalAuth = async (req, res, next) => {
+  try {
+    const authToken = req.headers.authorization?.split(' ')[1];
+    if (authToken) {
+      const decoded = jwt.verify(authToken, process.env.JWT_SECRET);
+      const user = await User.findOne({ id: decoded.userId, status: 'active' });
+      if (user) req.user = user;
+    }
+  } catch (e) { /* Continue without auth */ }
+  next();
+};
+
+// Rate limiter for blog comments
+const blogCommentLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  message: { error: 'Too many comments, please try again later.' },
+});
+
+// List published posts (paginated)
+app.get('/api/blog/posts', generalLimiter, asyncHandler(async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = Math.min(parseInt(req.query.limit) || 10, 50);
+  const sort = req.query.sort || 'newest';
+
+  const result = await BlogService.getPublishedPosts(page, limit, sort);
+
+  res.json({
+    success: true,
+    data: result,
+    timestamp: new Date().toISOString()
+  });
+}));
+
+// Featured posts for homepage
+app.get('/api/blog/posts/featured', generalLimiter, asyncHandler(async (req, res) => {
+  const limit = Math.min(parseInt(req.query.limit) || 4, 10);
+  const posts = await BlogService.getFeaturedPosts(limit);
+
+  res.json({
+    success: true,
+    data: { posts },
+    timestamp: new Date().toISOString()
+  });
+}));
+
+// Single post by slug (optional auth for vote status)
+app.get('/api/blog/posts/:slug', optionalAuth, asyncHandler(async (req, res) => {
+  const post = await BlogService.getPostBySlug(req.params.slug);
+  if (!post) {
+    return res.status(404).json({ success: false, error: 'Post not found' });
+  }
+
+  // Annotate user vote status if logged in
+  if (req.user) {
+    const userId = req.user.id;
+    const userVote = post.votes ? post.votes.find(v => v.userId === userId) : null;
+    post.userVote = userVote ? userVote.voteType : null;
+    if (post.comments) {
+      post.comments.forEach(c => {
+        const cv = c.votes ? c.votes.find(v => v.userId === userId) : null;
+        c.userVote = cv ? cv.voteType : null;
+      });
+    }
+  }
+
+  res.json({
+    success: true,
+    data: { post },
+    timestamp: new Date().toISOString()
+  });
+}));
+
+// Create blog post (admin/owner only)
+app.post('/api/blog/posts', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
+  const post = await BlogService.createPost(req.body, {
+    userId: req.user.id,
+    userName: (req.user.firstName || '') + ' ' + (req.user.lastName || ''),
+    userRole: req.user.role
+  });
+
+  res.status(201).json({
+    success: true,
+    message: 'Blog post created',
+    data: { post },
+    timestamp: new Date().toISOString()
+  });
+}));
+
+// Update blog post (admin/owner only)
+app.post('/api/blog/posts/:postId/update', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
+  const post = await BlogService.updatePost(req.params.postId, req.body);
+
+  res.json({
+    success: true,
+    message: 'Blog post updated',
+    data: { post },
+    timestamp: new Date().toISOString()
+  });
+}));
+
+// Delete blog post (admin/owner only)
+app.post('/api/blog/posts/:postId/delete', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
+  await BlogService.deletePost(req.params.postId, req.user.id);
+
+  res.json({
+    success: true,
+    message: 'Blog post deleted',
+    timestamp: new Date().toISOString()
+  });
+}));
+
+// Vote on post (authenticated)
+app.post('/api/blog/posts/:postId/vote', authenticate, asyncHandler(async (req, res) => {
+  const { voteType } = req.body;
+  const result = await BlogService.voteOnPost(req.params.postId, req.user.id, voteType);
+
+  res.json({
+    success: true,
+    data: result,
+    timestamp: new Date().toISOString()
+  });
+}));
+
+// Add comment (authenticated, rate limited)
+app.post('/api/blog/posts/:postId/comments', authenticate, blogCommentLimiter, asyncHandler(async (req, res) => {
+  const { content } = req.body;
+  const comment = await BlogService.addComment(
+    req.params.postId,
+    req.user.id,
+    (req.user.firstName || '') + ' ' + (req.user.lastName || ''),
+    req.user.role,
+    content
+  );
+
+  res.status(201).json({
+    success: true,
+    message: 'Comment added',
+    data: { comment },
+    timestamp: new Date().toISOString()
+  });
+}));
+
+// Vote on comment (authenticated)
+app.post('/api/blog/posts/:postId/comments/:commentId/vote', authenticate, asyncHandler(async (req, res) => {
+  const { voteType } = req.body;
+  const result = await BlogService.voteOnComment(
+    req.params.postId, req.params.commentId, req.user.id, voteType
+  );
+
+  res.json({
+    success: true,
+    data: result,
+    timestamp: new Date().toISOString()
+  });
+}));
+
+// Delete comment (authenticated - author, post author, or admin)
+app.post('/api/blog/posts/:postId/comments/:commentId/delete', authenticate, asyncHandler(async (req, res) => {
+  await BlogService.deleteComment(
+    req.params.postId, req.params.commentId, req.user.id, req.user.role
+  );
+
+  res.json({
+    success: true,
+    message: 'Comment deleted',
+    timestamp: new Date().toISOString()
+  });
+}));
+
 // =============================================================================
 // REWARDS API ENDPOINTS
 // =============================================================================

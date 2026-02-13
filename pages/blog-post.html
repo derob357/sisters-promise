@@ -1,11 +1,10 @@
 <!--
 =========================================================
-* Sister's Promise - Shop Page
+* Sister's Promise - Blog Post Page
 =========================================================
 
 * Website: https://sisterspromise.com
-* Created for handmade, clean skincare products
-* Organic lotions, sea moss soap, skin scrubs and more
+* Single blog post with comments and voting
 
 =========================================================
 -->
@@ -17,22 +16,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
   <link rel="icon" type="image/jpeg" href="../assets/img/logos/SistersPromise-Logo_bw_500.jpg">
-  <title>
-    Shop - Sister's Promise
-  </title>
-  <!--     Fonts and icons     -->
+  <title>Blog Post - Sister's Promise</title>
   <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900" />
-  <!-- Nucleo Icons -->
   <link href="../assets/css/nucleo-icons.css" rel="stylesheet" />
   <link href="../assets/css/nucleo-svg.css" rel="stylesheet" />
-  <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Material Icons -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
-  <!-- CSS Files -->
   <link id="pagestyle" href="../assets/css/material-kit.css?v=3.1.0" rel="stylesheet" />
   <style>
-    /* Navbar styles */
     .navbar {
       display: flex !important;
       visibility: visible !important;
@@ -42,7 +33,6 @@
       -webkit-backdrop-filter: blur(10px);
       backdrop-filter: blur(10px);
     }
-
     .navbar-brand {
       font-weight: 700;
       font-size: 1.25rem;
@@ -52,7 +42,6 @@
       gap: 10px;
       visibility: visible !important;
     }
-
     .navbar-brand img {
       height: 50px;
       width: auto;
@@ -60,17 +49,13 @@
       visibility: visible !important;
       display: block !important;
     }
-
-    /* Hamburger menu - show on mobile, hide on desktop */
     @media (max-width: 991.98px) {
       .navbar {
         position: relative !important;
         margin: 0 !important;
         padding: 0.5rem !important;
       }
-      .navbar.position-absolute {
-        position: relative !important;
-      }
+      .navbar.position-absolute { position: relative !important; }
       .navbar .navbar-toggler {
         display: flex !important;
         visibility: visible !important;
@@ -86,7 +71,6 @@
         position: relative !important;
         z-index: 1001 !important;
       }
-
       .navbar .navbar-toggler .navbar-toggler-icon {
         display: flex !important;
         flex-direction: column !important;
@@ -97,7 +81,6 @@
         background-image: none !important;
         background: transparent !important;
       }
-
       .navbar .navbar-toggler .navbar-toggler-icon .navbar-toggler-bar {
         display: block !important;
         width: 22px !important;
@@ -106,12 +89,10 @@
         border-radius: 1px;
         transition: all 0.2s ease;
       }
-
       .navbar .navbar-toggler .navbar-toggler-icon .navbar-toggler-bar.bar2,
       .navbar .navbar-toggler .navbar-toggler-icon .navbar-toggler-bar.bar3 {
         margin-top: 5px !important;
       }
-
       .navbar-collapse {
         position: absolute !important;
         top: 100% !important;
@@ -122,25 +103,11 @@
         padding: 1rem !important;
         z-index: 1000 !important;
       }
-
-      .navbar-collapse:not(.show) {
-        display: none !important;
-      }
-
-      .navbar-nav {
-        flex-direction: column !important;
-      }
-
-      .nav-item {
-        margin: 0.25rem 0 !important;
-      }
+      .navbar-collapse:not(.show) { display: none !important; }
+      .navbar-nav { flex-direction: column !important; }
+      .nav-item { margin: 0.25rem 0 !important; }
     }
-
-    .navbar-nav {
-      display: flex !important;
-      visibility: visible !important;
-    }
-
+    .navbar-nav { display: flex !important; visibility: visible !important; }
     .nav-link {
       color: #333 !important;
       display: block !important;
@@ -149,28 +116,25 @@
       padding: 8px 16px !important;
       transition: all 0.3s ease;
     }
-
-    .nav-link:hover {
-      color: #C9A961 !important;
-    }
-
-    .nav-link.active {
-      font-weight: 700 !important;
-      color: #C9A961 !important;
-    }
-
+    .nav-link:hover { color: #C9A961 !important; }
+    .nav-link.active { font-weight: 700 !important; color: #C9A961 !important; }
     @media (min-width: 992px) {
-      .navbar .navbar-toggler {
-        display: none !important;
-      }
-      .navbar-collapse {
-        display: flex !important;
-      }
+      .navbar .navbar-toggler { display: none !important; }
+      .navbar-collapse { display: flex !important; }
     }
+
+    .blog-post-body { line-height: 1.8; font-size: 1.1rem; }
+    .blog-post-body h2, .blog-post-body h3 { margin-top: 1.5rem; margin-bottom: 0.75rem; }
+    .blog-post-body p { margin-bottom: 1rem; }
+    .blog-post-body img { max-width: 100%; height: auto; border-radius: 8px; margin: 1rem 0; }
+
+    .comment-section { border-top: 2px solid #eee; padding-top: 2rem; margin-top: 2rem; }
+    .comment-item { border-left: 3px solid #C9A961; padding-left: 1rem; margin-bottom: 1.5rem; }
+    .comment-meta { font-size: 0.85rem; color: #666; }
   </style>
 </head>
 
-<body class="shop bg-gray-100">
+<body class="blog-post bg-gray-100">
   <!-- Navigation -->
   <nav class="navbar navbar-expand-lg navbar-light sticky-top">
     <div class="container-fluid px-4">
@@ -188,8 +152,8 @@
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
           <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
-          <li class="nav-item"><a class="nav-link active" href="shop.html">Shop</a></li>
-          <li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="shop.html">Shop</a></li>
+          <li class="nav-item"><a class="nav-link active" href="blog.html">Blog</a></li>
           <li class="nav-item"><a class="nav-link" href="rewards.html">Rewards</a></li>
           <li class="nav-item"><a class="nav-link" href="ingredients.html">Ingredients</a></li>
           <li class="nav-item"><a class="nav-link" href="about-us.html">About</a></li>
@@ -200,32 +164,24 @@
     </div>
   </nav>
 
-  <!-- Page Header -->
-  <header class="header-2">
-    <div class="page-header min-vh-50 relative" style="background-image: url('../assets/img/Herobg.png'); background-size: cover; background-position: center;">
-      <span class="mask bg-gradient-dark opacity-3"></span>
-      <div class="container">
-        <div class="row">
-          <div class="col-lg-7 text-center mx-auto">
-            <h1 class="text-white font-weight-black pt-3 mt-n5" style="text-shadow: 3px 3px 6px rgba(0,0,0,0.7), 2px 2px 4px rgba(0,0,0,0.5);">Our Shop</h1>
-            <p class="lead text-white mt-3" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.7), 1px 1px 2px rgba(0,0,0,0.5);">Browse our complete collection of natural skincare products</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <!-- Products Section -->
+  <!-- Blog Post Content -->
   <section class="py-5">
     <div class="container">
       <div class="row">
-        <div class="col-lg-8 mx-auto text-center mb-5">
-          <h2 class="text-dark font-weight-bold">All Products</h2>
-          <p class="text-muted">Handmade, natural skincare products crafted with intention and care</p>
+        <div class="col-lg-8 mx-auto">
+          <div class="mb-3">
+            <a href="blog.html" class="text-dark"><i class="fas fa-arrow-left me-2"></i>Back to Blog</a>
+          </div>
+          <div id="blog-post-content">
+            <div class="text-center py-5">
+              <div class="spinner-border text-secondary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <p class="text-muted mt-3">Loading post...</p>
+            </div>
+          </div>
         </div>
       </div>
-
-      <div id="square-products" class="row"></div>
     </div>
   </section>
 
@@ -237,21 +193,9 @@
           <div>
             <h6 class="font-weight-bolder mb-4">Sister's Promise</h6>
             <ul class="flex-column ms-n3 nav">
-              <li class="nav-item">
-                <a class="nav-link" href="../index.html">
-                  Home
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="https://www.etsy.com/shop/SistersPromise" target="_blank">
-                  Shop on Etsy
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="../index.html#about">
-                  About Us
-                </a>
-              </li>
+              <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+              <li class="nav-item"><a class="nav-link" href="https://www.etsy.com/shop/SistersPromise" target="_blank">Shop on Etsy</a></li>
+              <li class="nav-item"><a class="nav-link" href="../index.html#about">About Us</a></li>
             </ul>
           </div>
         </div>
@@ -259,16 +203,8 @@
           <div>
             <h6 class="font-weight-bolder mb-4">Legal</h6>
             <ul class="flex-column ms-n3 nav">
-              <li class="nav-item">
-                <a class="nav-link" href="#">
-                  Privacy
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">
-                  Terms
-                </a>
-              </li>
+              <li class="nav-item"><a class="nav-link" href="#">Privacy</a></li>
+              <li class="nav-item"><a class="nav-link" href="#">Terms</a></li>
             </ul>
           </div>
         </div>
@@ -276,9 +212,7 @@
       <div class="row">
         <div class="col-8 mx-auto text-center mt-1">
           <p class="mb-0 text-secondary">
-            Copyright © <script>
-              document.write(new Date().getFullYear())
-            </script> Sister's Promise. All rights reserved.
+            Copyright © <script>document.write(new Date().getFullYear())</script> Sister's Promise. All rights reserved.
           </p>
         </div>
       </div>
@@ -290,12 +224,9 @@
   <script src="../assets/js/core/bootstrap.min.js"></script>
   <script src="../assets/js/plugins/perfect-scrollbar.min.js"></script>
   <script src="../assets/js/material-kit.min.js"></script>
-
-  <!-- Control Center for Material UI Kit: parallax effects, scripts for the example pages etc -->
   <script src="../assets/js/material-kit.js?v=3.0.4"></script>
-  <script src="../assets/js/square-integration.js"></script>
-  <!-- Auth -->
   <script src="../assets/js/auth.js"></script>
+  <script src="../assets/js/blog.js"></script>
 </body>
 
 </html>

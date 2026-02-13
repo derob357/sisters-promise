@@ -155,8 +155,9 @@ const SquareIntegration = {
         const categoryBadge = product.category
           ? `<span class="badge" style="background-color: #C9A961;">${this.sanitize(product.category)}</span>`
           : '';
+        const safePrice = this.sanitize(typeof price === 'string' ? price : String(price));
         const buyButtonAttr = product.variationId
-          ? `onclick="SquareIntegration.buyNow('${this.sanitize(product.variationId)}')" style="background-color: #C9A961; color: white; border: none; cursor: pointer;"`
+          ? `data-variation-id="${this.sanitize(product.variationId)}" style="background-color: #C9A961; color: white; border: none; cursor: pointer;"`
           : `href="https://sisters-promise-inc.square.site/s/shop" target="_blank" rel="noopener noreferrer" style="background-color: #C9A961; color: white; border: none;"`;
         const buyButtonTag = product.variationId ? 'button' : 'a';
         const buyButtonClose = product.variationId ? '</button>' : '</a>';
@@ -178,7 +179,7 @@ const SquareIntegration = {
                 <h5 class="card-title text-dark font-weight-bold">${this.sanitize(product.name)}</h5>
                 <p class="text-muted text-sm mb-3">${this.sanitize(description)}${description.length >= 100 ? '...' : ''}</p>
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                  <span style="color: #C9A961; font-weight: bold; font-size: 1.2rem;">${price}</span>
+                  <span style="color: #C9A961; font-weight: bold; font-size: 1.2rem;">${safePrice}</span>
                   ${categoryBadge}
                 </div>
                 <div class="text-center">
@@ -194,6 +195,13 @@ const SquareIntegration = {
     });
 
     container.innerHTML = html;
+
+    // Bind buy buttons via event delegation (avoids inline onclick XSS risk)
+    container.querySelectorAll('button[data-variation-id]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        SquareIntegration.buyNow(this.getAttribute('data-variation-id'));
+      });
+    });
   },
 
   /**
