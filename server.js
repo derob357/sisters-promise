@@ -166,56 +166,8 @@ app.use(mongoSanitize({
   },
 }));
 
-// reCAPTCHA v3 Verification Function
-async function verifyRecaptchaV3(token, expectedAction = 'submit') {
-  try {
-    const secretKey = process.env.RECAPTCHA_SECRET_KEY;
-
-    if (!secretKey) {
-      console.error('Missing RECAPTCHA_SECRET_KEY configuration');
-      return null;
-    }
-
-    const response = await axios.post(
-      'https://www.google.com/recaptcha/api/siteverify',
-      null,
-      {
-        params: {
-          secret: secretKey,
-          response: token
-        }
-      }
-    );
-
-    const data = response.data;
-
-    if (!data.success) {
-      console.log('reCAPTCHA verification failed:', data['error-codes']);
-      return null;
-    }
-
-    // Check action matches (v3 includes action in response)
-    if (data.action && data.action !== expectedAction) {
-      console.log(`Action mismatch: expected ${expectedAction}, got ${data.action}`);
-      return null;
-    }
-
-    console.log(`reCAPTCHA v3 score: ${data.score}, action: ${data.action}`);
-    return data.score;
-  } catch (error) {
-    console.error('reCAPTCHA verification error:', error.message);
-    return null;
-  }
-}
-
-// Interpret reCAPTCHA Enterprise Score
-function interpretRecaptchaScore(score) {
-  if (score >= 0.9) return { level: 'VERY_LOW_RISK', action: 'allow', description: 'Definitely legitimate' };
-  if (score >= 0.7) return { level: 'LOW_RISK', action: 'allow', description: 'Likely legitimate' };
-  if (score >= 0.5) return { level: 'MEDIUM_RISK', action: 'allow', description: 'May be suspicious' };
-  if (score >= 0.3) return { level: 'HIGH_RISK', action: 'review', description: 'Likely suspicious' };
-  return { level: 'VERY_HIGH_RISK', action: 'block', description: 'Definitely suspicious' };
-}
+// reCAPTCHA v3 Verification (extracted to utils/recaptcha.js)
+const { verifyRecaptchaV3, interpretRecaptchaScore } = require('./utils/recaptcha');
 
 // Annotate reCAPTCHA Assessment (send feedback)
 async function annotateRecaptchaAssessment(assessmentName, annotation) {
@@ -323,10 +275,21 @@ app.get('/api/health', generalLimiter, (req, res) => {
  * POST /users/register
  */
 app.post('/api/users/register', asyncHandler(async (req, res) => {
-  const { email, password, firstName, lastName } = req.body;
-  
+  const { email, password, firstName, lastName, recaptchaToken } = req.body;
+
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password are required' });
+  }
+
+  // reCAPTCHA verification (graceful degradation - warn but allow if no token)
+  if (recaptchaToken) {
+    const score = await verifyRecaptchaV3(recaptchaToken, 'register');
+    if (score !== null && score < 0.3) {
+      console.warn(`[reCAPTCHA] Registration blocked for ${email} - score: ${score}`);
+      return res.status(403).json({ error: 'Bot activity detected. Please try again.' });
+    }
+  } else {
+    console.warn(`[reCAPTCHA] No token provided for registration: ${email}`);
   }
   
   const existingUser = await User.findOne({ email: email.toLowerCase() });
@@ -374,10 +337,21 @@ app.post('/api/users/register', asyncHandler(async (req, res) => {
  * POST /api/users/login
  */
 app.post('/api/users/login', asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
-  
+  const { email, password, recaptchaToken } = req.body;
+
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password are required' });
+  }
+
+  // reCAPTCHA verification (graceful degradation - warn but allow if no token)
+  if (recaptchaToken) {
+    const score = await verifyRecaptchaV3(recaptchaToken, 'login');
+    if (score !== null && score < 0.3) {
+      console.warn(`[reCAPTCHA] Login blocked for ${email} - score: ${score}`);
+      return res.status(403).json({ error: 'Bot activity detected. Please try again.' });
+    }
+  } else {
+    console.warn(`[reCAPTCHA] No token provided for login: ${email}`);
   }
   
   const user = await User.findOne({ email: email.toLowerCase() }).select('+password');

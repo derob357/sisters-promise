@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin-order-dashboard.html
+Disallow: /chat-interface.html
+Disallow: /dist/
+Disallow: /node_modules/
+Disallow: /tests/
+Disallow: /certs/
+
+Sitemap: https://sisterspromise.com/sitemap.xml

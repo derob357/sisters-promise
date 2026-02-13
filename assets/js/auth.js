@@ -129,7 +129,8 @@ const AuthService = {
         email: userData.email,
         password: userData.password,
         firstName: userData.firstName,
-        lastName: userData.lastName
+        lastName: userData.lastName,
+        recaptchaToken: userData.recaptchaToken || undefined
       })
     })
     .then(function(response) {
@@ -163,7 +164,8 @@ const AuthService = {
       },
       body: JSON.stringify({
         email: credentials.email,
-        password: credentials.password
+        password: credentials.password,
+        recaptchaToken: credentials.recaptchaToken || undefined
       })
     })
     .then(function(response) {

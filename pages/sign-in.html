@@ -22,6 +22,10 @@
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="../assets/css/material-kit.css">
+
+  <!-- reCAPTCHA v3 -->
+  <script src="https://www.google.com/recaptcha/api.js?render=***REMOVED***"></script>
+  <script>window.RECAPTCHA_SITE_KEY = '***REMOVED***';</script>
   <style>
     body {
       font-family: 'Inter', sans-serif;
@@ -395,18 +399,31 @@
 
         // Use AuthService from auth.js
         if (typeof AuthService !== 'undefined') {
-          AuthService.login({ email: email, password: password })
-            .then(function() {
-              AuthPage.showAlert('Login successful! Redirecting...', 'success');
-              setTimeout(function() {
-                var redirectUrl = AuthPage.getRedirectUrl();
-                window.location.href = redirectUrl;
-              }, 1000);
-            })
-            .catch(function(error) {
-              AuthPage.showAlert(error.message || 'Login failed. Please try again.', 'danger');
-              AuthPage.setLoading(button, false);
+          // Get reCAPTCHA token then login
+          var doLogin = function(recaptchaToken) {
+            AuthService.login({ email: email, password: password, recaptchaToken: recaptchaToken })
+              .then(function() {
+                AuthPage.showAlert('Login successful! Redirecting...', 'success');
+                setTimeout(function() {
+                  var redirectUrl = AuthPage.getRedirectUrl();
+                  window.location.href = redirectUrl;
+                }, 1000);
+              })
+              .catch(function(error) {
+                AuthPage.showAlert(error.message || 'Login failed. Please try again.', 'danger');
+                AuthPage.setLoading(button, false);
+              });
+          };
+
+          if (typeof grecaptcha !== 'undefined' && window.RECAPTCHA_SITE_KEY) {
+            grecaptcha.ready(function() {
+              grecaptcha.execute(window.RECAPTCHA_SITE_KEY, { action: 'login' })
+                .then(function(token) { doLogin(token); })
+                .catch(function() { doLogin(null); });
             });
+          } else {
+            doLogin(null);
+          }
         } else {
           this.showAlert('Authentication service not available', 'danger');
           this.setLoading(button, false);
@@ -439,23 +456,37 @@
 
         // Use AuthService from auth.js
         if (typeof AuthService !== 'undefined') {
-          AuthService.register({
-            email: email,
-            password: password,
-            firstName: firstName,
-            lastName: lastName
-          })
-            .then(function() {
-              AuthPage.showAlert('Account created successfully! Redirecting...', 'success');
-              setTimeout(function() {
-                var redirectUrl = AuthPage.getRedirectUrl();
-                window.location.href = redirectUrl;
-              }, 1000);
+          // Get reCAPTCHA token then register
+          var doRegister = function(recaptchaToken) {
+            AuthService.register({
+              email: email,
+              password: password,
+              firstName: firstName,
+              lastName: lastName,
+              recaptchaToken: recaptchaToken
             })
-            .catch(function(error) {
-              AuthPage.showAlert(error.message || 'Registration failed. Please try again.', 'danger');
-              AuthPage.setLoading(button, false);
+              .then(function() {
+                AuthPage.showAlert('Account created successfully! Redirecting...', 'success');
+                setTimeout(function() {
+                  var redirectUrl = AuthPage.getRedirectUrl();
+                  window.location.href = redirectUrl;
+                }, 1000);
+              })
+              .catch(function(error) {
+                AuthPage.showAlert(error.message || 'Registration failed. Please try again.', 'danger');
+                AuthPage.setLoading(button, false);
+              });
+          };
+
+          if (typeof grecaptcha !== 'undefined' && window.RECAPTCHA_SITE_KEY) {
+            grecaptcha.ready(function() {
+              grecaptcha.execute(window.RECAPTCHA_SITE_KEY, { action: 'register' })
+                .then(function(token) { doRegister(token); })
+                .catch(function() { doRegister(null); });
             });
+          } else {
+            doRegister(null);
+          }
         } else {
           this.showAlert('Authentication service not available', 'danger');
           this.setLoading(button, false);
