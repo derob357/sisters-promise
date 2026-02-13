@@ -109,6 +109,24 @@
       background: white !important;
     }
 
+    .navbar-brand {
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: #2d3e50 !important;
+      display: flex !important;
+      align-items: center;
+      gap: 10px;
+      visibility: visible !important;
+    }
+
+    .navbar-brand img {
+      height: 50px;
+      width: auto;
+      object-fit: contain;
+      visibility: visible !important;
+      display: block !important;
+    }
+
     /* Hamburger menu - show on mobile, hide on desktop */
     @media (max-width: 991.98px) {
       .navbar .navbar-toggler {
@@ -192,8 +210,8 @@
   <nav class="navbar navbar-expand-lg position-absolute top-0 z-index-3 w-100 shadow-none my-3 navbar-transparent">
     <div class="container-fluid px-4">
       <a class="navbar-brand" href="../index.html">
-        <img src="../assets/img/logos/SistersPromise-Logo_bw_500.jpg" alt="Sister's Promise Logo" style="height: 50px;">
-        <span class="d-none d-md-inline ms-2">Sister's Promise</span>
+        <img src="../assets/img/logos/SistersPromise-Logo_bw_500.jpg" alt="Sister's Promise Logo">
+        <span class="d-none d-md-inline">Sister's Promise</span>
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon">

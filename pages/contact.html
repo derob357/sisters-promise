@@ -46,13 +46,19 @@
     }
 
     .navbar-brand {
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: #2d3e50 !important;
       display: flex !important;
+      align-items: center;
+      gap: 10px;
       visibility: visible !important;
     }
 
     .navbar-brand img {
-      max-height: 50px;
+      height: 50px;
       width: auto;
+      object-fit: contain;
       visibility: visible !important;
       display: block !important;
     }
@@ -149,8 +155,8 @@
         padding: 0.5rem 1rem;
       }
 
-      .navbar-brand img {
-        max-height: 40px;
+      .navbar-brand span {
+        display: none;
       }
     }
 
