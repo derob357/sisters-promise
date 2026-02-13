@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/logos/SistersPromise-Logo_bw_500.jpg">
+  <link rel="icon" type="image/jpeg" href="../assets/img/logos/SistersPromise-Logo_bw_500.jpg">
+  <title>Terms &amp; Conditions - Sister's Promise</title>
+
+  <!-- Fonts and icons -->
+  <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900" />
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Material Kit CSS -->
+  <link id="pagestyle" href="../assets/css/material-kit.css?v=3.1.0" rel="stylesheet" />
+
+  <style>
+    .navbar {
+      background: rgba(255, 255, 255, 0.98) !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar-brand {
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: #2d3e50 !important;
+      display: flex !important;
+      align-items: center;
+      gap: 10px;
+      visibility: visible !important;
+    }
+
+    .navbar-brand img {
+      height: 50px;
+      width: auto;
+      object-fit: contain;
+      visibility: visible !important;
+      display: block !important;
+    }
+
+    /* Hamburger menu - show on mobile, hide on desktop */
+    @media (max-width: 991.98px) {
+      .navbar .navbar-toggler {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        align-items: center;
+        justify-content: center;
+        width: 44px !important;
+        height: 44px !important;
+        padding: 0.5rem !important;
+        border: 2px solid #333 !important;
+        border-radius: 4px;
+        background: white !important;
+        position: relative !important;
+        z-index: 1001 !important;
+      }
+
+      .navbar .navbar-toggler .navbar-toggler-icon {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        width: 24px !important;
+        height: 18px !important;
+        background-image: none !important;
+        background: transparent !important;
+      }
+
+      .navbar .navbar-toggler .navbar-toggler-icon .navbar-toggler-bar {
+        display: block !important;
+        width: 22px !important;
+        height: 2px !important;
+        background-color: #333 !important;
+        border-radius: 1px;
+        transition: all 0.2s ease;
+      }
+
+      .navbar .navbar-toggler .navbar-toggler-icon .navbar-toggler-bar.bar2,
+      .navbar .navbar-toggler .navbar-toggler-icon .navbar-toggler-bar.bar3 {
+        margin-top: 5px !important;
+      }
+
+      .navbar-collapse {
+        position: absolute !important;
+        top: 100% !important;
+        left: 0 !important;
+        right: 0 !important;
+        background: white !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+        padding: 1rem !important;
+        z-index: 1000 !important;
+      }
+
+      .navbar-collapse:not(.show) {
+        display: none !important;
+      }
+
+      .navbar-nav {
+        flex-direction: column !important;
+      }
+
+      .nav-item {
+        margin: 0.25rem 0 !important;
+      }
+    }
+
+    .navbar-nav {
+      display: flex !important;
+      visibility: visible !important;
+    }
+
+    .nav-link {
+      color: #333 !important;
+      display: block !important;
+      visibility: visible !important;
+      font-weight: 500;
+      padding: 8px 16px !important;
+      transition: all 0.3s ease;
+    }
+
+    .nav-link:hover {
+      color: #C9A961 !important;
+    }
+
+    .nav-link.active {
+      font-weight: 700 !important;
+      color: #C9A961 !important;
+    }
+
+    @media (min-width: 992px) {
+      .navbar .navbar-toggler {
+        display: none !important;
+      }
+      .navbar-collapse {
+        display: flex !important;
+      }
+    }
+
+    body {
+      background-color: #f8f9fa;
+    }
+
+    .terms-container {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .terms-card {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .terms-header {
+      background: linear-gradient(135deg, #C9A961 0%, #A0522D 100%);
+      color: white;
+      padding: 50px 40px;
+      text-align: center;
+    }
+
+    .terms-header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+      font-weight: 700;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .terms-header p {
+      margin: 15px 0 0 0;
+      opacity: 0.95;
+      font-size: 1rem;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .terms-body {
+      padding: 50px 40px;
+    }
+
+    .terms-section {
+      margin-bottom: 40px;
+    }
+
+    .terms-section h2 {
+      color: #2d3e50;
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 3px solid #C9A961;
+    }
+
+    .terms-section h3 {
+      color: #2d3e50;
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-top: 25px;
+      margin-bottom: 15px;
+    }
+
+    .terms-section p {
+      color: #555;
+      font-size: 1rem;
+      line-height: 1.8;
+      margin-bottom: 15px;
+    }
+
+    .terms-section ul {
+      color: #555;
+      font-size: 1rem;
+      line-height: 1.8;
+      margin-left: 20px;
+      margin-bottom: 15px;
+    }
+
+    .terms-section ul li {
+      margin-bottom: 10px;
+    }
+
+    .highlight-box {
+      background-color: rgba(201, 169, 97, 0.1);
+      border-left: 5px solid #C9A961;
+      padding: 20px;
+      margin: 25px 0;
+      border-radius: 5px;
+    }
+
+    .highlight-box p {
+      margin: 0;
+      color: #2d3e50;
+      font-weight: 500;
+    }
+
+    .contact-box {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      padding: 30px;
+      border-radius: 10px;
+      text-align: center;
+      margin-top: 40px;
+    }
+
+    .contact-box h3 {
+      color: #2d3e50;
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+    }
+
+    .contact-box p {
+      color: #666;
+      margin-bottom: 10px;
+    }
+
+    .contact-box a {
+      color: #C9A961;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .contact-box a:hover {
+      text-decoration: underline;
+    }
+
+    footer {
+      background-color: #2d3e50;
+      color: white;
+      padding: 50px 0 20px 0;
+      margin-top: 60px;
+    }
+
+    footer h5 {
+      color: #C9A961;
+      font-weight: 700;
+      margin-bottom: 20px;
+      font-size: 1.1rem;
+    }
+
+    footer ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    footer ul li {
+      margin-bottom: 10px;
+    }
+
+    footer ul li a {
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    footer ul li a:hover {
+      color: #C9A961;
+    }
+
+    footer .footer-section {
+      margin-bottom: 30px;
+    }
+
+    footer .footer-section p {
+      color: rgba(255, 255, 255, 0.8);
+      line-height: 1.6;
+    }
+
+    footer .footer-bottom {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 20px;
+      margin-top: 30px;
+      text-align: center;
+    }
+
+    footer .footer-bottom p {
+      color: rgba(255, 255, 255, 0.6);
+      margin: 0;
+      font-size: 0.9rem;
+    }
+
+    footer .footer-bottom a {
+      color: #C9A961;
+      text-decoration: none;
+    }
+
+    footer .footer-bottom a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      .terms-header {
+        padding: 40px 20px;
+      }
+
+      .terms-header h1 {
+        font-size: 1.8rem;
+      }
+
+      .terms-body {
+        padding: 30px 20px;
+      }
+
+      .terms-section h2 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+
+<body class="terms-conditions bg-gray-100">
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand" href="../index.html">
+        <img src="../assets/img/logos/SistersPromise-Logo_bw_500.jpg" alt="Sister's Promise Logo">
+        <span class="d-none d-md-inline">Sister's Promise</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon">
+          <span class="navbar-toggler-bar bar1"></span>
+          <span class="navbar-toggler-bar bar2"></span>
+          <span class="navbar-toggler-bar bar3"></span>
+        </span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="shop.html">Shop</a></li>
+          <li class="nav-item"><a class="nav-link" href="rewards.html">Rewards</a></li>
+          <li class="nav-item"><a class="nav-link" href="ingredients.html">Ingredients</a></li>
+          <li class="nav-item"><a class="nav-link" href="about-us.html">About</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <!-- End Navbar -->
+
+  <!-- Terms & Conditions Content -->
+  <div class="terms-container">
+    <div class="terms-card">
+      <div class="terms-header">
+        <h1>Terms &amp; Conditions</h1>
+        <p>Last Updated: January 15, 2026</p>
+      </div>
+
+      <div class="terms-body">
+        <div class="terms-section">
+          <h2>1. Acceptance of Terms</h2>
+          <p>Welcome to Sister's Promise. By accessing or using our website, mobile application, or purchasing our products, you agree to be bound by these Terms and Conditions. If you do not agree to these terms, please do not use our services or purchase our products.</p>
+          <p>These Terms and Conditions constitute a legally binding agreement between you and Sister's Promise. Your continued use of our website or mobile application indicates your acceptance of any updates or modifications to these terms.</p>
+        </div>
+
+        <div class="terms-section">
+          <h2>2. Use of the Service</h2>
+          <p>You agree to use our website and mobile application in accordance with all applicable laws and regulations. You must not:</p>
+          <ul>
+            <li>Use our services for any unlawful purpose or in violation of these Terms and Conditions</li>
+            <li>Attempt to gain unauthorized access to our systems, servers, or networks</li>
+            <li>Use automated tools, scripts, or bots to scrape, collect, or harvest data from our website or application</li>
+            <li>Impersonate another person or entity, or falsely state or misrepresent your affiliation with any person or entity</li>
+            <li>Interfere with or disrupt the operation of our services or servers</li>
+            <li>Transmit any viruses, malware, or other harmful code</li>
+            <li>Violate any intellectual property rights of Sister's Promise or third parties</li>
+          </ul>
+          <p>We reserve the right to terminate or suspend your access to our services at any time, without notice, for conduct that we believe violates these Terms and Conditions or is harmful to other users, us, or third parties.</p>
+        </div>
+
+        <div class="terms-section">
+          <h2>3. Products &amp; Pricing</h2>
+          <p>Sister's Promise offers natural skincare products crafted with pure, organic ingredients. All product descriptions, images, and information on our website and mobile application are provided for informational purposes only.</p>
+          <p>We strive to display accurate product information, including descriptions, ingredients, and pricing. However, we do not warrant that product descriptions, pricing, or other content on our website is accurate, complete, reliable, current, or error-free.</p>
+
+          <div class="highlight-box">
+            <p><strong>Important Disclaimer:</strong> Our products are not intended to diagnose, treat, cure, or prevent any disease or medical condition. If you have a medical condition or are taking medication, please consult with your healthcare provider before using our products.</p>
+          </div>
+
+          <p>All prices are listed in United States Dollars (USD) and are subject to change without notice. We reserve the right to modify prices, discontinue products, or correct pricing errors at any time.</p>
+        </div>
+
+        <div class="terms-section">
+          <h2>4. Orders &amp; Payment</h2>
+          <p>When you place an order with Sister's Promise, you are making an offer to purchase the products. All orders are subject to acceptance by us. We reserve the right to refuse or cancel any order for any reason, including but not limited to:</p>
+          <ul>
+            <li>Product unavailability</li>
+            <li>Errors in product or pricing information</li>
+            <li>Suspected fraudulent or unauthorized transactions</li>
+            <li>Orders that violate these Terms and Conditions</li>
+          </ul>
+          <p>Payment is processed securely through Square, our payment processor. By providing payment information, you authorize Sister's Promise to charge your payment method for the total amount of your order, including product costs, taxes, and shipping fees.</p>
+          <p>You represent and warrant that you have the legal right to use any payment method provided and that the information you provide is accurate and complete.</p>
+        </div>
+
+        <div class="terms-section">
+          <h2>5. Shipping &amp; Delivery</h2>
+          <p>We process orders within 3-5 business days of receipt. Shipping times vary depending on your location and the shipping method selected at checkout.</p>
+          <p>We ship to addresses within the United States. International shipping may be available for select locations - please contact us for more information.</p>
+          <p>Title and risk of loss for all products pass to you upon delivery to the shipping carrier. We are not responsible for delays caused by the shipping carrier, weather conditions, customs processing, or other factors beyond our control.</p>
+          <p>If your shipment is lost, damaged, or stolen during transit, please contact us immediately at sisterspromiseskincare@gmail.com. We will work with you and the shipping carrier to resolve the issue.</p>
+        </div>
+
+        <div class="terms-section">
+          <h2>6. Returns &amp; Exchanges</h2>
+          <p>We want you to be completely satisfied with your purchase. If you are not satisfied, we offer a 30-day return policy for unopened products in their original condition.</p>
+
+          <h3>Return Requirements:</h3>
+          <ul>
+            <li>Products must be unopened, unused, and in their original packaging</li>
+            <li>Returns must be requested within 30 days of delivery</li>
+            <li>You must contact us at sisterspromiseskincare@gmail.com to receive a return authorization before shipping items back</li>
+            <li>Customer is responsible for return shipping costs unless the product was defective or we made an error</li>
+          </ul>
+
+          <p>Once we receive and inspect your returned item, we will process your refund to the original payment method within 5-10 business days. Please note that it may take additional time for your financial institution to post the refund to your account.</p>
+          <p>We do not accept returns on opened or used products due to the nature of our skincare items and health and safety regulations.</p>
+        </div>
+
+        <div class="terms-section">
+          <h2>7. Rewards Program</h2>
+          <p>Sister's Promise offers a rewards program to thank our loyal customers. By participating in our rewards program, you agree to the following terms:</p>
+
+          <h3>Earning Points:</h3>
+          <ul>
+            <li>Earn 10 points for every $1 spent on purchases</li>
+            <li>Points are awarded after the order is successfully delivered</li>
+            <li>Points earned on purchases are calculated before taxes and shipping fees</li>
+          </ul>
+
+          <h3>Rewards Tiers:</h3>
+          <ul>
+            <li><strong>Bronze Tier:</strong> 0-499 points</li>
+            <li><strong>Silver Tier:</strong> 500-1,999 points (5% discount on orders)</li>
+            <li><strong>Gold Tier:</strong> 2,000-4,999 points (10% discount on orders)</li>
+            <li><strong>Platinum Tier:</strong> 5,000+ points (15% discount on orders, early access to new products)</li>
+          </ul>
+
+          <h3>Additional Benefits:</h3>
+          <ul>
+            <li>Receive a free gift with every 10th purchase</li>
+            <li>Birthday rewards and special promotions</li>
+            <li>Exclusive access to limited edition products</li>
+          </ul>
+
+          <p><strong>Important Notes:</strong> Rewards points have no cash value and cannot be redeemed for cash. Points are non-transferable. We reserve the right to modify, suspend, or terminate the rewards program at any time with or without notice. Points may expire if there is no account activity for 12 consecutive months.</p>
+        </div>
+
+        <div class="terms-section">
+          <h2>8. Intellectual Property</h2>
+          <p>All content on the Sister's Promise website and mobile application, including but not limited to text, graphics, logos, images, product descriptions, software, and design elements, is the property of Sister's Promise and is protected by United States and international copyright, trademark, and other intellectual property laws.</p>
+          <p>You may not reproduce, distribute, modify, create derivative works from, publicly display, publicly perform, republish, download, store, or transmit any of our content without our prior written consent, except as follows:</p>
+          <ul>
+            <li>Your computer or device may temporarily store copies of content in RAM incidental to your accessing and viewing that content</li>
+            <li>You may store files that are automatically cached by your web browser for display enhancement purposes</li>
+            <li>You may print or download one copy of a reasonable number of pages for your personal, non-commercial use</li>
+          </ul>
+          <p>The Sister's Promise name, logo, and all related product names, designs, and slogans are trademarks of Sister's Promise. You may not use these marks without our prior written permission.</p>
+        </div>
+
+        <div class="terms-section">
+          <h2>9. Limitation of Liability</h2>
+          <p>To the fullest extent permitted by law, Sister's Promise and its affiliates, officers, directors, employees, agents, and suppliers shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of profits, revenue, data, or other intangible losses resulting from:</p>
+          <ul>
+            <li>Your use or inability to use our services or products</li>
+            <li>Any unauthorized access to or use of our servers or any personal information stored therein</li>
+            <li>Any interruption or cessation of transmission to or from our services</li>
+            <li>Any bugs, viruses, or other harmful code that may be transmitted through our services</li>
+            <li>Any errors or omissions in any content or for any loss or damage incurred as a result of the use of any content</li>
+            <li>Allergic reactions or skin irritations resulting from product use</li>
+          </ul>
+          <p>Our products are sold "as is" without warranties of any kind, either express or implied. We do not warrant that our products will meet your requirements or expectations.</p>
+          <p>In no event shall Sister's Promise's total liability to you for all damages, losses, and causes of action exceed the amount paid by you, if any, for accessing our services or purchasing our products, or one hundred dollars ($100), whichever is less.</p>
+        </div>
+
+        <div class="terms-section">
+          <h2>10. Governing Law</h2>
+          <p>These Terms and Conditions and any disputes arising out of or related to these terms or our services shall be governed by and construed in accordance with the laws of the United States and the state in which Sister's Promise operates, without regard to its conflict of law provisions.</p>
+          <p>You agree to submit to the personal and exclusive jurisdiction of the courts located within the state where Sister's Promise operates for the resolution of any disputes.</p>
+        </div>
+
+        <div class="terms-section">
+          <h2>11. Changes to Terms</h2>
+          <p>We reserve the right to update, modify, or replace these Terms and Conditions at any time at our sole discretion. Changes will be effective immediately upon posting to our website or mobile application.</p>
+          <p>Your continued use of our services following the posting of any changes constitutes acceptance of those changes. We encourage you to review these Terms and Conditions periodically to stay informed of any updates.</p>
+          <p>If we make material changes to these terms, we will provide notice by posting a notice on our website or sending you an email to the address associated with your account.</p>
+        </div>
+
+        <div class="terms-section">
+          <h2>12. Contact Us</h2>
+          <p>If you have any questions, concerns, or comments about these Terms and Conditions, please contact us:</p>
+
+          <div class="contact-box">
+            <h3>Get in Touch</h3>
+            <p><strong>Email:</strong> <a href="mailto:sisterspromiseskincare@gmail.com">sisterspromiseskincare@gmail.com</a></p>
+            <p><strong>Website:</strong> <a href="../index.html">www.sisterspromise.com</a></p>
+            <p>We typically respond to inquiries within 24-48 business hours.</p>
+          </div>
+        </div>
+
+        <div class="highlight-box">
+          <p><strong>By using Sister's Promise services and purchasing our products, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions.</strong></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-3 footer-section">
+          <h5>Sister's Promise</h5>
+          <p>Natural skincare products crafted with care and pure ingredients.</p>
+        </div>
+        <div class="col-md-3 footer-section">
+          <h5>Quick Links</h5>
+          <ul>
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="shop.html">Shop</a></li>
+            <li><a href="rewards.html">Rewards</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div class="col-md-3 footer-section">
+          <h5>Customer Service</h5>
+          <ul>
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="shop.html">Order Status</a></li>
+            <li><a href="#">Shipping Info</a></li>
+            <li><a href="#">Returns</a></li>
+          </ul>
+        </div>
+        <div class="col-md-3 footer-section">
+          <h5>Connect</h5>
+          <ul>
+            <li><a href="#"><i class="fab fa-facebook"></i> Facebook</a></li>
+            <li><a href="#"><i class="fab fa-instagram"></i> Instagram</a></li>
+            <li><a href="#"><i class="fab fa-twitter"></i> Twitter</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Sister's Promise. All rights reserved. | <a href="privacy-policy.html">Privacy Policy</a> | <a href="terms-conditions.html">Terms &amp; Conditions</a></p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

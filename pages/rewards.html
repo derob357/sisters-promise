@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Favicon -->
+  <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/logos/SistersPromise-Logo_bw_500.jpg">
+  <link rel="icon" type="image/jpeg" href="../assets/img/logos/SistersPromise-Logo_bw_500.jpg">
+
+  <!-- SEO -->
+  <title>Rewards - Sister's Promise Natural Skincare</title>
+  <meta name="description" content="Join the Sister's Promise Rewards program. Earn points on every purchase, unlock exclusive tiers, and redeem rewards for discounts and free gifts.">
+
+  <!-- Fonts -->
+  <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="../assets/css/material-kit.css">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8f9fa;
+    }
+
+    .navbar {
+      background: rgba(255, 255, 255, 0.98) !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
+      display: flex !important;
+      visibility: visible !important;
+      z-index: 1000;
+    }
+
+    .navbar-brand {
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: #2d3e50 !important;
+      display: flex !important;
+      align-items: center;
+      gap: 10px;
+      visibility: visible !important;
+    }
+
+    .navbar-brand img {
+      height: 50px;
+      width: auto;
+      object-fit: contain;
+      visibility: visible !important;
+      display: block !important;
+    }
+
+    .navbar-nav {
+      display: flex !important;
+      visibility: visible !important;
+    }
+
+    .nav-link {
+      color: #333 !important;
+      display: block !important;
+      visibility: visible !important;
+      font-weight: 500;
+      padding: 8px 16px !important;
+      transition: all 0.3s ease;
+    }
+
+    .nav-link:hover {
+      color: #C9A961 !important;
+    }
+
+    .nav-link.active {
+      font-weight: 700 !important;
+      color: #C9A961 !important;
+    }
+
+    /* Hamburger menu - show on mobile, hide on desktop */
+    @media (max-width: 991.98px) {
+      .navbar .navbar-toggler {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        align-items: center;
+        justify-content: center;
+        width: 44px !important;
+        height: 44px !important;
+        padding: 0.5rem !important;
+        border: 2px solid #333 !important;
+        border-radius: 4px;
+        background: white !important;
+        position: relative !important;
+        z-index: 1001 !important;
+      }
+
+      .navbar .navbar-toggler .navbar-toggler-icon {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        width: 24px !important;
+        height: 18px !important;
+        background-image: none !important;
+        background: transparent !important;
+      }
+
+      .navbar .navbar-toggler .navbar-toggler-icon .navbar-toggler-bar {
+        display: block !important;
+        width: 22px !important;
+        height: 2px !important;
+        background-color: #333 !important;
+        border-radius: 1px;
+        transition: all 0.2s ease;
+      }
+
+      .navbar .navbar-toggler .navbar-toggler-icon .navbar-toggler-bar.bar2,
+      .navbar .navbar-toggler .navbar-toggler-icon .navbar-toggler-bar.bar3 {
+        margin-top: 5px !important;
+      }
+
+      .navbar-collapse {
+        position: absolute !important;
+        top: 100% !important;
+        left: 0 !important;
+        right: 0 !important;
+        background: white !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+        padding: 1rem !important;
+        z-index: 1000 !important;
+      }
+
+      .navbar-collapse:not(.show) {
+        display: none !important;
+      }
+
+      .navbar-nav {
+        flex-direction: column !important;
+      }
+
+      .nav-item {
+        margin: 0.25rem 0 !important;
+      }
+    }
+
+    @media (min-width: 992px) {
+      .navbar .navbar-toggler {
+        display: none !important;
+      }
+      .navbar-collapse {
+        display: flex !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .navbar {
+        padding: 0.5rem 1rem;
+      }
+
+      .navbar-brand img {
+        height: 40px;
+      }
+    }
+
+    /* Hero Section */
+    .rewards-hero {
+      background: linear-gradient(135deg, #C9A961 0%, #A0522D 100%);
+      padding: 80px 20px;
+      text-align: center;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .rewards-hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .rewards-hero h1 {
+      font-size: 2.8rem;
+      font-weight: 700;
+      margin-bottom: 15px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      position: relative;
+    }
+
+    .rewards-hero p {
+      font-size: 1.15rem;
+      max-width: 600px;
+      margin: 0 auto;
+      opacity: 0.95;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+      position: relative;
+    }
+
+    .rewards-hero .hero-icon {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      position: relative;
+    }
+
+    /* Section Titles */
+    .section-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #2d3e50;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    .section-subtitle {
+      font-size: 1.05rem;
+      color: #666;
+      text-align: center;
+      margin-bottom: 40px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* How It Works */
+    .how-it-works {
+      padding: 70px 20px;
+      background: white;
+    }
+
+    .step-card {
+      text-align: center;
+      padding: 30px 20px;
+      border-radius: 12px;
+      background: #f8f9fa;
+      border: 1px solid #eee;
+      transition: all 0.3s ease;
+      height: 100%;
+    }
+
+    .step-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+
+    .step-icon {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #C9A961 0%, #A0522D 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      color: white;
+      font-size: 1.6rem;
+    }
+
+    .step-number {
+      display: inline-block;
+      width: 28px;
+      height: 28px;
+      line-height: 28px;
+      border-radius: 50%;
+      background: #C9A961;
+      color: white;
+      font-weight: 700;
+      font-size: 0.85rem;
+      margin-bottom: 12px;
+    }
+
+    .step-card h4 {
+      font-weight: 700;
+      color: #2d3e50;
+      margin-bottom: 10px;
+    }
+
+    .step-card p {
+      color: #666;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* Tier System */
+    .tier-section {
+      padding: 70px 20px;
+      background: linear-gradient(135deg, rgba(201, 169, 97, 0.05) 0%, rgba(160, 82, 45, 0.05) 100%);
+    }
+
+    .tier-card {
+      border-radius: 12px;
+      padding: 30px 20px;
+      text-align: center;
+      background: white;
+      border: 2px solid #eee;
+      transition: all 0.3s ease;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tier-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+
+    .tier-card.tier-bronze { border-top: 4px solid #CD7F32; }
+    .tier-card.tier-silver { border-top: 4px solid #C0C0C0; }
+    .tier-card.tier-gold { border-top: 4px solid #FFD700; }
+    .tier-card.tier-platinum { border-top: 4px solid #8B8B8B; }
+
+    .tier-badge {
+      display: inline-block;
+      padding: 6px 18px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: white;
+      margin-bottom: 15px;
+    }
+
+    .tier-badge.badge-bronze { background: #CD7F32; }
+    .tier-badge.badge-silver { background: #C0C0C0; color: #333; }
+    .tier-badge.badge-gold { background: #FFD700; color: #333; }
+    .tier-badge.badge-platinum { background: linear-gradient(135deg, #8B8B8B, #B0B0B0); }
+
+    .tier-icon {
+      font-size: 2.2rem;
+      margin-bottom: 10px;
+    }
+
+    .tier-card h4 {
+      font-weight: 700;
+      color: #2d3e50;
+      margin-bottom: 12px;
+    }
+
+    .tier-multiplier {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #C9A961;
+      margin-bottom: 5px;
+    }
+
+    .tier-multiplier-label {
+      font-size: 0.85rem;
+      color: #999;
+      margin-bottom: 15px;
+    }
+
+    .tier-requirement {
+      font-size: 0.9rem;
+      color: #666;
+      padding: 8px 0;
+      border-top: 1px solid #f0f0f0;
+    }
+
+    .tier-requirement i {
+      color: #C9A961;
+      margin-right: 6px;
+    }
+
+    /* Offers Section */
+    .offers-section {
+      padding: 70px 20px;
+      background: white;
+    }
+
+    .offer-card {
+      border-radius: 12px;
+      padding: 25px;
+      background: white;
+      border: 1px solid #eee;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      transition: all 0.3s ease;
+      height: 100%;
+    }
+
+    .offer-card:hover {
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+
+    .offer-type-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      background: rgba(201, 169, 97, 0.15);
+      color: #C9A961;
+      margin-bottom: 12px;
+    }
+
+    .offer-discount {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #e74c3c;
+      float: right;
+    }
+
+    .offer-card h5 {
+      font-weight: 700;
+      color: #2d3e50;
+      margin-bottom: 8px;
+    }
+
+    .offer-card .offer-description {
+      color: #666;
+      font-size: 0.95rem;
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+
+    .offer-meta {
+      font-size: 0.85rem;
+      color: #999;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .offer-meta i {
+      color: #C9A961;
+    }
+
+    /* Bundles Section */
+    .bundles-section {
+      padding: 70px 20px;
+      background: linear-gradient(135deg, rgba(201, 169, 97, 0.05) 0%, rgba(160, 82, 45, 0.05) 100%);
+    }
+
+    .bundle-card {
+      border-radius: 12px;
+      padding: 25px;
+      background: white;
+      border: 1px solid #eee;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      transition: all 0.3s ease;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .bundle-card:hover {
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+
+    .bundle-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+
+    .bundle-card h5 {
+      font-weight: 700;
+      color: #2d3e50;
+      margin-bottom: 0;
+      flex: 1;
+      margin-right: 10px;
+    }
+
+    .savings-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: rgba(76, 175, 80, 0.15);
+      color: #4CAF50;
+      white-space: nowrap;
+    }
+
+    .bundle-card .bundle-description {
+      color: #666;
+      font-size: 0.95rem;
+      margin-bottom: 15px;
+      line-height: 1.5;
+    }
+
+    .bundle-items-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 15px 0;
+      flex-grow: 1;
+    }
+
+    .bundle-items-list li {
+      padding: 5px 0;
+      color: #555;
+      font-size: 0.9rem;
+    }
+
+    .bundle-items-list li i {
+      color: #4CAF50;
+      margin-right: 8px;
+    }
+
+    .bundle-pricing {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-top: 15px;
+      border-top: 1px solid #f0f0f0;
+      flex-wrap: wrap;
+    }
+
+    .bundle-original-price {
+      font-size: 1rem;
+      color: #999;
+      text-decoration: line-through;
+    }
+
+    .bundle-price {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #4CAF50;
+    }
+
+    .bundle-savings-text {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #e74c3c;
+    }
+
+    /* Free Gifts Section */
+    .gifts-section {
+      padding: 70px 20px;
+      background: white;
+    }
+
+    .gift-progress-info {
+      text-align: center;
+      margin-bottom: 40px;
+      padding: 30px;
+      background: linear-gradient(135deg, rgba(201, 169, 97, 0.08) 0%, rgba(160, 82, 45, 0.08) 100%);
+      border-radius: 12px;
+      border: 1px solid rgba(201, 169, 97, 0.2);
+    }
+
+    .gift-progress-info .gift-icon {
+      font-size: 2.5rem;
+      color: #C9A961;
+      margin-bottom: 10px;
+    }
+
+    .gift-progress-info h4 {
+      font-weight: 700;
+      color: #2d3e50;
+      margin-bottom: 8px;
+    }
+
+    .gift-progress-info p {
+      color: #666;
+      font-size: 1rem;
+      max-width: 500px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .gift-card {
+      border-radius: 12px;
+      padding: 25px;
+      background: white;
+      border: 1px solid #eee;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      text-align: center;
+      transition: all 0.3s ease;
+      height: 100%;
+    }
+
+    .gift-card:hover {
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+
+    .gift-card .gift-card-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #C9A961 0%, #A0522D 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 15px;
+      color: white;
+      font-size: 1.4rem;
+    }
+
+    .gift-card h5 {
+      font-weight: 700;
+      color: #2d3e50;
+      margin-bottom: 8px;
+    }
+
+    .gift-card p {
+      color: #666;
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+    }
+
+    .gift-value {
+      font-weight: 700;
+      color: #4CAF50;
+      font-size: 1.1rem;
+    }
+
+    /* CTA Section */
+    .cta-section {
+      padding: 80px 20px;
+      background: linear-gradient(135deg, #C9A961 0%, #A0522D 100%);
+      text-align: center;
+      color: white;
+      position: relative;
+    }
+
+    .cta-section h2 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin-bottom: 15px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .cta-section p {
+      font-size: 1.1rem;
+      margin-bottom: 25px;
+      opacity: 0.95;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .btn-cta {
+      display: inline-block;
+      padding: 14px 40px;
+      background: white;
+      color: #A0522D;
+      font-weight: 700;
+      font-size: 1.05rem;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      border: 2px solid white;
+    }
+
+    .btn-cta:hover {
+      background: transparent;
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    /* Loading Spinner */
+    .loading-spinner {
+      text-align: center;
+      padding: 40px;
+      color: #999;
+    }
+
+    .loading-spinner i {
+      font-size: 2rem;
+      color: #C9A961;
+      margin-bottom: 10px;
+    }
+
+    /* Footer */
+    footer {
+      background: #2d3e50;
+      color: white;
+      padding: 40px 20px 20px;
+      margin-top: 0;
+    }
+
+    footer a {
+      color: #ccc;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    footer a:hover {
+      color: white;
+    }
+
+    .footer-section {
+      margin-bottom: 30px;
+    }
+
+    .footer-section h5 {
+      font-weight: 600;
+      margin-bottom: 15px;
+    }
+
+    .footer-section ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .footer-section li {
+      margin-bottom: 8px;
+    }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding-top: 20px;
+      margin-top: 20px;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #aaa;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .rewards-hero h1 {
+        font-size: 2rem;
+      }
+
+      .rewards-hero {
+        padding: 50px 15px;
+      }
+
+      .section-title {
+        font-size: 1.6rem;
+      }
+
+      .tier-multiplier {
+        font-size: 1.6rem;
+      }
+
+      .cta-section h2 {
+        font-size: 1.6rem;
+      }
+
+      .how-it-works,
+      .tier-section,
+      .offers-section,
+      .bundles-section,
+      .gifts-section,
+      .cta-section {
+        padding: 50px 15px;
+      }
+    }
+
+    /* Fade-in animation */
+    .fade-in {
+      animation: fadeIn 0.4s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand" href="../index.html">
+        <img src="../assets/img/logos/SistersPromise-Logo_bw_500.jpg" alt="Sister's Promise Logo">
+        <span class="d-none d-md-inline">Sister's Promise</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon">
+          <span class="navbar-toggler-bar bar1"></span>
+          <span class="navbar-toggler-bar bar2"></span>
+          <span class="navbar-toggler-bar bar3"></span>
+        </span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="shop.html">Shop</a></li>
+          <li class="nav-item"><a class="nav-link active" href="rewards.html">Rewards</a></li>
+          <li class="nav-item"><a class="nav-link" href="ingredients.html">Ingredients</a></li>
+          <li class="nav-item"><a class="nav-link" href="about-us.html">About</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <div class="rewards-hero">
+    <div class="container">
+      <div class="hero-icon"><i class="fas fa-crown"></i></div>
+      <h1>Sister's Promise Rewards</h1>
+      <p>Our loyalty program rewards you for every purchase. Earn points, unlock exclusive tiers, and enjoy discounts, bundles, and free gifts as a thank-you for being part of the Sister's Promise family.</p>
+    </div>
+  </div>
+
+  <!-- How It Works -->
+  <section class="how-it-works">
+    <div class="container">
+      <h2 class="section-title">How It Works</h2>
+      <p class="section-subtitle">Start earning rewards in three simple steps</p>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="step-card">
+            <div class="step-icon"><i class="fas fa-shopping-bag"></i></div>
+            <span class="step-number">1</span>
+            <h4>Shop</h4>
+            <p>Earn 10 points for every $1 you spend on Sister's Promise products. Points add up fast with every order you place.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="step-card">
+            <div class="step-icon"><i class="fas fa-arrow-up"></i></div>
+            <span class="step-number">2</span>
+            <h4>Level Up</h4>
+            <p>As you make more purchases, you advance through our reward tiers. Higher tiers unlock better multipliers and exclusive perks.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="step-card">
+            <div class="step-icon"><i class="fas fa-gift"></i></div>
+            <span class="step-number">3</span>
+            <h4>Redeem</h4>
+            <p>Use your points for discounts on future orders or claim free gifts. Every 100 points equals $1.00 toward your next purchase.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tier System -->
+  <section class="tier-section">
+    <div class="container">
+      <h2 class="section-title">Reward Tiers</h2>
+      <p class="section-subtitle">The more you shop, the more you earn. Advance through tiers to unlock bigger multipliers on every purchase.</p>
+      <div class="row g-4">
+        <div class="col-lg-3 col-md-6">
+          <div class="tier-card tier-bronze">
+            <div class="tier-icon"><i class="fas fa-medal" style="color: #CD7F32;"></i></div>
+            <span class="tier-badge badge-bronze">Bronze</span>
+            <div class="tier-multiplier">1x</div>
+            <div class="tier-multiplier-label">Points Multiplier</div>
+            <div class="tier-requirement"><i class="fas fa-check"></i> 0+ purchases</div>
+            <div class="tier-requirement"><i class="fas fa-check"></i> 10 pts per $1 spent</div>
+            <div class="tier-requirement"><i class="fas fa-check"></i> Free gift every 10 orders</div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <div class="tier-card tier-silver">
+            <div class="tier-icon"><i class="fas fa-medal" style="color: #C0C0C0;"></i></div>
+            <span class="tier-badge badge-silver">Silver</span>
+            <div class="tier-multiplier">1.5x</div>
+            <div class="tier-multiplier-label">Points Multiplier</div>
+            <div class="tier-requirement"><i class="fas fa-check"></i> 10+ purchases</div>
+            <div class="tier-requirement"><i class="fas fa-check"></i> 15 pts per $1 spent</div>
+            <div class="tier-requirement"><i class="fas fa-check"></i> Free gift every 10 orders</div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <div class="tier-card tier-gold">
+            <div class="tier-icon"><i class="fas fa-award" style="color: #FFD700;"></i></div>
+            <span class="tier-badge badge-gold">Gold</span>
+            <div class="tier-multiplier">2x</div>
+            <div class="tier-multiplier-label">Points Multiplier</div>
+            <div class="tier-requirement"><i class="fas fa-check"></i> 25+ purchases</div>
+            <div class="tier-requirement"><i class="fas fa-check"></i> 20 pts per $1 spent</div>
+            <div class="tier-requirement"><i class="fas fa-check"></i> Free gift every 10 orders</div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <div class="tier-card tier-platinum">
+            <div class="tier-icon"><i class="fas fa-crown" style="color: #8B8B8B;"></i></div>
+            <span class="tier-badge badge-platinum">Platinum</span>
+            <div class="tier-multiplier">3x</div>
+            <div class="tier-multiplier-label">Points Multiplier</div>
+            <div class="tier-requirement"><i class="fas fa-check"></i> 50+ purchases</div>
+            <div class="tier-requirement"><i class="fas fa-check"></i> 30 pts per $1 spent</div>
+            <div class="tier-requirement"><i class="fas fa-check"></i> Free gift every 10 orders</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Current Offers -->
+  <section class="offers-section">
+    <div class="container">
+      <h2 class="section-title">Current Offers</h2>
+      <p class="section-subtitle">Take advantage of our latest special deals and promotions</p>
+      <div id="offers-container" class="row g-4">
+        <div class="loading-spinner">
+          <div><i class="fas fa-spinner fa-spin"></i></div>
+          <p>Loading offers...</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bundles -->
+  <section class="bundles-section">
+    <div class="container">
+      <h2 class="section-title">Product Bundles</h2>
+      <p class="section-subtitle">Save more when you bundle our best-selling products together</p>
+      <div id="bundles-container" class="row g-4">
+        <div class="loading-spinner">
+          <div><i class="fas fa-spinner fa-spin"></i></div>
+          <p>Loading bundles...</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Free Gifts -->
+  <section class="gifts-section">
+    <div class="container">
+      <h2 class="section-title">Free Gifts</h2>
+      <p class="section-subtitle">Earn a free gift with every 10 purchases</p>
+      <div class="gift-progress-info">
+        <div class="gift-icon"><i class="fas fa-gift"></i></div>
+        <h4>Every 10 Purchases = A Free Gift</h4>
+        <p>We appreciate your loyalty! For every 10 purchases you make, you earn a free gift of your choice from our selection below. The more you shop, the more gifts you unlock.</p>
+      </div>
+      <div id="gifts-container" class="row g-4">
+        <div class="loading-spinner">
+          <div><i class="fas fa-spinner fa-spin"></i></div>
+          <p>Loading gift options...</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <div class="container">
+      <h2>Start Earning Rewards Today</h2>
+      <p>Shop our collection of natural skincare products and start building your points with every order.</p>
+      <a href="shop.html" class="btn-cta"><i class="fas fa-shopping-bag me-2"></i>Shop Now</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-3 footer-section">
+          <h5>Sister's Promise</h5>
+          <p>Natural skincare products crafted with care and pure ingredients.</p>
+        </div>
+        <div class="col-md-3 footer-section">
+          <h5>Quick Links</h5>
+          <ul>
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="shop.html">Shop</a></li>
+            <li><a href="rewards.html">Rewards</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div class="col-md-3 footer-section">
+          <h5>Customer Service</h5>
+          <ul>
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="shop.html">Order Status</a></li>
+            <li><a href="#">Shipping Info</a></li>
+            <li><a href="#">Returns</a></li>
+          </ul>
+        </div>
+        <div class="col-md-3 footer-section">
+          <h5>Connect</h5>
+          <ul>
+            <li><a href="#"><i class="fab fa-facebook"></i> Facebook</a></li>
+            <li><a href="#"><i class="fab fa-instagram"></i> Instagram</a></li>
+            <li><a href="#"><i class="fab fa-twitter"></i> Twitter</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Sister's Promise. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms &amp; Conditions</a></p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      loadOffers();
+      loadBundles();
+      loadFreeGifts();
+    });
+
+    // --- Offers ---
+    async function loadOffers() {
+      const container = document.getElementById('offers-container');
+      try {
+        const response = await fetch('/api/rewards/offers');
+        if (!response.ok) throw new Error('API request failed');
+        const offers = await response.json();
+        renderOffers(offers);
+      } catch (error) {
+        console.warn('Could not load offers from API, using fallback:', error.message);
+        renderOffers(getFallbackOffers());
+      }
+    }
+
+    function getFallbackOffers() {
+      return [
+        {
+          id: 'bogo-seamoss',
+          type: 'bogo',
+          title: 'Buy 1 Get 1 FREE',
+          description: 'Sea Moss Soap - Buy one, get one free!',
+          productCategory: 'Sea Moss',
+          discountPercent: 100,
+          validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        },
+        {
+          id: 'bogo-weekend',
+          type: 'bogo',
+          title: 'Weekend Special',
+          description: 'Buy any 2 soaps, get the 3rd 50% off!',
+          productCategory: 'All',
+          discountPercent: 50,
+          validUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        },
+      ];
+    }
+
+    function renderOffers(offers) {
+      const container = document.getElementById('offers-container');
+      if (!offers || offers.length === 0) {
+        container.innerHTML = '<div class="col-12 text-center py-4"><p class="text-muted">No special offers available right now. Check back soon!</p></div>';
+        return;
+      }
+
+      container.innerHTML = offers.map(function(offer) {
+        var typeBadge = (offer.type || 'deal').toUpperCase();
+        var discountHtml = offer.discountPercent
+          ? '<span class="offer-discount">' + offer.discountPercent + '% OFF</span>'
+          : '';
+        var categoryHtml = offer.productCategory
+          ? '<div class="offer-meta"><i class="fas fa-tag"></i> Category: ' + escapeHtml(offer.productCategory) + '</div>'
+          : '';
+        var validHtml = offer.validUntil
+          ? '<div class="offer-meta"><i class="fas fa-clock"></i> Valid until: ' + formatDate(offer.validUntil) + '</div>'
+          : '';
+
+        return '<div class="col-md-6 fade-in">' +
+          '<div class="offer-card">' +
+            '<div>' +
+              '<span class="offer-type-badge">' + escapeHtml(typeBadge) + '</span>' +
+              discountHtml +
+            '</div>' +
+            '<h5>' + escapeHtml(offer.title) + '</h5>' +
+            '<p class="offer-description">' + escapeHtml(offer.description) + '</p>' +
+            categoryHtml +
+            validHtml +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    // --- Bundles ---
+    async function loadBundles() {
+      var container = document.getElementById('bundles-container');
+      try {
+        var response = await fetch('/api/rewards/bundles');
+        if (!response.ok) throw new Error('API request failed');
+        var bundles = await response.json();
+        renderBundles(bundles);
+      } catch (error) {
+        console.warn('Could not load bundles from API, using fallback:', error.message);
+        renderBundles(getFallbackBundles());
+      }
+    }
+
+    function getFallbackBundles() {
+      return [
+        {
+          id: 'bundle-sampler',
+          name: 'Sisters Sampler Bundle',
+          description: 'Try our best sellers! Includes Pink Soap, Kush Soap, and Sea Moss Soap.',
+          items: [
+            { name: 'Pink Soap', quantity: 1, originalPrice: 12.99 },
+            { name: 'Kush Soap', quantity: 1, originalPrice: 12.99 },
+            { name: 'Sea Moss Soap', quantity: 1, originalPrice: 14.99 },
+          ],
+          originalPrice: 40.97,
+          bundlePrice: 32.99,
+          savings: 7.98,
+          savingsPercent: 19,
+        },
+        {
+          id: 'bundle-seamoss-3',
+          name: 'Sea Moss Triple Pack',
+          description: 'Stock up on our popular Sea Moss Soap! 3 bars at a great price.',
+          items: [{ name: 'Sea Moss Soap', quantity: 3, originalPrice: 44.97 }],
+          originalPrice: 44.97,
+          bundlePrice: 36.99,
+          savings: 7.98,
+          savingsPercent: 18,
+        },
+        {
+          id: 'bundle-mix-10',
+          name: 'Mix & Match 10-Pack',
+          description: 'Choose any 10 soaps and save big! Perfect for gifts or stocking up.',
+          items: [{ name: 'Any Soap (Your Choice)', quantity: 10, originalPrice: 129.90 }],
+          originalPrice: 129.90,
+          bundlePrice: 89.99,
+          savings: 39.91,
+          savingsPercent: 31,
+        },
+      ];
+    }
+
+    function renderBundles(bundles) {
+      var container = document.getElementById('bundles-container');
+      if (!bundles || bundles.length === 0) {
+        container.innerHTML = '<div class="col-12 text-center py-4"><p class="text-muted">No bundles available right now. Check back soon!</p></div>';
+        return;
+      }
+
+      container.innerHTML = bundles.map(function(bundle) {
+        var savingsBadgeHtml = bundle.savingsPercent > 0
+          ? '<span class="savings-badge">Save ' + bundle.savingsPercent + '%</span>'
+          : '';
+
+        var itemsHtml = '';
+        if (bundle.items && bundle.items.length > 0) {
+          itemsHtml = '<ul class="bundle-items-list">' +
+            bundle.items.map(function(item) {
+              var qty = item.quantity > 1 ? item.quantity + 'x ' : '';
+              return '<li><i class="fas fa-check-circle"></i> ' + qty + escapeHtml(item.name) + '</li>';
+            }).join('') +
+          '</ul>';
+        }
+
+        return '<div class="col-md-4 fade-in">' +
+          '<div class="bundle-card">' +
+            '<div class="bundle-header">' +
+              '<h5>' + escapeHtml(bundle.name) + '</h5>' +
+              savingsBadgeHtml +
+            '</div>' +
+            '<p class="bundle-description">' + escapeHtml(bundle.description) + '</p>' +
+            itemsHtml +
+            '<div class="bundle-pricing">' +
+              '<span class="bundle-original-price">$' + formatPrice(bundle.originalPrice) + '</span>' +
+              '<span class="bundle-price">$' + formatPrice(bundle.bundlePrice) + '</span>' +
+              '<span class="bundle-savings-text">You save $' + formatPrice(bundle.savings) + '</span>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    // --- Free Gifts ---
+    async function loadFreeGifts() {
+      var container = document.getElementById('gifts-container');
+      try {
+        var response = await fetch('/api/rewards/free-gifts');
+        if (!response.ok) throw new Error('API request failed');
+        var gifts = await response.json();
+        renderFreeGifts(gifts);
+      } catch (error) {
+        console.warn('Could not load free gifts from API, using fallback:', error.message);
+        renderFreeGifts(getFallbackFreeGifts());
+      }
+    }
+
+    function getFallbackFreeGifts() {
+      return [
+        { id: 'gift-sample', name: 'Sample Size Soap', description: 'A travel-size soap of your choice', value: 5.99 },
+        { id: 'gift-full', name: 'Full Size Soap', description: 'Any full-size soap from our collection', value: 12.99 },
+      ];
+    }
+
+    function renderFreeGifts(gifts) {
+      var container = document.getElementById('gifts-container');
+      if (!gifts || gifts.length === 0) {
+        container.innerHTML = '<div class="col-12 text-center py-4"><p class="text-muted">No gift options available right now. Check back soon!</p></div>';
+        return;
+      }
+
+      container.innerHTML = gifts.map(function(gift) {
+        var valueHtml = gift.value
+          ? '<div class="gift-value">Value: $' + formatPrice(gift.value) + '</div>'
+          : '';
+
+        return '<div class="col-md-6 col-lg-4 fade-in">' +
+          '<div class="gift-card">' +
+            '<div class="gift-card-icon"><i class="fas fa-gift"></i></div>' +
+            '<h5>' + escapeHtml(gift.name) + '</h5>' +
+            '<p>' + escapeHtml(gift.description) + '</p>' +
+            valueHtml +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    // --- Utility Functions ---
+    function formatDate(dateStr) {
+      try {
+        var date = new Date(dateStr);
+        if (isNaN(date.getTime())) return 'N/A';
+        return date.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        });
+      } catch (e) {
+        return 'N/A';
+      }
+    }
+
+    function formatPrice(value) {
+      if (typeof value !== 'number' || isNaN(value)) return '0.00';
+      return value.toFixed(2);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      var div = document.createElement('div');
+      div.appendChild(document.createTextNode(str));
+      return div.innerHTML;
+    }
+  </script>
+
+</body>
+
+</html>
