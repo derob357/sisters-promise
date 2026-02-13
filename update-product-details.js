@@ -539,8 +539,8 @@ const productDetails = [
     ingredientNote: 'For external use only. Avoid use on broken or irritated skin.',
     images: [
       {
-        url: './assets/img/Product/pink-himalayan-scrub.jpg',
-        thumbnailUrl: './assets/img/Product/pink-himalayan-scrub.jpg',
+        url: './assets/img/Product/IMG_20201006_132825_089.jpg',
+        thumbnailUrl: './assets/img/Product/IMG_20201006_132825_089.jpg',
         alt: 'Pink Himalayan Sea Salt Scrub',
         isPrimary: true
       }

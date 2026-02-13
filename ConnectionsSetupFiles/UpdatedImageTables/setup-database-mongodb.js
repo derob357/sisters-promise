@@ -284,6 +284,22 @@ async function setupDatabase() {
         etsyListingId: '908416748'
       },
       {
+        name: 'Pink Himalayan Sea Salt Scrub',
+        description: 'Mineral-rich body scrub with Pink Himalayan sea salt to exfoliate, soften, and restore radiance. Handcrafted with nourishing plant oils and fine pink salt for smooth, glowing skin.',
+        price: 22.00,
+        category: 'scrub',
+        images: [
+          {
+            url: './assets/img/Product/IMG_20201006_132825_089.jpg',
+            thumbnailUrl: './assets/img/Product/IMG_20201006_132825_089.jpg',
+            alt: 'Pink Himalayan Sea Salt Scrub',
+            isPrimary: true
+          }
+        ],
+        imageUrl: './assets/img/Product/IMG_20201006_132825_089.jpg',
+        stockQuantity: 30
+      },
+      {
         name: 'Seamoss Soap (24 Bars)',
         description: 'Bulk pack of 24 handmade sea moss soap bars. Perfect for resellers, large families, or extended use. Each bar is crafted with authentic Irish sea moss and natural ingredients. Great value for our most popular product.',
         price: 240.00,
