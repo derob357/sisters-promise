@@ -38,6 +38,9 @@
       visibility: visible !important;
       z-index: 1040 !important;
       background: rgba(255, 255, 255, 0.98) !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
     }
 
     .navbar-brand {
@@ -133,20 +136,35 @@
       }
     }
 
+    .navbar-nav {
+      display: flex !important;
+      visibility: visible !important;
+    }
+
+    .nav-link {
+      color: #333 !important;
+      display: block !important;
+      visibility: visible !important;
+      font-weight: 500;
+      padding: 8px 16px !important;
+      transition: all 0.3s ease;
+    }
+
+    .nav-link:hover {
+      color: #C9A961 !important;
+    }
+
+    .nav-link.active {
+      font-weight: 700 !important;
+      color: #C9A961 !important;
+    }
+
     @media (min-width: 992px) {
       .navbar .navbar-toggler {
         display: none !important;
       }
       .navbar-collapse {
         display: flex !important;
-      }
-      .navbar-nav {
-        display: flex !important;
-        visibility: visible !important;
-      }
-      .nav-link {
-        display: block !important;
-        visibility: visible !important;
       }
     }
   </style>
