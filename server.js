@@ -618,9 +618,11 @@ app.get('/api/square/catalog', asyncHandler(async (req, res) => {
     }
 
     // Fetch catalog items with related objects (images)
+    // includeDeletedObjects defaults to false, set explicitly for clarity
     const { result } = await catalogApi.searchCatalogObjects({
       objectTypes: ['ITEM'],
       includeRelatedObjects: true,
+      includeDeletedObjects: false,
     });
 
     const items = result.objects || [];
@@ -641,20 +643,24 @@ app.get('/api/square/catalog', asyncHandler(async (req, res) => {
         if (locationId && !presentAt.includes(locationId)) return false;
       }
 
-      // Exclude items that are explicitly not visible online
       const itemData = item.itemData;
-      if (itemData.ecomVisibility === 'HIDDEN') return false;
 
-      // Exclude items that are explicitly not available anywhere
+      // Exclude items that are not visible online (HIDDEN or UNINDEXED)
+      if (itemData.ecomVisibility === 'HIDDEN' || itemData.ecomVisibility === 'UNINDEXED') return false;
+
+      // Exclude items explicitly marked as not available
       if (itemData.availableForPickup === false && itemData.availableElectronically === false && itemData.availableOnline === false) {
         return false;
       }
 
-      // Exclude items without any active variations at our location
+      // Exclude items without any active, non-deleted, priced variations at our location
       const variations = itemData.variations || [];
       const hasActiveVariation = variations.some(v => {
         if (v.isDeleted || v.isArchived) return false;
         if (!v.itemVariationData || v.itemVariationData.itemId !== item.id) return false;
+
+        // Must have a price
+        if (!v.itemVariationData.priceMoney || Number(v.itemVariationData.priceMoney.amount) <= 0) return false;
 
         // Check variation is present at our location
         if (!v.presentAtAllLocations) {
