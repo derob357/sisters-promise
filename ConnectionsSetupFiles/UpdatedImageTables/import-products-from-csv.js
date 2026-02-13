@@ -1,5 +1,5 @@
 /**
- * Sisters Promise - CSV Product Importer
+ * Sister's Promise - CSV Product Importer
  * WITH FULL IMAGE SUPPORT (Full + Thumbnails)
  * 
  * HOW TO USE:
@@ -174,7 +174,7 @@ Bath Salt Soaks,"Luxurious bath salt blend for ultimate relaxation.",16.00,bath,
 }
 
 async function importFromCSV() {
-  console.log('🚀 Sisters Promise - CSV Product Importer\n');
+  console.log('🚀 Sister's Promise - CSV Product Importer\n');
   
   try {
     // Check if CSV file exists

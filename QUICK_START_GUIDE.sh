@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Quick Start Script for Sisters Promise Development
+# Quick Start Script for Sister's Promise Development
 # This file is executable - run with: ./quick-start.sh
 
 cat << 'EOF'
 
 ╔════════════════════════════════════════════════════════════════════════════╗
-║                  Sisters Promise - Development Quick Start                ║
+║                  Sister's Promise - Development Quick Start                ║
 ╚════════════════════════════════════════════════════════════════════════════╝
 
 This guide will help you get the full stack running in minutes.

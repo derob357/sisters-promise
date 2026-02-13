@@ -2,7 +2,7 @@
 
 ## 🎯 Mission Accomplished
 
-Built a comprehensive **real-time central chat system** for VIP, admin, and owner members of Sisters Promise with full WebSocket support, 19 API endpoints, and production-ready security.
+Built a comprehensive **real-time central chat system** for VIP, admin, and owner members of Sister's Promise with full WebSocket support, 19 API endpoints, and production-ready security.
 
 ---
 

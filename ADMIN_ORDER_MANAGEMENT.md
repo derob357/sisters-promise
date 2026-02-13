@@ -1,6 +1,6 @@
 # Admin Order Management System - Setup Guide
 
-Sisters Promise Manual Order Entry & Payment Processing for Owner/Admin
+Sister's Promise Manual Order Entry & Payment Processing for Owner/Admin
 
 ---
 
@@ -438,5 +438,5 @@ A: Currently USD only. Amounts stored in cents for precision.
 
 **Version**: 1.0  
 **Last Updated**: January 15, 2026  
-**For**: Sisters Promise  
+**For**: Sister's Promise  
 **Contact**: denise@sisterspromise.com

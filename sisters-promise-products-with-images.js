@@ -1,5 +1,5 @@
 /**
- * Sisters Promise - Real Etsy Products Import
+ * Sister's Promise - Real Etsy Products Import
  * WITH PROPER IMAGE SUPPORT (Full + Thumbnails)
  * 
  * Run: node sisters-promise-products-with-images.js
@@ -164,7 +164,7 @@ const products = [
 ];
 
 async function importProducts() {
-  console.log('🚀 Sisters Promise - Importing Products with Image Support\n');
+  console.log('🚀 Sister's Promise - Importing Products with Image Support\n');
   console.log('📡 Connecting to MongoDB...');
   console.log(`   URI: ${MONGODB_URI}\n`);
   

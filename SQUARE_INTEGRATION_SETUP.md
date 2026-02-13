@@ -1,10 +1,10 @@
 # Square Payment Integration Setup Guide
 
-This guide explains how to set up and configure the Square payment integration for Sisters Promise.
+This guide explains how to set up and configure the Square payment integration for Sister's Promise.
 
 ## Overview
 
-The Square integration allows Sisters Promise to:
+The Square integration allows Sister's Promise to:
 - Display products from your Square Catalog on the website
 - Process payments directly through Square
 - Manage inventory and orders through Square
@@ -23,13 +23,13 @@ Before you begin, you'll need:
 ### Step 1: Square Account Setup
 
 1. Go to [Square Dashboard](https://squareup.com/dashboard)
-2. Log in to your Sisters Promise account
+2. Log in to your Sister's Promise account
 3. Navigate to **Developer** → **Applications**
 
 ### Step 2: Create or Select an Application
 
 1. Click **+ New Application**
-2. Name it: `Sisters Promise`
+2. Name it: `Sister's Promise`
 3. Select **Web** as the application type
 4. Click **Create Application**
 
@@ -50,7 +50,7 @@ From the Application page, you'll find:
 
 **Location ID:**
 - Go to **Locations** in the Developer menu
-- Click on your Sisters Promise location
+- Click on your Sister's Promise location
 - Copy the "Location ID"
 - This is your `SQUARE_LOCATION_ID`
 
@@ -66,7 +66,7 @@ cp .env.example .env
 Edit `.env` and add your Square credentials:
 
 ```env
-# Square API Configuration for Sisters Promise
+# Square API Configuration for Sister's Promise
 SQUARE_APPLICATION_ID=your_app_id_here
 SQUARE_ACCESS_TOKEN=your_access_token_here
 SQUARE_LOCATION_ID=your_location_id_here
@@ -159,7 +159,7 @@ curl http://localhost:3000/api/health
 ```json
 {
   "status": "ok",
-  "message": "Sisters Promise Square integration is running",
+  "message": "Sister's Promise Square integration is running",
   "environment": "sandbox"
 }
 ```
@@ -236,7 +236,7 @@ curl -X POST http://localhost:3000/api/checkout \
     "sourceId": "nonce_from_square_web_payments",
     "amount": 1299,
     "currency": "USD",
-    "note": "Sisters Promise purchase"
+    "note": "Sister's Promise purchase"
   }'
 ```
 
@@ -379,7 +379,7 @@ If you see "401 Unauthorized" errors:
 2. Run `npm install` to install dependencies
 3. Start the server with `npm run dev`
 4. Verify products load on `http://localhost:3000`
-5. Test the integration with your Sisters Promise products
+5. Test the integration with your Sister's Promise products
 6. Deploy to production when ready
 
 ## Support

@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Sisters Promise application now includes a comprehensive, reliable email marketing and subscriber management system. This system handles:
+The Sister's Promise application now includes a comprehensive, reliable email marketing and subscriber management system. This system handles:
 
 - **Subscriber Management**: Add, update, and manage customer email subscriptions
 - **Email Templates**: Professional, branded email templates for various campaigns
@@ -77,7 +77,7 @@ curl -X POST http://localhost:3000/api/admin/campaigns \
   -H "Content-Type: application/json" \
   -d '{
     "name": "August Newsletter",
-    "subject": "Exciting News from Sisters Promise",
+    "subject": "Exciting News from Sister's Promise",
     "templateId": "newsletter",
     "type": "newsletter",
     "scheduleTime": "2025-08-15T10:00:00Z"
@@ -455,4 +455,4 @@ For questions or issues:
 
 **Version**: 1.0  
 **Last Updated**: January 2025  
-**Maintainer**: Sisters Promise Team
+**Maintainer**: Sister's Promise Team

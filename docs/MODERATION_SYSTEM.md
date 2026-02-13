@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Sisters Promise moderation system provides comprehensive tools for managing community safety through user muting and post reporting. It's designed to maintain a healthy community environment while respecting user rights and maintaining transparency.
+The Sister's Promise moderation system provides comprehensive tools for managing community safety through user muting and post reporting. It's designed to maintain a healthy community environment while respecting user rights and maintaining transparency.
 
 **Version**: 1.0.0  
 **Date**: December 2024  

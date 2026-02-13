@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ###############################################################################
-# Sisters Promise - Kill All Services Script
+# Sister's Promise - Kill All Services Script
 # 
 # This script safely stops all running services:
 # - Backend Express.js server
@@ -33,7 +33,7 @@ log_error() {
 }
 
 echo ""
-log_info "Stopping Sisters Promise services..."
+log_info "Stopping Sister's Promise services..."
 echo ""
 
 # Kill Metro bundler

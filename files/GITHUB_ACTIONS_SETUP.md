@@ -1,4 +1,4 @@
-# GitHub Actions Setup Guide for Sisters Promise Mobile
+# GitHub Actions Setup Guide for Sister's Promise Mobile
 
 This guide will help you set up automated builds for your React Native app using GitHub Actions.
 
@@ -410,4 +410,4 @@ Before your first build:
 ---
 
 **Last Updated:** January 16, 2026  
-**Maintained by:** Sisters Promise Development Team
+**Maintained by:** Sister's Promise Development Team

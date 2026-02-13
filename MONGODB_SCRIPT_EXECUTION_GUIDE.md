@@ -51,7 +51,7 @@ node setup-database-mongodb.js
 
 **Expected Output:**
 ```
-🚀 Sisters Promise MongoDB Setup (PRODUCTION)
+🚀 Sister's Promise MongoDB Setup (PRODUCTION)
 📡 MongoDB URI: mongodb+srv://derob357:2-Bel0w...
 
 ✅ MongoDB connection successful
@@ -86,7 +86,7 @@ node sisters-promise-products-with-images.js
 
 **Expected Output:**
 ```
-🚀 Sisters Promise - Importing Products
+🚀 Sister's Promise - Importing Products
 
 ✅ MongoDB connected
 

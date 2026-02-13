@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Sisters Promise Build Script
+ * Sister's Promise Build Script
  * Creates a production-ready output folder for deployment
  */
 
@@ -43,7 +43,7 @@ function copyDir(src, dest, isRoot = false) {
 }
 
 function createEnvTemplate() {
-  const envTemplate = `# Sisters Promise Environment Configuration
+  const envTemplate = `# Sister's Promise Environment Configuration
 # Fill in your production credentials before deployment
 
 # Square Payment Processing
@@ -65,11 +65,11 @@ ALLOWED_ORIGINS=https://sisterspromise.com,https://www.sisterspromise.com
 }
 
 function createDeploymentGuide() {
-  const guide = `# Sisters Promise - Deployment Guide
+  const guide = `# Sister's Promise - Deployment Guide
 
 ## Production Build Contents
 
-This \`dist\` folder contains all files needed to deploy Sisters Promise to your production server.
+This \`dist\` folder contains all files needed to deploy Sister's Promise to your production server.
 
 ### What's Included:
 - **index.html** - Home page
@@ -203,7 +203,7 @@ For more information, see:
 }
 
 function main() {
-  console.log('🔨 Building Sisters Promise...\n');
+  console.log('🔨 Building Sister's Promise...\n');
 
   // Remove old dist folder
   if (fs.existsSync(OUTPUT_DIR)) {

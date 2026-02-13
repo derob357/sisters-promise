@@ -1,9 +1,9 @@
 #!/bin/bash
 
 ###############################################################################
-# Sisters Promise - Full Stack Launch Script
+# Sister's Promise - Full Stack Launch Script
 # 
-# This script launches all services for the Sisters Promise mobile app:
+# This script launches all services for the Sister's Promise mobile app:
 # - Backend Express.js server
 # - React Native Metro bundler
 # - iOS simulator
@@ -289,7 +289,7 @@ start_ios() {
 display_status() {
   echo ""
   echo -e "${GREEN}╔════════════════════════════════════════════════════════════╗${NC}"
-  echo -e "${GREEN}║${NC}        Sisters Promise - Full Stack Running${NC}              ${GREEN}║${NC}"
+  echo -e "${GREEN}║${NC}        Sister's Promise - Full Stack Running${NC}              ${GREEN}║${NC}"
   echo -e "${GREEN}╠════════════════════════════════════════════════════════════╣${NC}"
   
   if [ "$START_BACKEND" = true ]; then
@@ -354,7 +354,7 @@ cleanup() {
 
 echo ""
 log_info "=========================================="
-log_info "Sisters Promise - Full Stack Launcher"
+log_info "Sister's Promise - Full Stack Launcher"
 log_info "=========================================="
 echo ""
 

@@ -1,6 +1,6 @@
 /**
  * Product Model
- * MongoDB schema for Sisters Promise products
+ * MongoDB schema for Sister's Promise products
  */
 
 const mongoose = require('mongoose');

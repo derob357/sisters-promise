@@ -1,6 +1,6 @@
 # App Publishing & Monetization Strategy
 
-Sisters Promise Mobile App - Complete Guide to Launch, Store Submission, and Profitability
+Sister's Promise Mobile App - Complete Guide to Launch, Store Submission, and Profitability
 
 ---
 
@@ -73,7 +73,7 @@ Sisters Promise Mobile App - Complete Guide to Launch, Store Submission, and Pro
 ```
 Play Console (play.google.com/console) → Create App
 ├── Default Language: English
-├── App Name: "Sisters Promise"
+├── App Name: "Sister's Promise"
 ├── App Type: Application (not game)
 ├── Free or Paid: Free (for monetization via in-app purchases)
 ├── Contact Email: denise@sisterspromise.com
@@ -86,7 +86,7 @@ Play Console (play.google.com/console) → Create App
 
 | Field | Content | Tips |
 |-------|---------|------|
-| **App Name** | Sisters Promise | Keyword-friendly, matches app icon |
+| **App Name** | Sister's Promise | Keyword-friendly, matches app icon |
 | **Short Description** | "Natural skincare made simple" | <80 characters, hook immediately |
 | **Full Description** | See [below](#full-app-description) | 4000 character limit, benefit-focused |
 | **App Icon** | 512x512 PNG | High contrast, legible at small sizes |
@@ -99,13 +99,13 @@ Play Console (play.google.com/console) → Create App
 ```
 Discover natural, handmade skincare crafted with intention and care.
 
-Sisters Promise brings organic beauty directly to you with our collection of:
+Sister's Promise brings organic beauty directly to you with our collection of:
 ✓ Pure sea moss soaps and cleansers
 ✓ Nourishing body lotions and creams
 ✓ Organic skin scrubs and exfoliants
 ✓ Natural lip balms and moisturizers
 
-Why Choose Sisters Promise?
+Why Choose Sister's Promise?
 • 100% Natural Ingredients - No harsh chemicals
 • Cruelty-Free & Vegan Options - Ethical beauty
 • Small Batch Crafted - Quality over quantity
@@ -120,7 +120,7 @@ Features:
 - Email newsletter with exclusive deals
 - Privacy-first analytics (your data is safe)
 
-Join thousands of customers discovering the Sisters Promise difference.
+Join thousands of customers discovering the Sister's Promise difference.
 Download now and get FREE SHIPPING on your first order!
 
 Privacy: We protect your data with HTTPS/TLS encryption and never share 
@@ -140,7 +140,7 @@ Complete the IARC questionnaire covering:
 - Gambling Elements
 - Data Sharing Practices
 
-For Sisters Promise (Shopping App):
+For Sister's Promise (Shopping App):
 - ✓ Targets: All ages (rating: Everyone)
 - ✓ Collects: Email, name, address (for orders)
 - ✓ No ads/in-app ads: Usually for organic products
@@ -208,7 +208,7 @@ Play Console → Release → Production → Review and rollout
 developer.apple.com → Certificates, IDs & Profiles
 ├── Create App ID
 │   ├── Bundle ID: com.sisterspromise.app
-│   ├── Description: Sisters Promise
+│   ├── Description: Sister's Promise
 │   └── Enable: Sign in with Apple, HealthKit (if tracking)
 ├── Create Distribution Certificate
 │   └── Use for App Store builds
@@ -221,7 +221,7 @@ developer.apple.com → Certificates, IDs & Profiles
 ```
 appstoreconnect.apple.com → My Apps → Create New App
 ├── Platform: iOS
-├── App Name: Sisters Promise
+├── App Name: Sister's Promise
 ├── Primary Language: English
 ├── Bundle ID: com.sisterspromise.app
 ├── SKU: SISTERSPROMISE2024 (unique internal identifier)
@@ -266,7 +266,7 @@ xcrun altool --upload-app \
 
 | Field | Requirement | Content |
 |-------|-------------|---------|
-| **App Name** | Required | "Sisters Promise" |
+| **App Name** | Required | "Sister's Promise" |
 | **Subtitle** | 30 char max | "Natural Skincare" |
 | **Description** | 4000 chars | Same as Google Play (tailored) |
 | **Keywords** | 100 chars | skincare, natural, organic, beauty |
@@ -366,7 +366,7 @@ App Store Connect → TestFlight (optional beta)
 
 ### Keywords & ASO (App Store Optimization)
 
-**High-Value Keywords for Sisters Promise:**
+**High-Value Keywords for Sister's Promise:**
 
 ```
 Primary Keywords (Most Important):
@@ -438,7 +438,7 @@ async function showReviewPrompt() {
 
 **Example Response to 3-Star Review:**
 
-> "Thank you for trying Sisters Promise! We're sorry you didn't love your order. Each of our products is handmade, and we take pride in quality. 
+> "Thank you for trying Sister's Promise! We're sorry you didn't love your order. Each of our products is handmade, and we take pride in quality. 
 > 
 > We'd love to make this right - please email denise@sisterspromise.com with your order details. We offer free replacements on our handcrafted products.
 > 
@@ -460,7 +460,7 @@ Browses products
     ↓
 Makes purchase
     ↓
-Sisters Promise keeps profit (50-70% after costs)
+Sister's Promise keeps profit (50-70% after costs)
     ↓
 Reinvest in inventory, marketing, app improvement
 ```
@@ -673,7 +673,7 @@ Digital Products:
    └── Prepare reviews for launch day
 
 2. Email Campaign Series
-   ├── Email 1: "Meet Sisters Promise" (product story)
+   ├── Email 1: "Meet Sister's Promise" (product story)
    ├── Email 2: "Exclusive Launch Offer" (15% off launch week)
    ├── Email 3: "Customer Testimonials" (social proof)
    ├── Email 4: "App Features Breakdown"
@@ -1086,5 +1086,5 @@ Profitability Assumes:
 
 **Document Version:** 1.0
 **Last Updated:** January 15, 2026
-**For:** Sisters Promise Mobile App
+**For:** Sister's Promise Mobile App
 **Contact:** denise@sisterspromise.com

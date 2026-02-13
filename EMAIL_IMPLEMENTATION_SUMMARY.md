@@ -2,7 +2,7 @@
 
 ## What Was Built
 
-A **production-ready, reliable email marketing and customer list management system** for the Sisters Promise app. This system is designed with security, scalability, and best practices in mind.
+A **production-ready, reliable email marketing and customer list management system** for the Sister's Promise app. This system is designed with security, scalability, and best practices in mind.
 
 ---
 

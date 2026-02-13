@@ -1,12 +1,12 @@
-# Sisters Promise - Natural Skincare Website
+# Sister's Promise - Natural Skincare Website
 
 ![version](https://img.shields.io/badge/version-1.0.0-blue.svg)
 
-**Sisters Promise** is a natural skincare brand dedicated to creating clean, handmade, and intentional skincare products. This website showcases our collection of organic lotions, sea moss soap, skin scrubs, and other natural homemade products.
+**Sister's Promise** is a natural skincare brand dedicated to creating clean, handmade, and intentional skincare products. This website showcases our collection of organic lotions, sea moss soap, skin scrubs, and other natural homemade products.
 
-## About Sisters Promise
+## About Sister's Promise
 
-Sisters Promise was created out of a desire for skincare that is clean, intentional, and made with love. Every product reflects a commitment to quality, care, and purpose. We believe skincare should be simple, honest, and effective—filled with plant-based ingredients, no harsh chemicals, small-batch crafted with love and care.
+Sister's Promise was created out of a desire for skincare that is clean, intentional, and made with love. Every product reflects a commitment to quality, care, and purpose. We believe skincare should be simple, honest, and effective—filled with plant-based ingredients, no harsh chemicals, small-batch crafted with love and care.
 
 **Our Core Values:**
 - 🌿 **All-Natural** - Plant-based ingredients with no harsh chemicals

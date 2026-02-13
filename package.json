@@ -1,7 +1,7 @@
 {
   "name": "sisters-promise",
   "version": "1.0.0",
-  "description": "Natural skincare website for Sisters Promise - handmade, clean skincare crafted with intention and care",
+  "description": "Natural skincare website for Sister's Promise - handmade, clean skincare crafted with intention and care",
   "main": "server.js",
   "directories": {
     "example": "root"
@@ -33,7 +33,7 @@
     "bootstrap 5",
     "responsive design"
   ],
-  "author": "Sisters Promise",
+  "author": "Sister's Promise",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/derob357/sisters-promise/issues"

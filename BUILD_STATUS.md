@@ -1,4 +1,4 @@
-# Sisters Promise - Current Build Status
+# Sister's Promise - Current Build Status
 
 **Build Date:** January 19, 2026  
 **Current Version:** v009.6  
@@ -8,7 +8,7 @@
 
 ## 🎯 Project Overview
 
-Sisters Promise is a full-stack e-commerce application for natural skincare products with:
+Sister's Promise is a full-stack e-commerce application for natural skincare products with:
 - ✅ Node.js/Express backend with MongoDB
 - ✅ React Native iOS/Android mobile app
 - ✅ Complete authentication and role-based access control
@@ -92,7 +92,7 @@ Test Credentials (if needed):
 - **Android Min SDK:** API 31
 - **App Bundle ID (iOS):** com.sisterspromise.app
 - **App Package (Android):** com.sisterspromise.app
-- **App Icon:** Sisters Promise logo (custom generated)
+- **App Icon:** Sister's Promise logo (custom generated)
 
 ### Build Environment (Verified Jan 19, 2026)
 - **Java:** 21.0.9 (Homebrew) ✅
@@ -136,7 +136,7 @@ Test Credentials (if needed):
 - ✅ App restart functionality
 - ✅ Safe area handling (SafeAreaView)
 - ✅ Vector icons for UI elements
-- ✅ Custom app icon with Sisters Promise logo
+- ✅ Custom app icon with Sister's Promise logo
 
 ### Current Deployments
 - **iPhone 16 Pro Simulator** (iOS 18.6) - ✅ Deployed
@@ -197,7 +197,7 @@ Test Credentials (if needed):
 - ✅ Updated cartService to use correct product IDs
 
 ### v009.6 - App Icon & Device Support
-- ✅ Generated 12 app icon sizes from Sisters Promise logo
+- ✅ Generated 12 app icon sizes from Sister's Promise logo
 - ✅ Updated AppIcon.appiconset with all sizes (20x20 to 1024x1024)
 - ✅ Deployed to iPad Pro simulator
 - ✅ Added ios-deploy support for physical device testing

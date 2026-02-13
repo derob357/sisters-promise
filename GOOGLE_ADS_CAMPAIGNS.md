@@ -1,4 +1,4 @@
-# Google Ads Campaign Strategy for Sisters Promise Mobile App
+# Google Ads Campaign Strategy for Sister's Promise Mobile App
 
 ## VIP Membership Campaign - $19.99/Month
 
@@ -21,10 +21,10 @@
 5. "Join 10K+ Happy Customers"
 
 **Description Variants:**
-1. "Save big with Sisters Promise VIP. 15% off, free shipping, early access. Only $19.99/month."
+1. "Save big with Sister's Promise VIP. 15% off, free shipping, early access. Only $19.99/month."
 2. "Natural skincare delivered. VIP members get exclusive access + lifetime savings. Download now."
 3. "Pure ingredients. Pure savings. VIP membership $19.99/month. Cancel anytime."
-4. "Sisters Promise VIP: Premium access to handmade organic skincare at unbeatable prices."
+4. "Sister's Promise VIP: Premium access to handmade organic skincare at unbeatable prices."
 5. "Skincare revolution. Join VIP for 15% off everything + free shipping. $19.99/month."
 
 **Video Assets (Required):**
@@ -123,9 +123,9 @@ Secondary Keywords:
 └── "cruelty free skincare app"
 
 Branded Keywords (Protect):
-├── "Sisters Promise"
-├── "Sisters Promise app"
-└── "Sisters Promise skincare"
+├── "Sister's Promise"
+├── "Sister's Promise app"
+└── "Sister's Promise skincare"
 ```
 
 **Bid Strategy:** Maximize Conversions with Target CPA
@@ -140,13 +140,13 @@ Branded Keywords (Protect):
 ```
 Headline 1: 15% Off Every Purchase
 Headline 2: Free Shipping on VIP Membership
-Headline 3: Download Sisters Promise Today
+Headline 3: Download Sister's Promise Today
 
 Description 1: Join 10,000+ customers getting premium natural skincare 
 at unbeatable prices. VIP membership only $19.99/month.
 
 Description 2: Pure organic ingredients. Free shipping. 15% member discount. 
-Download the Sisters Promise app now.
+Download the Sister's Promise app now.
 ```
 
 **Ad Set 2: Lifestyle Focus**
@@ -224,11 +224,11 @@ Voiceover: "...without the price tag."
 [10s] Text overlay: "VIP Members Save 15%"
 Text overlay: "$19.99/Month"
 
-[15s] Call-to-action: "Download Sisters Promise"
+[15s] Call-to-action: "Download Sister's Promise"
 Logo appears, app store badges shown
 ```
 
-**Video 2: 30-Second Hero Ad - "Why Sisters Promise"**
+**Video 2: 30-Second Hero Ad - "Why Sister's Promise"**
 
 ```
 [0s] Open: Morning routine, fresh face
@@ -238,7 +238,7 @@ Voiceover: "Your skin deserves better."
 Voiceover: "100% natural ingredients..."
 
 [10s] Customer testimonial (real/authentic):
-"I switched to Sisters Promise and my skin has never looked better!"
+"I switched to Sister's Promise and my skin has never looked better!"
 
 [15s] Feature highlights on screen:
 - "15% VIP Discount"
@@ -246,14 +246,14 @@ Voiceover: "100% natural ingredients..."
 - "Early Access to New Products"
 - "Handmade & Organic"
 
-[20s] Voiceover: "Join 10,000+ customers with Sisters Promise."
+[20s] Voiceover: "Join 10,000+ customers with Sister's Promise."
 Text: "VIP Membership $19.99/Month"
 
 [25s] App demo: Fast browse, easy checkout
 Text: "Cancel Anytime"
 
 [30s] CTA: "Download Free Today"
-Text: Sisters Promise logo + app store badges
+Text: Sister's Promise logo + app store badges
 ```
 
 **Video 3: 30-Second Lifestyle Ad - "Your Best Skin"**
@@ -262,7 +262,7 @@ Text: Sisters Promise logo + app store badges
 [0s] Open: Woman waking up, looking in mirror
 Ambient music starts
 
-[5s] She applies skincare product (Sisters Promise)
+[5s] She applies skincare product (Sister's Promise)
 Close-up: Hands, face, glow
 
 [10s] Cut to: Different woman, applying different product
@@ -272,7 +272,7 @@ Same ritual, different room, same product
 Show all product types: soap, lotion, scrub, lip balm
 
 [20s] Customer smiling, confident, glowing skin
-Text: "Sisters Promise VIP"
+Text: "Sister's Promise VIP"
 Text: "$19.99/Month"
 
 [25s] Phone screen: App interface shown
@@ -280,7 +280,7 @@ Text: "Download Free"
 
 [30s] Final frame: Product + logo
 Voiceover: "Pure skincare. Better prices."
-CTA: "Join Sisters Promise Today"
+CTA: "Join Sister's Promise Today"
 ```
 
 **Video 4: 15-Second Testimonial Ad - "Real Results"**
@@ -289,8 +289,8 @@ CTA: "Join Sisters Promise Today"
 [0s] Open: Real customer (before/after skincare journey)
 Voiceover: "My skin has completely changed..."
 
-[5s] Customer using Sisters Promise products
-Text: "Sisters Promise VIP Member"
+[5s] Customer using Sister's Promise products
+Text: "Sister's Promise VIP Member"
 
 [10s] Glowing skin, customer smiling
 Text: "15% Off Everything"
@@ -337,7 +337,7 @@ CTA Button: "Get The App"
 ```
 Large headline: "VIP Launch Special"
 Subheader: "Limited Time: Free First Month!"
-Image: Sisters Promise logo + products
+Image: Sister's Promise logo + products
 CTA Button: "Claim Now"
 ```
 
@@ -391,7 +391,7 @@ Show: Excited customer receiving package
 
 [3s] Product shown being used
 
-[6s] After (glowing skin) + CTA: "Download Sisters Promise"
+[6s] After (glowing skin) + CTA: "Download Sister's Promise"
 ```
 
 ---
@@ -846,5 +846,5 @@ Before launching Google Ads campaigns:
 
 **Document Version:** 1.0  
 **Last Updated:** January 15, 2026  
-**For:** Sisters Promise Mobile App - VIP Membership Campaign  
+**For:** Sister's Promise Mobile App - VIP Membership Campaign  
 **Contact:** denise@sisterspromise.com

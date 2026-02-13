@@ -1,4 +1,4 @@
-# Quick Reference - Sisters Promise Mobile App (v009.6)
+# Quick Reference - Sister's Promise Mobile App (v009.6)
 
 **Last Updated:** January 19, 2026
 
@@ -15,7 +15,7 @@
 - ✅ Order management (admin)
 - ✅ Error boundary with logging
 - ✅ App restart functionality
-- ✅ Custom Sisters Promise app icon
+- ✅ Custom Sister's Promise app icon
 - ✅ Multi-screen layout (iPhone & iPad)
 
 ### Backend Endpoints Implemented
@@ -117,7 +117,7 @@ Test Customer:
 
 Latest commits in order:
 ```
-v009.6 - Update app icon to Sisters Promise logo for iOS
+v009.6 - Update app icon to Sister's Promise logo for iOS
 v009.5 - Fix key prop warning - use MongoDB _id for all list renders
 v009.4 - Add admin/owner error view with copyable logs
 v009.3 - Add friendly error screen with app restart

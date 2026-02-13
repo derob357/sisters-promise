@@ -1,6 +1,6 @@
 # Email Marketing & Customer List System
 
-A production-ready, reliable email marketing and subscriber management system for the Sisters Promise app.
+A production-ready, reliable email marketing and subscriber management system for the Sister's Promise app.
 
 ## 🎯 What This Does
 

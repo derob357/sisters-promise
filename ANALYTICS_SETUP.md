@@ -2,7 +2,7 @@
 
 ## Overview
 
-Sisters Promise is configured for comprehensive analytics tracking across Google Analytics 4 and Apple Analytics, enabling you to track user behavior, conversions, and engagement metrics.
+Sister's Promise is configured for comprehensive analytics tracking across Google Analytics 4 and Apple Analytics, enabling you to track user behavior, conversions, and engagement metrics.
 
 ## Google Analytics 4 Setup
 
@@ -13,7 +13,7 @@ Sisters Promise is configured for comprehensive analytics tracking across Google
 3. Click **Admin** (bottom left)
 4. Click **Create Property** in the Property column
 5. Fill in property details:
-   - **Property name**: Sisters Promise
+   - **Property name**: Sister's Promise
    - **Reporting timezone**: Your timezone
    - **Currency**: USD
    - **Industry category**: Shopping/Retail
@@ -25,7 +25,7 @@ Sisters Promise is configured for comprehensive analytics tracking across Google
 2. Select **Web** as the platform
 3. Enter:
    - **Website URL**: https://sisterspromise.com
-   - **Stream name**: Sisters Promise Web
+   - **Stream name**: Sister's Promise Web
 4. Click **Create stream**
 5. You'll see your **Measurement ID** (starts with `G_`)
 
@@ -82,7 +82,7 @@ Apple Analytics requires:
 - No cross-site tracking for personalization
 - Transparent data practices
 
-## Implementation in Sisters Promise
+## Implementation in Sister's Promise
 
 ### Client-Side Tracking (Frontend)
 

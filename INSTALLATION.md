@@ -1,4 +1,4 @@
-# Sisters Promise - Installation & Setup Guide
+# Sister's Promise - Installation & Setup Guide
 
 **Updated:** January 19, 2026  
 **Current Version:** v009.6

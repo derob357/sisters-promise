@@ -115,7 +115,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Sisters Promise is a natural skincare e-commerce platform with a web storefront and a React Native mobile app. The web app is a server-rendered Express.js application serving static HTML pages with Bootstrap 5 styling (Material Kit 2 theme). Payments are processed through Square. The mobile app lives in the `SistersPromiseMobile/` git submodule.
+Sister's Promise is a natural skincare e-commerce platform with a web storefront and a React Native mobile app. The web app is a server-rendered Express.js application serving static HTML pages with Bootstrap 5 styling (Material Kit 2 theme). Payments are processed through Square. The mobile app lives in the `SistersPromiseMobile/` git submodule.
 
 ## Common Commands
 

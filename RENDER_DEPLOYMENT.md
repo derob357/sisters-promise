@@ -1,4 +1,4 @@
-# Deploy Sisters Promise to Render.com
+# Deploy Sister's Promise to Render.com
 
 ## Step-by-Step Deployment Guide
 

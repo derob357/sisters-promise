@@ -1,4 +1,4 @@
-# Sisters Promise - Central Chat System Documentation
+# Sister's Promise - Central Chat System Documentation
 
 ## Overview
 
@@ -94,7 +94,7 @@ The Central Chat System is a real-time messaging platform exclusively for **VIP 
     Real-time Messages    Fallback/Other APIs
          │                       │
     ┌────────────────────────────────────────┐
-    │      Sisters Promise Chat Server       │
+    │      Sister's Promise Chat Server       │
     │  (Express.js with SSL/TLS)             │
     └─────┬──────────────────────────┬───────┘
           │                          │
@@ -255,7 +255,7 @@ The Central Chat System is a real-time messaging platform exclusively for **VIP 
 ### For Users
 
 #### Accessing Chat
-1. Open Sisters Promise app (web/iOS/Android)
+1. Open Sister's Promise app (web/iOS/Android)
 2. Navigate to Chat section (💬 icon)
 3. View list of available channels
 4. Click on channel to open conversation

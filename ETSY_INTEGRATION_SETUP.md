@@ -1,7 +1,7 @@
-# Sisters Promise - Etsy API Integration Setup
+# Sister's Promise - Etsy API Integration Setup
 
 ## Overview
-This setup allows Sisters Promise to automatically pull product listings, images, and details directly from the Etsy shop.
+This setup allows Sister's Promise to automatically pull product listings, images, and details directly from the Etsy shop.
 
 ## Prerequisites
 1. Node.js (v14 or higher)
@@ -13,8 +13,8 @@ This setup allows Sisters Promise to automatically pull product listings, images
 1. Go to https://www.etsy.com/developers
 2. Sign in with your Etsy seller account
 3. Create a new app:
-   - App name: "Sisters Promise Website"
-   - App description: "E-commerce integration for Sisters Promise skincare products"
+   - App name: "Sister's Promise Website"
+   - App description: "E-commerce integration for Sister's Promise skincare products"
    - Accept the terms and create the app
 4. Copy your **API Key** from the app credentials
 5. Find your **Shop ID**:

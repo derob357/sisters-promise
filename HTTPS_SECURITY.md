@@ -2,7 +2,7 @@
 
 ## Overview
 
-All API traffic to Sisters Promise is encrypted using HTTPS/TLS (Transport Layer Security). This document explains the implementation and how to configure it for development and production.
+All API traffic to Sister's Promise is encrypted using HTTPS/TLS (Transport Layer Security). This document explains the implementation and how to configure it for development and production.
 
 ## Architecture
 

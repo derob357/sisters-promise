@@ -1,6 +1,6 @@
 # Backend Setup & Deployment Guide
 
-Complete guide to set up the Sisters Promise API backend server.
+Complete guide to set up the Sister's Promise API backend server.
 
 ---
 

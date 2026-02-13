@@ -174,9 +174,9 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          name: Sisters Promise Mobile ${{ github.ref_name }}
+          name: Sister's Promise Mobile ${{ github.ref_name }}
           body: |
-            ## Sisters Promise Mobile - Release ${{ github.ref_name }}
+            ## Sister's Promise Mobile - Release ${{ github.ref_name }}
             
             **Build Date:** $(date)
             **Branch:** ${{ github.ref_name }}

@@ -1,4 +1,4 @@
-// Square Payment Integration Server for Sisters Promise
+// Square Payment Integration Server for Sister's Promise
 
 // CRITICAL: Load environment FIRST, before any requires that need env vars
 const dotenv = require('dotenv');
@@ -285,7 +285,7 @@ app.get('/api/health', generalLimiter, (req, res) => {
   try {
     res.json({ 
       status: 'ok', 
-      message: 'Sisters Promise API is running',
+      message: "Sister's Promise API is running",
       timestamp: new Date().toISOString(),
       environment: process.env.SQUARE_ENVIRONMENT || 'sandbox'
     });
@@ -1196,7 +1196,7 @@ app.get('/api/email/unsubscribe/:token', asyncHandler(async (req, res) => {
       <!DOCTYPE html>
       <html>
       <head>
-        <title>Unsubscribed - Sisters Promise</title>
+        <title>Unsubscribed - Sister's Promise</title>
         <style>
           body {
             font-family: Arial, sans-serif;
@@ -1222,7 +1222,7 @@ app.get('/api/email/unsubscribe/:token', asyncHandler(async (req, res) => {
       <body>
         <div class="container">
           <h1>✓ Unsubscribed</h1>
-          <p>You have been successfully unsubscribed from Sisters Promise emails.</p>
+          <p>You have been successfully unsubscribed from Sister's Promise emails.</p>
           <p>We're sorry to see you go! If you change your mind, you can always resubscribe on our <a href="/">website</a>.</p>
         </div>
       </body>
@@ -1235,7 +1235,7 @@ app.get('/api/email/unsubscribe/:token', asyncHandler(async (req, res) => {
       <!DOCTYPE html>
       <html>
       <head>
-        <title>Error - Sisters Promise</title>
+        <title>Error - Sister's Promise</title>
         <style>
           body {
             font-family: Arial, sans-serif;
@@ -4021,7 +4021,7 @@ if (fs.existsSync(certPath) && fs.existsSync(keyPath)) {
     const HTTP_PORT = process.env.PORT || 3000;
 
     httpsServer.listen(HTTPS_PORT, () => {
-      console.log(`\n✓ Sisters Promise API server running on https://localhost:${HTTPS_PORT}`);
+      console.log(`\n✓ Sister's Promise API server running on https://localhost:${HTTPS_PORT}`);
       console.log(`✓ HTTP server also available on port ${HTTP_PORT} (for mobile app development)`);
       console.log(`✓ Environment: ${process.env.SQUARE_ENVIRONMENT || 'sandbox'}`);
       console.log(`✓ Security: HTTPS/TLS enabled, Helmet enabled, Rate limiting active`);
@@ -4050,7 +4050,7 @@ if (fs.existsSync(certPath) && fs.existsSync(keyPath)) {
     console.log('Falling back to HTTP only...\n');
     
     app.listen(PORT, () => {
-      console.log(`\n✓ Sisters Promise API server running on http://localhost:${PORT}`);
+      console.log(`\n✓ Sister's Promise API server running on http://localhost:${PORT}`);
       console.log(`⚠️  WARNING: Running on HTTP (unencrypted) - Not recommended for production`);
       console.log(`✓ Environment: ${process.env.SQUARE_ENVIRONMENT || 'sandbox'}`);
       console.log(`✓ Security: Helmet enabled, Rate limiting active, Input sanitization enabled`);
@@ -4068,7 +4068,7 @@ if (fs.existsSync(certPath) && fs.existsSync(keyPath)) {
   if (isCloudPlatform) {
     console.log('Running on cloud platform - TLS handled by load balancer\n');
     app.listen(PORT, () => {
-      console.log(`\n✓ Sisters Promise API server running on port ${PORT}`);
+      console.log(`\n✓ Sister's Promise API server running on port ${PORT}`);
       console.log(`✓ Environment: ${process.env.SQUARE_ENVIRONMENT || 'sandbox'}`);
       console.log(`✓ Security: Helmet enabled, Rate limiting active, Input sanitization enabled`);
       console.log(`✓ Max payload size: 10KB`);
@@ -4088,7 +4088,7 @@ if (fs.existsSync(certPath) && fs.existsSync(keyPath)) {
     } catch (error) {
       console.error('Failed to generate certificates. Running HTTP only.\n');
       app.listen(PORT, () => {
-        console.log(`\n✓ Sisters Promise API server running on http://localhost:${PORT}`);
+        console.log(`\n✓ Sister's Promise API server running on http://localhost:${PORT}`);
         console.log(`⚠️  WARNING: Running on HTTP (unencrypted) - Not recommended for production`);
         console.log(`✓ Environment: ${process.env.SQUARE_ENVIRONMENT || 'sandbox'}`);
         console.log(`✓ Security: Helmet enabled, Rate limiting active, Input sanitization enabled`);

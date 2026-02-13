@@ -1,4 +1,4 @@
-# Sisters Promise - Security & Best Practices Guide
+# Sister's Promise - Security & Best Practices Guide
 
 ## Table of Contents
 
@@ -15,7 +15,7 @@
 
 ## Security Overview
 
-This document outlines all security measures implemented in the Sisters Promise web application.
+This document outlines all security measures implemented in the Sister's Promise web application.
 
 ### Security Features Implemented:
 
@@ -254,7 +254,7 @@ const corsOptions = {
 1. **Create reCAPTCHA Keys:**
    - Go to https://www.google.com/recaptcha/admin
    - Click **Create** → Add new site
-   - Name: `Sisters Promise`
+   - Name: `Sister's Promise`
    - Type: **reCAPTCHA v3**
    - Domains: `localhost`, `sisterspromise.com`, `www.sisterspromise.com`
 

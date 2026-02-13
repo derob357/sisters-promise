@@ -90,7 +90,7 @@ curl -X POST http://localhost:3000/api/admin/campaigns \
   -H "Content-Type: application/json" \
   -d '{
     "name":"My First Newsletter",
-    "subject":"Welcome to Sisters Promise!",
+    "subject":"Welcome to Sister's Promise!",
     "templateId":"newsletter",
     "type":"newsletter"
   }'

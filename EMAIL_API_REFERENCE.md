@@ -78,7 +78,7 @@ GET /api/email/unsubscribe/token_xyz123
 
 Response: 200 OK (HTML page)
 ✓ Unsubscribed
-You have been successfully unsubscribed from Sisters Promise emails.
+You have been successfully unsubscribed from Sister's Promise emails.
 ```
 
 ### Get Statistics

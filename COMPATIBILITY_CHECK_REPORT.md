@@ -1,4 +1,4 @@
-# Sisters Promise Mobile - Compatibility Check Report
+# Sister's Promise Mobile - Compatibility Check Report
 **Date:** January 19, 2026 | **Device:** Samsung Ultra 25 (R5CY34WN82E)
 
 ---

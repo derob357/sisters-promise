@@ -1,4 +1,4 @@
-# Sisters Promise - Complete MongoDB Setup Guide
+# Sister's Promise - Complete MongoDB Setup Guide
 ## WITH ENHANCED IMAGE SUPPORT (Full + Thumbnails)
 
 **Total Time:** 60-75 minutes  
@@ -265,7 +265,7 @@ node setup-database-mongodb.js
 
 **Expected Output:**
 ```
-🚀 Sisters Promise MongoDB Setup
+🚀 Sister's Promise MongoDB Setup
 ✅ MongoDB connection successful
 🗑️  Clearing existing data...
 📋 Creating indexes...

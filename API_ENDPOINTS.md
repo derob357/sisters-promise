@@ -1,4 +1,4 @@
-# Sisters Promise API - Complete Reference
+# Sister's Promise API - Complete Reference
 
 **Backend Stack:** Express.js 4.22.1 + MongoDB + WebSocket  
 **API Base URL:** `https://api.sisterspromise.com/api` (or `https://localhost:443` for development)
@@ -564,4 +564,4 @@ socket.on('room:updated', (room) => {...});
 
 **Last Updated:** January 16, 2026  
 **Version:** 1.0.0  
-**Maintained By:** Sisters Promise Development Team
+**Maintained By:** Sister's Promise Development Team

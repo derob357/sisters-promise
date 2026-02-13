@@ -1,5 +1,5 @@
 /**
- * Square Payment Integration Client for Sisters Promise
+ * Square Payment Integration Client for Sister's Promise
  * Handles product fetching, payment processing, and form submissions
  * Security: Input sanitization, error handling, rate limiting
  */

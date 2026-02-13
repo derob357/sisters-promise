@@ -124,11 +124,11 @@ class EmailService {
       });
 
       const mailOptions = {
-        from: `"Sisters Promise" <${process.env.SMTP_FROM || 'info@sisterspromise.com'}>`,
+        from: `"Sister's Promise" <${process.env.SMTP_FROM || 'info@sisterspromise.com'}>`,
         to: subscriber.email,
-        subject: 'Welcome to Sisters Promise!',
-        html: html || `Welcome to Sisters Promise, ${subscriber.firstName}!`,
-        text: `Welcome to Sisters Promise, ${subscriber.firstName}! Thank you for subscribing.`,
+        subject: "Welcome to Sister's Promise!",
+        html: html || `Welcome to Sister's Promise, ${subscriber.firstName}!`,
+        text: `Welcome to Sister's Promise, ${subscriber.firstName}! Thank you for subscribing.`,
         replyTo: process.env.REPLY_TO_EMAIL || 'info@sisterspromise.com',
       };
 
@@ -162,7 +162,7 @@ class EmailService {
     for (const subscriber of subscribers) {
       try {
         const mailOptions = {
-          from: `"Sisters Promise" <${process.env.SMTP_FROM || 'info@sisterspromise.com'}>`,
+          from: `"Sister's Promise" <${process.env.SMTP_FROM || 'info@sisterspromise.com'}>`,
           to: subscriber.email,
           subject: campaign.subject,
           html: html
@@ -206,9 +206,9 @@ class EmailService {
       });
 
       const mailOptions = {
-        from: `"Sisters Promise" <${process.env.SMTP_FROM || 'info@sisterspromise.com'}>`,
+        from: `"Sister's Promise" <${process.env.SMTP_FROM || 'info@sisterspromise.com'}>`,
         to: subscriber.email,
-        subject: `${promotion.title} - Sisters Promise`,
+        subject: `${promotion.title} - Sister's Promise`,
         html: html || `Check out this promotion: ${promotion.title}`,
         text: `${promotion.title}: ${promotion.description}`,
         replyTo: process.env.REPLY_TO_EMAIL || 'info@sisterspromise.com',
@@ -248,7 +248,7 @@ class EmailService {
       });
 
       const mailOptions = {
-        from: `"Sisters Promise" <${process.env.SMTP_FROM || 'info@sisterspromise.com'}>`,
+        from: `"Sister's Promise" <${process.env.SMTP_FROM || 'info@sisterspromise.com'}>`,
         to: subscriber.email,
         subject: `Order Confirmation #${order.id}`,
         html: html || `Your order #${order.id} has been confirmed!`,
@@ -290,9 +290,9 @@ class EmailService {
       });
 
       const mailOptions = {
-        from: `"Sisters Promise" <${process.env.SMTP_FROM || 'info@sisterspromise.com'}>`,
+        from: `"Sister's Promise" <${process.env.SMTP_FROM || 'info@sisterspromise.com'}>`,
         to: subscriber.email,
-        subject: 'You left items in your cart! - Sisters Promise',
+        subject: "You left items in your cart! - Sister's Promise",
         html: html || `You have items in your cart worth $${cartTotal}!`,
         text: `Complete your purchase! Items in cart: $${cartTotal}`,
         replyTo: process.env.REPLY_TO_EMAIL || 'info@sisterspromise.com',
@@ -320,7 +320,7 @@ class EmailService {
       const html = this.loadTemplate(emailConfig.template, emailConfig.variables || {});
 
       const mailOptions = {
-        from: `"Sisters Promise" <${process.env.SMTP_FROM || 'info@sisterspromise.com'}>`,
+        from: `"Sister's Promise" <${process.env.SMTP_FROM || 'info@sisterspromise.com'}>`,
         to: subscriber.email,
         subject: emailConfig.subject,
         html: html || emailConfig.fallbackText,
@@ -437,7 +437,7 @@ class EmailService {
       await this.transporter.sendMail({
         from: process.env.SMTP_USER || 'denise@sisterspromise.com',
         to: customerEmail,
-        subject: `Order Confirmation - Sisters Promise #${orderId.slice(0, 8)}`,
+        subject: `Order Confirmation - Sister's Promise #${orderId.slice(0, 8)}`,
         html: htmlContent,
       });
 
@@ -512,7 +512,7 @@ class EmailService {
       await this.transporter.sendMail({
         from: process.env.SMTP_USER || 'denise@sisterspromise.com',
         to: customerEmail,
-        subject: `Payment Status Update - Sisters Promise #${orderId.slice(0, 8)}`,
+        subject: `Payment Status Update - Sister's Promise #${orderId.slice(0, 8)}`,
         html: htmlContent,
       });
 
@@ -545,14 +545,14 @@ class EmailService {
         <p>Hi ${customerName},</p>
         <p><strong>Order ID:</strong> ${orderId.slice(0, 8)}</p>
         <p>${statusMessages[orderStatus] || 'Your order status has been updated'}</p>
-        <p>Thank you for choosing Sisters Promise!</p>
+        <p>Thank you for choosing Sister's Promise!</p>
         <p>Questions? Contact us at info@sisterspromise.com</p>
       `;
 
       await this.transporter.sendMail({
         from: process.env.SMTP_USER || 'denise@sisterspromise.com',
         to: customerEmail,
-        subject: `Order Status Update - Sisters Promise #${orderId.slice(0, 8)}`,
+        subject: `Order Status Update - Sister's Promise #${orderId.slice(0, 8)}`,
         html: htmlContent,
       });
 

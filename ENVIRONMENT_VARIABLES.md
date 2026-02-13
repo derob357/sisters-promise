@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Sisters Promise application requires environment variables for:
+The Sister's Promise application requires environment variables for:
 - Backend server configuration
 - Database connectivity
 - Authentication and security

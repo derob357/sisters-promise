@@ -1,4 +1,4 @@
-# Sisters Promise - Startup Guide
+# Sister's Promise - Startup Guide
 
 **Current Build Version:** v009.6 (Updated January 19, 2026)
 
@@ -42,7 +42,7 @@ npx react-native run-ios --simulator="iPad Pro (11-inch) (4th generation)"
   - iPhone 16 Pro (iOS 18.6) with app deployed
   - iPad Pro 11-inch (4th generation) with app deployed
 - **App Bundle ID**: `com.sisterspromise.app`
-- **App Icon**: Sisters Promise logo (all sizes)
+- **App Icon**: Sister's Promise logo (all sizes)
 
 ## Key Versions (DO NOT CHANGE)
 - React Native: **0.72.13** (downgraded from 0.83.1 due to incompatibility)

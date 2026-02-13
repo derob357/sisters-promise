@@ -82,7 +82,7 @@ describe('EmailService', () => {
       expect(emailService.transporter.sendMail).toHaveBeenCalledWith(
         expect.objectContaining({
           to: 'new@test.com',
-          subject: 'Welcome to Sisters Promise!',
+          subject: "Welcome to Sister's Promise!",
         })
       );
     });

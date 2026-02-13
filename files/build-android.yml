@@ -130,7 +130,7 @@ jobs:
           tag_name: v1.0.${{ github.run_number }}
           name: Release v1.0.${{ github.run_number }}
           body: |
-            ## Sisters Promise Mobile - Release Build
+            ## Sister's Promise Mobile - Release Build
             
             **Build Date:** $(date)
             **Branch:** ${{ github.ref_name }}

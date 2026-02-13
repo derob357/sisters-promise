@@ -1,7 +1,7 @@
 # Documentation Index & Quick Access Guide
 
 **Last Updated:** January 18, 2026  
-**Project:** Sisters Promise Mobile Application
+**Project:** Sister's Promise Mobile Application
 
 ---
 

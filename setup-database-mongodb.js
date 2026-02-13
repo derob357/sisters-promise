@@ -1,5 +1,5 @@
 /**
- * MongoDB Database Setup Script for Sisters Promise
+ * MongoDB Database Setup Script for Sister's Promise
  * WITH ENHANCED IMAGE SUPPORT (Full + Thumbnails)
  * Run with: node setup-database-mongodb.js
  */
@@ -205,7 +205,7 @@ const AnalyticsEvent = mongoose.model('AnalyticsEvent', analyticsEventSchema);
 const Cart = mongoose.model('Cart', cartSchema);
 
 async function setupDatabase() {
-  console.log('🚀 Sisters Promise MongoDB Setup\n');
+  console.log('🚀 Sister's Promise MongoDB Setup\n');
   console.log('📡 Connecting to MongoDB...');
   console.log(`   URI: ${MONGODB_URI}\n`);
   
