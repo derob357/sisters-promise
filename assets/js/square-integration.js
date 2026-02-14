@@ -209,7 +209,7 @@ const SquareIntegration = {
    */
   featuredProductNames: [
     'Organic Seamoss Aloe Soap',
-    'Turmeric Ginger Latte Soap',
+    'Pink Spa Gift Box',
     'Bath Salt Soaks'
   ],
 
