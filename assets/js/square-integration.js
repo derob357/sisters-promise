@@ -210,7 +210,7 @@ const SquareIntegration = {
   featuredProductNames: [
     'Organic Seamoss Aloe Soap',
     'Turmeric Ginger Latte Soap',
-    'Bath Salts'
+    'Bath Salt Soaks'
   ],
 
   /**
@@ -230,15 +230,22 @@ const SquareIntegration = {
     }
 
     // Match curated products by name (case-insensitive), preserving display order
+    // Tries exact match first, then falls back to partial (contains) match
     var featured = [];
     for (var i = 0; i < this.featuredProductNames.length; i++) {
       var targetName = this.featuredProductNames[i].toLowerCase();
+      var match = null;
       for (var j = 0; j < products.length; j++) {
-        if (products[j].name && products[j].name.toLowerCase() === targetName) {
-          featured.push(products[j]);
-          break;
+        var productName = (products[j].name || '').toLowerCase();
+        if (productName === targetName) { match = products[j]; break; }
+      }
+      if (!match) {
+        for (var k = 0; k < products.length; k++) {
+          var pName = (products[k].name || '').toLowerCase();
+          if (pName.indexOf(targetName) !== -1 || targetName.indexOf(pName) !== -1) { match = products[k]; break; }
         }
       }
+      if (match) featured.push(match);
     }
 
     if (featured.length === 0) {
