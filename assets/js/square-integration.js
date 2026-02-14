@@ -205,6 +205,92 @@ const SquareIntegration = {
   },
 
   /**
+   * Curated featured product names (matched against Square catalog)
+   */
+  featuredProductNames: [
+    'Organic Seamoss Aloe Soap',
+    'Turmeric Ginger Latte Soap',
+    'Bath Salts'
+  ],
+
+  /**
+   * Render featured products for homepage (curated selection from Square catalog)
+   */
+  renderFeaturedProducts: async function(containerId) {
+    var container = document.getElementById(containerId);
+    if (!container) return;
+
+    container.innerHTML = '<div class="col-12 text-center py-5"><div class="spinner-border" role="status" style="color: #C9A961;"><span class="visually-hidden">Loading...</span></div></div>';
+
+    var products = await this.fetchProducts();
+
+    if (!products || products.length === 0) {
+      container.innerHTML = '<div class="col-12 text-center py-5"><p class="text-muted">Products coming soon!</p></div>';
+      return;
+    }
+
+    // Match curated products by name (case-insensitive), preserving display order
+    var featured = [];
+    for (var i = 0; i < this.featuredProductNames.length; i++) {
+      var targetName = this.featuredProductNames[i].toLowerCase();
+      for (var j = 0; j < products.length; j++) {
+        if (products[j].name && products[j].name.toLowerCase() === targetName) {
+          featured.push(products[j]);
+          break;
+        }
+      }
+    }
+
+    if (featured.length === 0) {
+      container.innerHTML = '<div class="col-12 text-center py-5"><p class="text-muted">Products coming soon!</p></div>';
+      return;
+    }
+
+    var html = '';
+
+    featured.forEach(function(product) {
+      var imageUrl = product.imageUrl || './assets/img/logos/SistersPromise-Logo_bw_500.jpg';
+      var price = product.priceFormatted || (product.price ? '$' + (product.price / 100).toFixed(2) : 'Contact for price');
+      var description = (product.description || '').substring(0, 120);
+      var safeName = SquareIntegration.sanitize(product.name);
+      var safeDesc = SquareIntegration.sanitize(description);
+      var safePrice = SquareIntegration.sanitize(typeof price === 'string' ? price : String(price));
+      var safeImage = SquareIntegration.sanitize(imageUrl);
+      var productId = product.id || product._id || '';
+      var variationId = product.variationId || '';
+
+      var detailUrl = productId ? './pages/product-detail.html?id=' + encodeURIComponent(productId) : './pages/shop.html';
+
+      var cartButton = variationId
+        ? '<button class="btn btn-sm btn-custom btn-custom-primary flex-fill featured-buy" data-variation-id="' + SquareIntegration.sanitize(variationId) + '"><i class="fas fa-shopping-cart"></i> Add to Cart</button>'
+        : '<a href="./pages/shop.html" class="btn btn-sm btn-custom btn-custom-primary flex-fill"><i class="fas fa-shopping-cart"></i> Shop Now</a>';
+
+      html += '<div class="col-lg-4 col-md-6">' +
+        '<div class="product-card">' +
+          '<img src="' + safeImage + '" alt="' + safeName + '" loading="lazy" style="object-fit: cover; object-position: center;" onerror="this.src=\'./assets/img/logos/SistersPromise-Logo_bw_500.jpg\'">' +
+          '<div class="card-body">' +
+            '<h5 class="product-title">' + safeName + '</h5>' +
+            '<p class="product-description">' + safeDesc + (description.length >= 120 ? '...' : '') + '</p>' +
+            '<p style="color: #C9A961; font-weight: bold; font-size: 1.1rem;">' + safePrice + '</p>' +
+            '<div class="d-flex gap-2">' +
+              '<a href="' + detailUrl + '" class="btn btn-sm btn-custom btn-custom-outline flex-fill">View Details</a>' +
+              cartButton +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    });
+
+    container.innerHTML = html;
+
+    container.querySelectorAll('button.featured-buy[data-variation-id]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        SquareIntegration.buyNow(this.getAttribute('data-variation-id'));
+      });
+    });
+  },
+
+  /**
    * Buy a single product now via Square Checkout
    */
   buyNow: async function(variationId, quantity = 1) {
@@ -347,6 +433,12 @@ document.addEventListener('DOMContentLoaded', function() {
   const productContainer = document.getElementById('square-products');
   if (productContainer) {
     SquareIntegration.renderProducts('square-products');
+  }
+
+  // Auto-render featured products on homepage
+  const featuredContainer = document.getElementById('featured-products');
+  if (featuredContainer) {
+    SquareIntegration.renderFeaturedProducts('featured-products');
   }
 
   // Contact form handler is now in contact.html with reCAPTCHA Enterprise

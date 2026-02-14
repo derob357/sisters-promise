@@ -477,58 +477,10 @@
         <h2 class="fw-bold mb-3">Featured Products</h2>
         <p class="text-muted">Discover our most loved natural skincare products</p>
       </div>
-      <div class="row g-4">
-        <!-- Product 1 -->
-        <div class="col-lg-4 col-md-6">
-          <div class="product-card">
-            <img src="./assets/img/Product/featureProduct01.png" alt="Organic Seamoss Aloe Soap" loading="lazy" style="object-position: center;">
-            <div class="card-body">
-              <h5 class="product-title">Organic Seamoss Aloe Soap</h5>
-              <p class="product-description">Hydrating Sensitive Skin - Enriched with natural sea moss and aloe vera for nourished, moisturized skin.</p>
-              <p style="color: #C9A961; font-weight: bold; font-size: 1.1rem;">$12.00</p>
-              <div class="d-flex gap-2">
-                <a href="./pages/product-detail.html?id=69767e7a2c465c385facc9d4" class="btn btn-sm btn-custom btn-custom-outline flex-fill">View Details</a>
-                <button class="btn btn-sm btn-custom btn-custom-primary flex-fill quick-add-to-cart" data-product-id="69767e7a2c465c385facc9d4" data-product-name="Organic Seamoss Aloe Soap" data-product-price="12.00" data-product-image="./assets/img/Product/featureProduct01.png">
-                  <i class="fas fa-shopping-cart"></i> Add to Cart
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Product 2 -->
-        <div class="col-lg-4 col-md-6">
-          <div class="product-card">
-            <img src="./assets/img/Product/featureProduct02.png" alt="Turmeric Ginger Latte Soap" loading="lazy">
-            <div class="card-body">
-              <h5 class="product-title">Turmeric Ginger Latte Soap</h5>
-              <p class="product-description">Anti-Inflammatory & Aromatic - Soothing bar with turmeric and ginger for a luxurious experience.</p>
-              <p style="color: #C9A961; font-weight: bold; font-size: 1.1rem;">$10.00</p>
-              <div class="d-flex gap-2">
-                <a href="./pages/product-detail.html?id=696be2d06457132c9064b8f1" class="btn btn-sm btn-custom btn-custom-outline flex-fill">View Details</a>
-                <button class="btn btn-sm btn-custom btn-custom-primary flex-fill quick-add-to-cart" data-product-id="696be2d06457132c9064b8f1" data-product-name="Turmeric Ginger Latte Soap" data-product-price="10.00" data-product-image="./assets/img/Product/featureProduct02.png">
-                  <i class="fas fa-shopping-cart"></i> Add to Cart
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Product 3 -->
-        <div class="col-lg-4 col-md-6">
-          <div class="product-card">
-            <img src="./assets/img/Product/20190808_091901.jpg" alt="Bath Salts" loading="lazy" style="object-position: center;">
-            <div class="card-body">
-              <h5 class="product-title">Bath Salts</h5>
-              <p class="product-description">Aromatherapy Blend - Luxurious bath salts with essential oils for a soothing spa experience at home.</p>
-              <p style="color: #C9A961; font-weight: bold; font-size: 1.1rem;">$16.00</p>
-              <div class="d-flex gap-2">
-                <a href="./pages/product-detail.html?id=69767e7a2c465c385facc9e2" class="btn btn-sm btn-custom btn-custom-outline flex-fill">View Details</a>
-                <button class="btn btn-sm btn-custom btn-custom-primary flex-fill quick-add-to-cart" data-product-id="69767e7a2c465c385facc9e2" data-product-name="Bath Salts" data-product-price="16.00" data-product-image="./assets/img/Product/20190808_091901.jpg">
-                  <i class="fas fa-shopping-cart"></i> Add to Cart
-                </button>
-              </div>
-            </div>
+      <div id="featured-products" class="row g-4" aria-live="polite">
+        <div class="col-12 text-center py-5">
+          <div class="spinner-border" role="status" style="color: #C9A961;">
+            <span class="visually-hidden">Loading products...</span>
           </div>
         </div>
       </div>
