@@ -757,6 +757,7 @@
 </head>
 
 <body>
+  <a href="#main-content" class="visually-hidden-focusable">Skip to main content</a>
 
   <!-- Navigation -->
   <nav class="navbar navbar-expand-lg navbar-light sticky-top">
@@ -777,7 +778,7 @@
           <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
           <li class="nav-item"><a class="nav-link" href="shop.html">Shop</a></li>
           <li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
-          <li class="nav-item"><a class="nav-link active" href="rewards.html">Rewards</a></li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="rewards.html">Rewards</a></li>
           <li class="nav-item"><a class="nav-link" href="ingredients.html">Ingredients</a></li>
           <li class="nav-item"><a class="nav-link" href="about-us.html">About</a></li>
           <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
@@ -787,6 +788,7 @@
     </div>
   </nav>
 
+  <main id="main-content">
   <!-- Hero Section -->
   <div class="rewards-hero">
     <div class="container">
@@ -900,7 +902,7 @@
     <div class="container">
       <h2 class="section-title">Current Offers</h2>
       <p class="section-subtitle">Take advantage of our latest special deals and promotions</p>
-      <div id="offers-container" class="row g-4">
+      <div id="offers-container" class="row g-4" aria-live="polite">
         <div class="loading-spinner">
           <div><i class="fas fa-spinner fa-spin"></i></div>
           <p>Loading offers...</p>
@@ -914,7 +916,7 @@
     <div class="container">
       <h2 class="section-title">Product Bundles</h2>
       <p class="section-subtitle">Save more when you bundle our best-selling products together</p>
-      <div id="bundles-container" class="row g-4">
+      <div id="bundles-container" class="row g-4" aria-live="polite">
         <div class="loading-spinner">
           <div><i class="fas fa-spinner fa-spin"></i></div>
           <p>Loading bundles...</p>
@@ -933,7 +935,7 @@
         <h4>Every 10 Purchases = A Free Gift</h4>
         <p>We appreciate your loyalty! For every 10 purchases you make, you earn a free gift of your choice from our selection below. The more you shop, the more gifts you unlock.</p>
       </div>
-      <div id="gifts-container" class="row g-4">
+      <div id="gifts-container" class="row g-4" aria-live="polite">
         <div class="loading-spinner">
           <div><i class="fas fa-spinner fa-spin"></i></div>
           <p>Loading gift options...</p>
@@ -950,6 +952,8 @@
       <a href="shop.html" class="btn-cta"><i class="fas fa-shopping-bag me-2"></i>Shop Now</a>
     </div>
   </section>
+
+  </main>
 
   <!-- Footer -->
   <footer>
@@ -981,7 +985,7 @@
           <h5>Connect</h5>
           <ul>
             <li><a href="#"><i class="fab fa-facebook"></i> Facebook</a></li>
-            <li><a href="#"><i class="fab fa-instagram"></i> Instagram</a></li>
+            <li><a href="https://www.instagram.com/sisterspromiseinc/" target="_blank" rel="noopener"><i class="fab fa-instagram"></i> Instagram</a></li>
             <li><a href="#"><i class="fab fa-twitter"></i> Twitter</a></li>
           </ul>
         </div>

@@ -214,6 +214,7 @@
 </head>
 
 <body>
+  <a href="#main-content" class="visually-hidden-focusable">Skip to main content</a>
 
   <!-- Navigation -->
   <nav class="navbar navbar-expand-lg navbar-light sticky-top">
@@ -244,6 +245,7 @@
     </div>
   </nav>
 
+  <main id="main-content">
   <!-- Auth Section -->
   <section style="min-height: 80vh; display: flex; align-items: center; padding: 40px 20px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
     <div class="container">
@@ -261,7 +263,7 @@
             </div>
             <div class="card-body px-4 py-4">
               <!-- Alert area -->
-              <div id="auth-alert" class="d-none"></div>
+              <div id="auth-alert" class="d-none" role="alert" aria-live="assertive"></div>
 
               <!-- LOGIN FORM -->
               <form id="login-form" onsubmit="return AuthPage.handleLogin(event)">
@@ -319,6 +321,8 @@
     </div>
   </section>
 
+  </main>
+
   <!-- Footer -->
   <footer>
     <div class="container">
@@ -349,7 +353,7 @@
           <h5>Connect</h5>
           <ul>
             <li><a href="#"><i class="fab fa-facebook"></i> Facebook</a></li>
-            <li><a href="#"><i class="fab fa-instagram"></i> Instagram</a></li>
+            <li><a href="https://www.instagram.com/sisterspromiseinc/" target="_blank" rel="noopener"><i class="fab fa-instagram"></i> Instagram</a></li>
             <li><a href="#"><i class="fab fa-twitter"></i> Twitter</a></li>
           </ul>
         </div>

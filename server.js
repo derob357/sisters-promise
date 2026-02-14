@@ -9,7 +9,7 @@ const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.en
 const envPath = path.resolve(envFile);
 if (fs.existsSync(envPath)) {
   dotenv.config({ path: envPath });
-  console.log(`📋 Loaded config from ${envFile}`);
+  logger.info(`📋 Loaded config from ${envFile}`);
 } else {
   dotenv.config();
 }
@@ -21,9 +21,9 @@ if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON && !process.env.GOOGLE_APPLI
     const credentialsPath = path.join('/tmp', 'google-credentials.json');
     fs.writeFileSync(credentialsPath, credentialsJson);
     process.env.GOOGLE_APPLICATION_CREDENTIALS = credentialsPath;
-    console.log('✓ Google credentials loaded from environment variable');
+    logger.info('✓ Google credentials loaded from environment variable');
   } catch (err) {
-    console.warn('Failed to write Google credentials:', err.message);
+    logger.warn('Failed to write Google credentials:', err.message);
   }
 }
 
@@ -51,17 +51,23 @@ const User = require('./models/User');
 const ManualOrder = require('./models/ManualOrder');
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const logger = require('./utils/logger');
+const validate = require('./middleware/validate');
+const { registerSchema, loginSchema, changePasswordSchema } = require('./schemas/auth');
+const { contactSchema, emailSubscribeSchema } = require('./schemas/contact');
+const { squareCheckoutSchema, directCheckoutSchema, orderSchema } = require('./schemas/checkout');
+const { createPostSchema, updatePostSchema, voteSchema, commentSchema } = require('./schemas/blog');
 
 const app = express();
 
 // Initialize database connection
 connectDB().catch(err => {
-  console.warn('MongoDB connection failed, using file-based storage as fallback');
+  logger.warn('MongoDB connection failed, using file-based storage as fallback');
 });
 
 // Initialize default users (owner and admin)
 UserService.initializeDefaultUsers().catch(err => {
-  console.warn('Could not initialize default users:', err.message);
+  logger.warn('Could not initialize default users:', err.message);
 });
 
 // Initialize email services
@@ -162,7 +168,7 @@ app.use(express.urlencoded({ limit: '10kb', extended: true }));
 app.use(mongoSanitize({
   replaceWith: '_',
   onSanitize: ({ req, key }) => {
-    console.warn(`Sanitized ${key} in request body`);
+    logger.warn(`Sanitized ${key} in request body`);
   },
 }));
 
@@ -180,10 +186,10 @@ async function annotateRecaptchaAssessment(assessmentName, annotation) {
     };
 
     await client.annotateAssessment(request);
-    console.log(`Assessment ${assessmentName} annotated as ${annotation}`);
+    logger.info(`Assessment ${assessmentName} annotated as ${annotation}`);
     return true;
   } catch (error) {
-    console.error('Failed to annotate assessment:', error.message);
+    logger.error('Failed to annotate assessment:', error.message);
     return false;
   }
 }
@@ -274,7 +280,7 @@ app.get('/api/health', generalLimiter, (req, res) => {
  * User Registration
  * POST /users/register
  */
-app.post('/api/users/register', asyncHandler(async (req, res) => {
+app.post('/api/users/register', validate(registerSchema), asyncHandler(async (req, res) => {
   const { email, password, firstName, lastName, recaptchaToken } = req.body;
 
   if (!email || !password) {
@@ -285,11 +291,11 @@ app.post('/api/users/register', asyncHandler(async (req, res) => {
   if (recaptchaToken) {
     const score = await verifyRecaptchaV3(recaptchaToken, 'register');
     if (score !== null && score < 0.3) {
-      console.warn(`[reCAPTCHA] Registration blocked for ${email} - score: ${score}`);
+      logger.warn(`[reCAPTCHA] Registration blocked for ${email} - score: ${score}`);
       return res.status(403).json({ error: 'Bot activity detected. Please try again.' });
     }
   } else {
-    console.warn(`[reCAPTCHA] No token provided for registration: ${email}`);
+    logger.warn(`[reCAPTCHA] No token provided for registration: ${email}`);
   }
   
   const existingUser = await User.findOne({ email: email.toLowerCase() });
@@ -336,7 +342,7 @@ app.post('/api/users/register', asyncHandler(async (req, res) => {
  * User Login
  * POST /api/users/login
  */
-app.post('/api/users/login', asyncHandler(async (req, res) => {
+app.post('/api/users/login', validate(loginSchema), asyncHandler(async (req, res) => {
   const { email, password, recaptchaToken } = req.body;
 
   if (!email || !password) {
@@ -347,11 +353,11 @@ app.post('/api/users/login', asyncHandler(async (req, res) => {
   if (recaptchaToken) {
     const score = await verifyRecaptchaV3(recaptchaToken, 'login');
     if (score !== null && score < 0.3) {
-      console.warn(`[reCAPTCHA] Login blocked for ${email} - score: ${score}`);
+      logger.warn(`[reCAPTCHA] Login blocked for ${email} - score: ${score}`);
       return res.status(403).json({ error: 'Bot activity detected. Please try again.' });
     }
   } else {
-    console.warn(`[reCAPTCHA] No token provided for login: ${email}`);
+    logger.warn(`[reCAPTCHA] No token provided for login: ${email}`);
   }
   
   const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
@@ -433,7 +439,7 @@ app.get('/api/users/profile', asyncHandler(async (req, res) => {
  * Change Password
  * POST /api/users/change-password
  */
-app.post('/api/users/change-password', asyncHandler(async (req, res) => {
+app.post('/api/users/change-password', validate(changePasswordSchema), asyncHandler(async (req, res) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Missing authorization token' });
@@ -572,7 +578,7 @@ app.get('/api/products', asyncHandler(async (req, res) => {
       timestamp: new Date().toISOString()
     });
   } catch (error) {
-    console.error('Error fetching products:', error.message);
+    logger.error('Error fetching products:', error.message);
     res.status(500).json({
       success: false,
       data: {
@@ -604,7 +610,7 @@ app.get('/api/square/catalog', asyncHandler(async (req, res) => {
 
     // Return cached data if still fresh
     if (catalogCache.data && (now - catalogCache.timestamp) < CATALOG_CACHE_TTL) {
-      console.log('Serving Square catalog from cache');
+      logger.info('Serving Square catalog from cache');
       return res.json(catalogCache.data);
     }
 
@@ -726,11 +732,11 @@ app.get('/api/square/catalog', asyncHandler(async (req, res) => {
 
     // Update cache
     catalogCache = { data: responseData, timestamp: now };
-    console.log(`Fetched ${products.length} products from Square catalog`);
+    logger.info(`Fetched ${products.length} products from Square catalog`);
 
     res.json(responseData);
   } catch (error) {
-    console.error('Error fetching Square catalog:', error.message);
+    logger.error('Error fetching Square catalog:', error.message);
     res.status(500).json({
       success: false,
       data: { count: 0, products: [] },
@@ -745,7 +751,7 @@ app.get('/api/square/catalog', asyncHandler(async (req, res) => {
  * Create a Square checkout from catalog variation IDs
  * POST /api/square/checkout
  */
-app.post('/api/square/checkout', checkoutLimiter, asyncHandler(async (req, res) => {
+app.post('/api/square/checkout', checkoutLimiter, validate(squareCheckoutSchema), asyncHandler(async (req, res) => {
   const { items } = req.body;
 
   if (!items || !Array.isArray(items) || items.length === 0) {
@@ -796,7 +802,7 @@ app.post('/api/square/checkout', checkoutLimiter, asyncHandler(async (req, res) 
       throw new Error('Failed to create checkout');
     }
   } catch (error) {
-    console.error('Square checkout error:', error.message);
+    logger.error('Square checkout error:', error.message);
     res.status(500).json({
       error: 'Failed to create checkout',
       message: process.env.NODE_ENV === 'development' ? error.message : 'Unable to create checkout',
@@ -831,7 +837,7 @@ app.get('/api/products/:id', asyncHandler(async (req, res) => {
       timestamp: new Date().toISOString()
     });
   } catch (error) {
-    console.error('Error fetching product:', error.message);
+    logger.error('Error fetching product:', error.message);
     res.status(500).json({
       error: 'Failed to fetch product',
       message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
@@ -843,7 +849,7 @@ app.get('/api/products/:id', asyncHandler(async (req, res) => {
  * Create a payment (for checkout processing)
  * POST /api/checkout
  */
-app.post('/api/checkout', checkoutLimiter, asyncHandler(async (req, res) => {
+app.post('/api/checkout', checkoutLimiter, validate(directCheckoutSchema), asyncHandler(async (req, res) => {
   const { sourceId, amount, currency = 'USD', note = '' } = req.body;
 
   // Input validation
@@ -893,7 +899,7 @@ app.post('/api/checkout', checkoutLimiter, asyncHandler(async (req, res) => {
       });
     }
   } catch (error) {
-    console.error('Payment error:', error.message);
+    logger.error('Payment error:', error.message);
     res.status(400).json({
       error: 'Payment processing failed',
       message: process.env.NODE_ENV === 'development' ? error.message : 'Unable to process payment'
@@ -906,7 +912,7 @@ app.post('/api/checkout', checkoutLimiter, asyncHandler(async (req, res) => {
  * POST /api/orders
  * Mobile orders endpoint - requires authentication to prevent abuse
  */
-app.post('/api/orders', authenticate, asyncHandler(async (req, res) => {
+app.post('/api/orders', authenticate, validate(orderSchema), asyncHandler(async (req, res) => {
   const { items, total, email, firstName, lastName, phone, address, city, state, zip } = req.body;
   
   if (!items || !Array.isArray(items) || items.length === 0) {
@@ -985,7 +991,7 @@ app.post('/api/analytics/event', asyncHandler(async (req, res) => {
   }
   
   // Log analytics event (in production, save to database)
-  console.log(`[ANALYTICS] Event: ${event}`, properties);
+  logger.info(`[ANALYTICS] Event: ${event}`, properties);
   
   res.json({
     success: true,
@@ -1000,7 +1006,7 @@ app.post('/api/analytics/event', asyncHandler(async (req, res) => {
  */
 app.post('/api/analytics/signup', asyncHandler(async (req, res) => {
   const { email, source } = req.body;
-  console.log(`[ANALYTICS] Signup: ${email} (source: ${source})`);
+  logger.info(`[ANALYTICS] Signup: ${email} (source: ${source})`);
   
   res.json({
     success: true,
@@ -1014,7 +1020,7 @@ app.post('/api/analytics/signup', asyncHandler(async (req, res) => {
  */
 app.post('/api/analytics/purchase', asyncHandler(async (req, res) => {
   const { orderId, total, items } = req.body;
-  console.log(`[ANALYTICS] Purchase: ${orderId}, Total: ${total}`, items);
+  logger.info(`[ANALYTICS] Purchase: ${orderId}, Total: ${total}`, items);
   
   res.json({
     success: true,
@@ -1028,7 +1034,7 @@ app.post('/api/analytics/purchase', asyncHandler(async (req, res) => {
  */
 app.post('/api/analytics/product', asyncHandler(async (req, res) => {
   const { productId, action, properties } = req.body;
-  console.log(`[ANALYTICS] Product Action: ${action} on ${productId}`, properties);
+  logger.info(`[ANALYTICS] Product Action: ${action} on ${productId}`, properties);
   
   res.json({
     success: true,
@@ -1042,7 +1048,7 @@ app.post('/api/analytics/product', asyncHandler(async (req, res) => {
  */
 app.post('/api/analytics/email-subscription', asyncHandler(async (req, res) => {
   const { email, action } = req.body;
-  console.log(`[ANALYTICS] Email Subscription: ${action} for ${email}`);
+  logger.info(`[ANALYTICS] Email Subscription: ${action} for ${email}`);
   
   res.json({
     success: true,
@@ -1056,7 +1062,7 @@ app.post('/api/analytics/email-subscription', asyncHandler(async (req, res) => {
  */
 app.post('/api/analytics/form', asyncHandler(async (req, res) => {
   const { formType, data } = req.body;
-  console.log(`[ANALYTICS] Form Submission: ${formType}`, data);
+  logger.info(`[ANALYTICS] Form Submission: ${formType}`, data);
   
   res.json({
     success: true,
@@ -1072,7 +1078,7 @@ app.post('/api/analytics/form', asyncHandler(async (req, res) => {
  * Subscribe to newsletter
  * POST /api/email/subscribe
  */
-app.post('/api/email/subscribe', contactLimiter, asyncHandler(async (req, res) => {
+app.post('/api/email/subscribe', contactLimiter, validate(emailSubscribeSchema), asyncHandler(async (req, res) => {
   try {
     const { email, firstName = '', lastName = '', preferences = {}, recaptchaToken } = req.body;
 
@@ -1120,7 +1126,7 @@ app.post('/api/email/subscribe', contactLimiter, asyncHandler(async (req, res) =
     });
 
   } catch (error) {
-    console.error('Subscription error:', error.message);
+    logger.error('Subscription error:', error.message);
     
     if (error.message.includes('already subscribed')) {
       return res.status(409).json({
@@ -1164,7 +1170,7 @@ app.post('/api/email/update/:email', asyncHandler(async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Update preferences error:', error.message);
+    logger.error('Update preferences error:', error.message);
     res.status(400).json({
       error: 'Update Failed',
       message: error.message || 'Unable to update preferences'
@@ -1221,7 +1227,7 @@ app.get('/api/email/unsubscribe/:token', asyncHandler(async (req, res) => {
     `);
 
   } catch (error) {
-    console.error('Unsubscribe error:', error.message);
+    logger.error('Unsubscribe error:', error.message);
     res.status(400).send(`
       <!DOCTYPE html>
       <html>
@@ -1290,7 +1296,7 @@ app.get('/api/email/subscriber/:email', asyncHandler(async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Get subscriber error:', error.message);
+    logger.error('Get subscriber error:', error.message);
     res.status(500).json({
       error: 'Server Error',
       message: 'Unable to retrieve subscriber information'
@@ -1315,7 +1321,7 @@ app.get('/api/email/stats', asyncHandler(async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Get stats error:', error.message);
+    logger.error('Get stats error:', error.message);
     res.status(500).json({
       error: 'Server Error',
       message: 'Unable to retrieve statistics'
@@ -1366,7 +1372,7 @@ app.post('/api/email/test', asyncHandler(async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Test email error:', error.message);
+    logger.error('Test email error:', error.message);
     res.status(500).json({
       error: 'Test Failed',
       message: error.message || 'Unable to send test email'
@@ -1387,7 +1393,7 @@ app.get('/api/email/export', asyncHandler(async (req, res) => {
     res.send(csv);
 
   } catch (error) {
-    console.error('Export error:', error.message);
+    logger.error('Export error:', error.message);
     res.status(500).json({
       error: 'Export Failed',
       message: 'Unable to export subscribers'
@@ -1425,7 +1431,7 @@ app.post('/api/admin/campaigns', asyncHandler(async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Create campaign error:', error.message);
+    logger.error('Create campaign error:', error.message);
     res.status(400).json({
       error: 'Creation Failed',
       message: error.message || 'Unable to create campaign'
@@ -1455,7 +1461,7 @@ app.get('/api/admin/campaigns/:campaignId', asyncHandler(async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Get campaign error:', error.message);
+    logger.error('Get campaign error:', error.message);
     res.status(500).json({
       error: 'Server Error',
       message: 'Unable to retrieve campaign'
@@ -1515,7 +1521,7 @@ app.post('/api/admin/campaigns/:campaignId/send', asyncHandler(async (req, res) 
     });
 
   } catch (error) {
-    console.error('Send campaign error:', error.message);
+    logger.error('Send campaign error:', error.message);
     res.status(500).json({
       error: 'Send Failed',
       message: error.message || 'Unable to send campaign'
@@ -1580,7 +1586,7 @@ app.post('/api/admin/promotions/send', asyncHandler(async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Send promotion error:', error.message);
+    logger.error('Send promotion error:', error.message);
     res.status(500).json({
       error: 'Send Failed',
       message: error.message || 'Unable to send promotion'
@@ -1627,7 +1633,7 @@ app.post('/api/email/order-confirmation', asyncHandler(async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Order confirmation error:', error.message);
+    logger.error('Order confirmation error:', error.message);
     res.status(500).json({
       error: 'Error',
       message: error.message || 'Unable to send order confirmation'
@@ -1674,7 +1680,7 @@ app.post('/api/email/abandoned-cart', asyncHandler(async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Abandoned cart error:', error.message);
+    logger.error('Abandoned cart error:', error.message);
     res.status(500).json({
       error: 'Error',
       message: error.message || 'Unable to send abandoned cart reminder'
@@ -1733,7 +1739,7 @@ app.post('/api/create-checkout', checkoutLimiter, asyncHandler(async (req, res) 
       throw new Error('Failed to create checkout');
     }
   } catch (error) {
-    console.error('Create checkout error:', error.message);
+    logger.error('Create checkout error:', error.message);
     res.status(500).json({
       error: 'Failed to create checkout',
       message: process.env.NODE_ENV === 'development' ? error.message : 'Unable to create checkout'
@@ -1745,7 +1751,7 @@ app.post('/api/create-checkout', checkoutLimiter, asyncHandler(async (req, res) 
  * Contact Form Submission with reCAPTCHA Enterprise
  * POST /api/contact
  */
-app.post('/api/contact', contactLimiter, asyncHandler(async (req, res) => {
+app.post('/api/contact', contactLimiter, validate(contactSchema), asyncHandler(async (req, res) => {
   const { name, email, message, recaptchaToken } = req.body;
 
   // Validate reCAPTCHA token (required)
@@ -1795,18 +1801,18 @@ app.post('/api/contact', contactLimiter, asyncHandler(async (req, res) => {
         if (score !== null) {
           // Interpret the score
           riskAssessment = interpretRecaptchaScore(score);
-          console.log(`reCAPTCHA Risk Level: ${riskAssessment.level} - ${riskAssessment.description}`);
+          logger.info(`reCAPTCHA Risk Level: ${riskAssessment.level} - ${riskAssessment.description}`);
         } else {
-          console.warn('reCAPTCHA verification returned null - allowing submission with rate limiting only');
+          logger.warn('reCAPTCHA verification returned null - allowing submission with rate limiting only');
           riskAssessment = { level: 'unverified', description: 'reCAPTCHA verification unavailable' };
         }
       } catch (recaptchaError) {
-        console.error('reCAPTCHA verification error:', recaptchaError.message);
+        logger.error('reCAPTCHA verification error:', recaptchaError.message);
         // Allow submission but log the error - rate limiting still protects us
         riskAssessment = { level: 'error', description: 'reCAPTCHA service error' };
       }
     } else {
-      console.warn('RECAPTCHA_SECRET_KEY not configured - allowing submission with rate limiting only');
+      logger.warn('RECAPTCHA_SECRET_KEY not configured - allowing submission with rate limiting only');
       riskAssessment = { level: 'unconfigured', description: 'reCAPTCHA not configured' };
     }
 
@@ -1822,7 +1828,7 @@ app.post('/api/contact', contactLimiter, asyncHandler(async (req, res) => {
     };
 
     // Log contact form submission
-    console.log('Contact form submission:', sanitizedData);
+    logger.info('Contact form submission:', sanitizedData);
 
     // Send notification email to admin
     try {
@@ -1834,7 +1840,7 @@ app.post('/api/contact', contactLimiter, asyncHandler(async (req, res) => {
         riskLevel: sanitizedData.riskLevel
       });
     } catch (emailError) {
-      console.error('Failed to send contact notification email:', emailError);
+      logger.error('Failed to send contact notification email:', emailError);
       // Don't fail the request if email fails
     }
 
@@ -1845,7 +1851,7 @@ app.post('/api/contact', contactLimiter, asyncHandler(async (req, res) => {
         email: sanitizedData.email
       });
     } catch (emailError) {
-      console.error('Failed to send contact confirmation email:', emailError);
+      logger.error('Failed to send contact confirmation email:', emailError);
       // Don't fail the request if email fails
     }
     
@@ -1857,7 +1863,7 @@ app.post('/api/contact', contactLimiter, asyncHandler(async (req, res) => {
       riskLevel: riskAssessment.level,
     });
   } catch (error) {
-    console.error('Contact form error:', error.message);
+    logger.error('Contact form error:', error.message);
     res.status(500).json({
       error: 'Failed to process contact form',
       message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
@@ -1923,7 +1929,7 @@ app.get('/api/admin/stats', authenticate, adminOrOwner, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Error fetching admin stats:', error.message);
+    logger.error('Error fetching admin stats:', error.message);
     res.status(500).json({
       success: false,
       error: error.message
@@ -1963,7 +1969,7 @@ app.get('/api/admin/orders', authenticate, adminOrOwner, async (req, res) => {
       orders: formattedOrders
     });
   } catch (error) {
-    console.error('Error fetching orders:', error.message);
+    logger.error('Error fetching orders:', error.message);
     res.status(500).json({
       success: false,
       error: error.message
@@ -1976,7 +1982,7 @@ app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
   const isDevelopment = process.env.NODE_ENV === 'development';
 
-  console.error(`[${new Date().toISOString()}] Error:`, err);
+  logger.error(`[${new Date().toISOString()}] Error:`, err);
 
   res.status(statusCode).json({
     error: err.message || 'Internal Server Error',
@@ -1990,7 +1996,7 @@ const PORT = process.env.PORT || 3000;
 
 // Graceful shutdown
 process.on('unhandledRejection', (err) => {
-  console.error('Unhandled Rejection:', err);
+  logger.error('Unhandled Rejection:', err);
 });
 
 // Routes after 404 handler removed - they were unreachable
@@ -2010,7 +2016,7 @@ app.get('/api/admin/users', authenticate, adminOrOwner, async (req, res) => {
       users,
     });
   } catch (error) {
-    console.error('Error fetching users:', error.message);
+    logger.error('Error fetching users:', error.message);
     res.status(500).json({
       success: false,
       error: error.message,
@@ -2068,7 +2074,7 @@ app.post('/api/admin/users', authenticate, adminOrOwner, async (req, res) => {
       user,
     });
   } catch (error) {
-    console.error('Error creating user:', error.message);
+    logger.error('Error creating user:', error.message);
     res.status(400).json({
       success: false,
       error: error.message,
@@ -2099,7 +2105,7 @@ app.put('/api/admin/users/:userId/role', authenticate, ownerOnly, asyncHandler(a
       user,
     });
   } catch (error) {
-    console.error('Error assigning role:', error.message);
+    logger.error('Error assigning role:', error.message);
     res.status(400).json({
       success: false,
       error: error.message,
@@ -2285,7 +2291,7 @@ app.post('/api/admin/orders/manual', authenticate, adminOrOwner, asyncHandler(as
     });
 
     // Send confirmation email to customer
-    await emailService.sendOrderConfirmation({
+    await emailService.sendOrderConfirmationDirect({
       customerName: order.customerName,
       customerEmail: order.customerEmail,
       orderId: order.id,
@@ -2305,7 +2311,7 @@ app.post('/api/admin/orders/manual', authenticate, adminOrOwner, asyncHandler(as
       createdBy: req.user.email,
     });
 
-    console.log(`✓ Manual order created: ${order.id} by ${req.user.email}`);
+    logger.info(`✓ Manual order created: ${order.id} by ${req.user.email}`);
 
     res.status(201).json({
       success: true,
@@ -2319,7 +2325,7 @@ app.post('/api/admin/orders/manual', authenticate, adminOrOwner, asyncHandler(as
       }
     });
   } catch (error) {
-    console.error('Error creating manual order:', error.message);
+    logger.error('Error creating manual order:', error.message);
     res.status(400).json({
       success: false,
       error: error.message,
@@ -3414,7 +3420,7 @@ app.get('/api/blog/posts/:slug', optionalAuth, asyncHandler(async (req, res) => 
 }));
 
 // Create blog post (admin/owner only)
-app.post('/api/blog/posts', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
+app.post('/api/blog/posts', authenticate, adminOrOwner, validate(createPostSchema), asyncHandler(async (req, res) => {
   const post = await BlogService.createPost(req.body, {
     userId: req.user.id,
     userName: (req.user.firstName || '') + ' ' + (req.user.lastName || ''),
@@ -3430,7 +3436,7 @@ app.post('/api/blog/posts', authenticate, adminOrOwner, asyncHandler(async (req,
 }));
 
 // Update blog post (admin/owner only)
-app.post('/api/blog/posts/:postId/update', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
+app.post('/api/blog/posts/:postId/update', authenticate, adminOrOwner, validate(updatePostSchema), asyncHandler(async (req, res) => {
   const post = await BlogService.updatePost(req.params.postId, req.body);
 
   res.json({
@@ -3453,7 +3459,7 @@ app.post('/api/blog/posts/:postId/delete', authenticate, adminOrOwner, asyncHand
 }));
 
 // Vote on post (authenticated)
-app.post('/api/blog/posts/:postId/vote', authenticate, asyncHandler(async (req, res) => {
+app.post('/api/blog/posts/:postId/vote', authenticate, validate(voteSchema), asyncHandler(async (req, res) => {
   const { voteType } = req.body;
   const result = await BlogService.voteOnPost(req.params.postId, req.user.id, voteType);
 
@@ -3465,7 +3471,7 @@ app.post('/api/blog/posts/:postId/vote', authenticate, asyncHandler(async (req, 
 }));
 
 // Add comment (authenticated, rate limited)
-app.post('/api/blog/posts/:postId/comments', authenticate, blogCommentLimiter, asyncHandler(async (req, res) => {
+app.post('/api/blog/posts/:postId/comments', authenticate, blogCommentLimiter, validate(commentSchema), asyncHandler(async (req, res) => {
   const { content } = req.body;
   const comment = await BlogService.addComment(
     req.params.postId,
@@ -3484,7 +3490,7 @@ app.post('/api/blog/posts/:postId/comments', authenticate, blogCommentLimiter, a
 }));
 
 // Vote on comment (authenticated)
-app.post('/api/blog/posts/:postId/comments/:commentId/vote', authenticate, asyncHandler(async (req, res) => {
+app.post('/api/blog/posts/:postId/comments/:commentId/vote', authenticate, validate(voteSchema), asyncHandler(async (req, res) => {
   const { voteType } = req.body;
   const result = await BlogService.voteOnComment(
     req.params.postId, req.params.commentId, req.user.id, voteType
@@ -3565,7 +3571,7 @@ app.get('/api/rewards/user', authenticate, asyncHandler(async (req, res) => {
       lastPurchaseDate: rewards.lastPurchaseDate,
     });
   } catch (error) {
-    console.error('Get user rewards error:', error);
+    logger.error('Get user rewards error:', error);
     res.status(500).json({ error: 'Failed to get rewards' });
   }
 }));
@@ -3614,7 +3620,7 @@ app.post('/api/rewards/update', authenticate, asyncHandler(async (req, res) => {
       freeGiftsEarned: rewards.freeGiftsEarned,
     });
   } catch (error) {
-    console.error('Update rewards error:', error);
+    logger.error('Update rewards error:', error);
     res.status(500).json({ error: 'Failed to update rewards' });
   }
 }));
@@ -3651,7 +3657,7 @@ app.post('/api/rewards/redeem-gift', authenticate, asyncHandler(async (req, res)
       remainingGifts: rewards.freeGiftsEarned - rewards.freeGiftsRedeemed,
     });
   } catch (error) {
-    console.error('Redeem gift error:', error);
+    logger.error('Redeem gift error:', error);
     res.status(500).json({ error: 'Failed to redeem gift' });
   }
 }));
@@ -3693,7 +3699,7 @@ app.post('/api/rewards/redeem-points', authenticate, asyncHandler(async (req, re
       remainingPoints: rewards.points,
     });
   } catch (error) {
-    console.error('Redeem points error:', error);
+    logger.error('Redeem points error:', error);
     res.status(500).json({ error: 'Failed to redeem points' });
   }
 }));
@@ -3709,7 +3715,7 @@ app.get('/api/rewards/history', authenticate, asyncHandler(async (req, res) => {
       .limit(50);
     res.json(history);
   } catch (error) {
-    console.error('Get rewards history error:', error);
+    logger.error('Get rewards history error:', error);
     res.status(500).json({ error: 'Failed to get history' });
   }
 }));
@@ -3756,7 +3762,7 @@ app.get('/api/rewards/offers', asyncHandler(async (req, res) => {
 
     res.json(offers);
   } catch (error) {
-    console.error('Get offers error:', error);
+    logger.error('Get offers error:', error);
     res.status(500).json({ error: 'Failed to get offers' });
   }
 }));
@@ -3816,7 +3822,7 @@ app.get('/api/rewards/bundles', asyncHandler(async (req, res) => {
 
     res.json(bundles);
   } catch (error) {
-    console.error('Get bundles error:', error);
+    logger.error('Get bundles error:', error);
     res.status(500).json({ error: 'Failed to get bundles' });
   }
 }));
@@ -3833,7 +3839,7 @@ app.get('/api/rewards/bundles/:bundleId', asyncHandler(async (req, res) => {
     }
     res.json(bundle);
   } catch (error) {
-    console.error('Get bundle details error:', error);
+    logger.error('Get bundle details error:', error);
     res.status(500).json({ error: 'Failed to get bundle' });
   }
 }));
@@ -3855,7 +3861,7 @@ app.get('/api/rewards/free-gifts', asyncHandler(async (req, res) => {
 
     res.json(gifts);
   } catch (error) {
-    console.error('Get free gifts error:', error);
+    logger.error('Get free gifts error:', error);
     res.status(500).json({ error: 'Failed to get free gifts' });
   }
 }));
@@ -3895,7 +3901,7 @@ app.post('/api/rewards/apply-bogo', authenticate, asyncHandler(async (req, res) 
       offerTitle: offer.title,
     });
   } catch (error) {
-    console.error('Apply BOGO error:', error);
+    logger.error('Apply BOGO error:', error);
     res.status(500).json({ error: 'Failed to apply offer' });
   }
 }));
@@ -3961,7 +3967,7 @@ app.use((req, res) => {
 });
 
 const gracefulShutdown = async (signal) => {
-  console.log(`${signal} received. Shutting down gracefully...`);
+  logger.info(`${signal} received. Shutting down gracefully...`);
   if (httpsServer) httpsServer.close();
   if (httpServer) httpServer.close();
   const { disconnectDB } = require('./config/database');
@@ -3998,43 +4004,43 @@ if (fs.existsSync(certPath) && fs.existsSync(keyPath)) {
     const HTTP_PORT = process.env.PORT || 3000;
 
     httpsServer.listen(HTTPS_PORT, () => {
-      console.log(`\n✓ Sister's Promise API server running on https://localhost:${HTTPS_PORT}`);
-      console.log(`✓ HTTP server also available on port ${HTTP_PORT} (for mobile app development)`);
-      console.log(`✓ Environment: ${process.env.SQUARE_ENVIRONMENT || 'sandbox'}`);
-      console.log(`✓ Security: HTTPS/TLS enabled, Helmet enabled, Rate limiting active`);
-      console.log(`✓ Max payload size: 10KB`);
-      console.log(`✓ Authentication: JWT enabled with role-based access control`);
-      console.log(`✓ Default Users: Owner (denise@sisterspromise.com), Admin (deric.robinson71@gmail.com)`);
-      console.log(`✓ Analytics: Google Analytics 4 and Apple Analytics enabled`);
-      console.log(`✓ Encryption: All API traffic encrypted with SSL/TLS\n`);
+      logger.info(`\n✓ Sister's Promise API server running on https://localhost:${HTTPS_PORT}`);
+      logger.info(`✓ HTTP server also available on port ${HTTP_PORT} (for mobile app development)`);
+      logger.info(`✓ Environment: ${process.env.SQUARE_ENVIRONMENT || 'sandbox'}`);
+      logger.info(`✓ Security: HTTPS/TLS enabled, Helmet enabled, Rate limiting active`);
+      logger.info(`✓ Max payload size: 10KB`);
+      logger.info(`✓ Authentication: JWT enabled with role-based access control`);
+      logger.info(`✓ Default Users: Owner (denise@sisterspromise.com), Admin (deric.robinson71@gmail.com)`);
+      logger.info(`✓ Analytics: Google Analytics 4 and Apple Analytics enabled`);
+      logger.info(`✓ Encryption: All API traffic encrypted with SSL/TLS\n`);
 
       if (!process.env.SQUARE_ACCESS_TOKEN) {
-        console.warn('⚠️  Warning: SQUARE_ACCESS_TOKEN not configured');
+        logger.warn('⚠️  Warning: SQUARE_ACCESS_TOKEN not configured');
       }
       if (!process.env.RECAPTCHA_SECRET_KEY) {
-        console.warn('⚠️  Warning: RECAPTCHA_SECRET_KEY not configured for contact form');
+        logger.warn('⚠️  Warning: RECAPTCHA_SECRET_KEY not configured for contact form');
       }
       if (!process.env.JWT_SECRET) {
-        console.warn('⚠️  Warning: JWT_SECRET not configured - using default (not secure for production)');
+        logger.warn('⚠️  Warning: JWT_SECRET not configured - using default (not secure for production)');
       }
     });
 
     httpServer.listen(HTTP_PORT, () => {
-      console.log(`✓ HTTP redirect server listening on http://localhost:${HTTP_PORT}`);
+      logger.info(`✓ HTTP redirect server listening on http://localhost:${HTTP_PORT}`);
     });
   } catch (error) {
-    console.error('Failed to load SSL certificates:', error.message);
-    console.log('Falling back to HTTP only...\n');
+    logger.error('Failed to load SSL certificates:', error.message);
+    logger.info('Falling back to HTTP only...\n');
     
     app.listen(PORT, () => {
-      console.log(`\n✓ Sister's Promise API server running on http://localhost:${PORT}`);
-      console.log(`⚠️  WARNING: Running on HTTP (unencrypted) - Not recommended for production`);
-      console.log(`✓ Environment: ${process.env.SQUARE_ENVIRONMENT || 'sandbox'}`);
-      console.log(`✓ Security: Helmet enabled, Rate limiting active, Input sanitization enabled`);
-      console.log(`✓ Max payload size: 10KB`);
-      console.log(`✓ Authentication: JWT enabled with role-based access control`);
-      console.log(`✓ Default Users: Owner (denise@sisterspromise.com), Admin (deric.robinson71@gmail.com)`);
-      console.log(`✓ Analytics: Google Analytics 4 and Apple Analytics enabled\n`);
+      logger.info(`\n✓ Sister's Promise API server running on http://localhost:${PORT}`);
+      logger.info(`⚠️  WARNING: Running on HTTP (unencrypted) - Not recommended for production`);
+      logger.info(`✓ Environment: ${process.env.SQUARE_ENVIRONMENT || 'sandbox'}`);
+      logger.info(`✓ Security: Helmet enabled, Rate limiting active, Input sanitization enabled`);
+      logger.info(`✓ Max payload size: 10KB`);
+      logger.info(`✓ Authentication: JWT enabled with role-based access control`);
+      logger.info(`✓ Default Users: Owner (denise@sisterspromise.com), Admin (deric.robinson71@gmail.com)`);
+      logger.info(`✓ Analytics: Google Analytics 4 and Apple Analytics enabled\n`);
     });
   }
 } else {
@@ -4043,36 +4049,36 @@ if (fs.existsSync(certPath) && fs.existsSync(keyPath)) {
   const isCloudPlatform = process.env.NODE_ENV === 'production' || process.env.RENDER;
 
   if (isCloudPlatform) {
-    console.log('Running on cloud platform - TLS handled by load balancer\n');
+    logger.info('Running on cloud platform - TLS handled by load balancer\n');
     app.listen(PORT, () => {
-      console.log(`\n✓ Sister's Promise API server running on port ${PORT}`);
-      console.log(`✓ Environment: ${process.env.SQUARE_ENVIRONMENT || 'sandbox'}`);
-      console.log(`✓ Security: Helmet enabled, Rate limiting active, Input sanitization enabled`);
-      console.log(`✓ Max payload size: 10KB`);
-      console.log(`✓ Authentication: JWT enabled with role-based access control`);
-      console.log(`✓ Default Users: Owner (denise@sisterspromise.com), Admin (deric.robinson71@gmail.com)`);
-      console.log(`✓ Analytics: Google Analytics 4 and Apple Analytics enabled`);
-      console.log(`✓ TLS/HTTPS: Handled by platform load balancer\n`);
+      logger.info(`\n✓ Sister's Promise API server running on port ${PORT}`);
+      logger.info(`✓ Environment: ${process.env.SQUARE_ENVIRONMENT || 'sandbox'}`);
+      logger.info(`✓ Security: Helmet enabled, Rate limiting active, Input sanitization enabled`);
+      logger.info(`✓ Max payload size: 10KB`);
+      logger.info(`✓ Authentication: JWT enabled with role-based access control`);
+      logger.info(`✓ Default Users: Owner (denise@sisterspromise.com), Admin (deric.robinson71@gmail.com)`);
+      logger.info(`✓ Analytics: Google Analytics 4 and Apple Analytics enabled`);
+      logger.info(`✓ TLS/HTTPS: Handled by platform load balancer\n`);
     });
   } else {
     // Local development - try to generate certs
-    console.log('SSL certificates not found. Generating for local development...\n');
+    logger.info('SSL certificates not found. Generating for local development...\n');
     try {
       const { execSync } = require('child_process');
       execSync('node generate-certs.js', { stdio: 'inherit' });
-      console.log('Certificates generated. Please restart the server.\n');
+      logger.info('Certificates generated. Please restart the server.\n');
       process.exit(0);
     } catch (error) {
-      console.error('Failed to generate certificates. Running HTTP only.\n');
+      logger.error('Failed to generate certificates. Running HTTP only.\n');
       app.listen(PORT, () => {
-        console.log(`\n✓ Sister's Promise API server running on http://localhost:${PORT}`);
-        console.log(`⚠️  WARNING: Running on HTTP (unencrypted) - Not recommended for production`);
-        console.log(`✓ Environment: ${process.env.SQUARE_ENVIRONMENT || 'sandbox'}`);
-        console.log(`✓ Security: Helmet enabled, Rate limiting active, Input sanitization enabled`);
-        console.log(`✓ Max payload size: 10KB`);
-        console.log(`✓ Authentication: JWT enabled with role-based access control`);
-        console.log(`✓ Default Users: Owner (denise@sisterspromise.com), Admin (deric.robinson71@gmail.com)`);
-        console.log(`✓ Analytics: Google Analytics 4 and Apple Analytics enabled\n`);
+        logger.info(`\n✓ Sister's Promise API server running on http://localhost:${PORT}`);
+        logger.info(`⚠️  WARNING: Running on HTTP (unencrypted) - Not recommended for production`);
+        logger.info(`✓ Environment: ${process.env.SQUARE_ENVIRONMENT || 'sandbox'}`);
+        logger.info(`✓ Security: Helmet enabled, Rate limiting active, Input sanitization enabled`);
+        logger.info(`✓ Max payload size: 10KB`);
+        logger.info(`✓ Authentication: JWT enabled with role-based access control`);
+        logger.info(`✓ Default Users: Owner (denise@sisterspromise.com), Admin (deric.robinson71@gmail.com)`);
+        logger.info(`✓ Analytics: Google Analytics 4 and Apple Analytics enabled\n`);
       });
     }
   }

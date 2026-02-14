@@ -475,6 +475,7 @@
 </head>
 
 <body>
+  <a href="#main-content" class="visually-hidden-focusable">Skip to main content</a>
   <!-- Navbar -->
   <nav class="navbar navbar-expand-lg navbar-light sticky-top">
     <div class="container-fluid px-4">
@@ -497,13 +498,14 @@
           <li class="nav-item"><a class="nav-link" href="rewards.html">Rewards</a></li>
           <li class="nav-item"><a class="nav-link" href="ingredients.html">Ingredients</a></li>
           <li class="nav-item"><a class="nav-link" href="about-us.html">About</a></li>
-          <li class="nav-item"><a class="nav-link active" href="contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="contact.html">Contact</a></li>
           <li class="nav-item" id="auth-nav-item"></li>
         </ul>
       </div>
     </div>
   </nav>
 
+  <main id="main-content">
   <!-- Contact Container -->
   <div class="contact-container">
     <div class="contact-card">
@@ -624,6 +626,8 @@
       <button class="modal-close-btn" id="modal-close-btn">Close</button>
     </div>
   </div>
+
+  </main>
 
   <!-- Footer -->
   <footer class="footer mt-5 py-4 border-top">

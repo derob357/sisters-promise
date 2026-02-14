@@ -114,17 +114,21 @@ Pages: `pages/shop.html`, `pages/ingredients.html`, `pages/about-us.html`, `page
 
 ### Medium
 
-- [ ] `2025-02-12 16:30` Add input validation library (joi/zod) for API inputs
-- [ ] `2025-02-12 16:30` Replace console.log with structured logging in server.js and mobile App.tsx
-- [ ] `2025-02-12 16:30` Complete rewards feature (mobile) — HomeScreen.js:161 shows "coming soon"
+(none remaining)
 
 ### Low
 
-- [ ] `2025-02-12 16:30` Run accessibility audit on HTML pages
-- [ ] `2025-02-12 16:30` Add GitHub Actions CI for automated test/lint on PRs
+(none remaining)
 
 ### Completed
 
+- [x] `2026-02-14 00:10` Add input validation library (joi) — schemas for auth, contact, checkout, blog; validate() middleware on 13 routes
+- [x] `2026-02-14 00:10` Replace console.log with structured logging (winston) — ~110 replacements in server.js
+- [x] `2026-02-14 00:10` Complete rewards feature (mobile) — RewardsDashboard already wired into HomeScreen
+- [x] `2026-02-14 00:10` Run accessibility audit on HTML pages — skip nav, main landmark, aria-live, aria-current on all 14 pages
+- [x] `2026-02-14 00:10` Add GitHub Actions CI — ESLint config + lint script; CI workflows already run `npm run lint --if-present`
+- [x] `2026-02-14 00:10` Fix duplicate sendOrderConfirmation in EmailService.js — renamed second to sendOrderConfirmationDirect
+- [x] `2026-02-14 00:10` Fix broken HTML in about-us.html — malformed footer tags, generic alt text, email input label
 - [x] `2026-02-13 12:00` Remove hardcoded IP in AppDelegate.swift — commented out, requires manual config
 - [x] `2026-02-13 12:00` Fix `genezio.yaml` — renamed from `material-kit` to `sisters-promise`
 - [x] `2026-02-13 12:00` Create TermsOfService screen (mobile) — new screen + navigator wired up

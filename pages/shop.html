@@ -171,6 +171,7 @@
 </head>
 
 <body class="shop bg-gray-100">
+  <a href="#main-content" class="visually-hidden-focusable">Skip to main content</a>
   <!-- Navigation -->
   <nav class="navbar navbar-expand-lg navbar-light sticky-top">
     <div class="container-fluid px-4">
@@ -188,7 +189,7 @@
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
           <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
-          <li class="nav-item"><a class="nav-link active" href="shop.html">Shop</a></li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="shop.html">Shop</a></li>
           <li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
           <li class="nav-item"><a class="nav-link" href="rewards.html">Rewards</a></li>
           <li class="nav-item"><a class="nav-link" href="ingredients.html">Ingredients</a></li>
@@ -200,6 +201,7 @@
     </div>
   </nav>
 
+  <main id="main-content">
   <!-- Page Header -->
   <header class="header-2">
     <div class="page-header min-vh-50 relative" style="background-image: url('../assets/img/Herobg.png'); background-size: cover; background-position: center;">
@@ -225,9 +227,10 @@
         </div>
       </div>
 
-      <div id="square-products" class="row"></div>
+      <div id="square-products" class="row" aria-live="polite"></div>
     </div>
   </section>
+  </main>
 
   <!-- Footer -->
   <footer class="footer pt-5 mt-5">

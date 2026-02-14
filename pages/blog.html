@@ -133,6 +133,7 @@
 </head>
 
 <body class="blog bg-gray-100">
+  <a href="#main-content" class="visually-hidden-focusable">Skip to main content</a>
   <!-- Navigation -->
   <nav class="navbar navbar-expand-lg navbar-light sticky-top">
     <div class="container-fluid px-4">
@@ -151,7 +152,7 @@
         <ul class="navbar-nav ms-auto">
           <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
           <li class="nav-item"><a class="nav-link" href="shop.html">Shop</a></li>
-          <li class="nav-item"><a class="nav-link active" href="blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="blog.html">Blog</a></li>
           <li class="nav-item"><a class="nav-link" href="rewards.html">Rewards</a></li>
           <li class="nav-item"><a class="nav-link" href="ingredients.html">Ingredients</a></li>
           <li class="nav-item"><a class="nav-link" href="about-us.html">About</a></li>
@@ -162,6 +163,7 @@
     </div>
   </nav>
 
+  <main id="main-content">
   <!-- Page Header -->
   <header class="header-2">
     <div class="page-header min-vh-50 relative" style="background-image: url('../assets/img/Herobg.png'); background-size: cover; background-position: center;">
@@ -187,9 +189,10 @@
           <button class="btn btn-sm btn-outline-dark" onclick="BlogModule.loadBlogListing(document.getElementById('blog-listing'), 1, 'most_commented')">Most Discussed</button>
         </div>
       </div>
-      <div id="blog-listing" class="row"></div>
+      <div id="blog-listing" class="row" aria-live="polite"></div>
     </div>
   </section>
+  </main>
 
   <!-- Footer -->
   <footer class="footer pt-5 mt-5">

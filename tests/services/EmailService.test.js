@@ -122,10 +122,10 @@ describe('EmailService', () => {
     });
   });
 
-  describe('sendOrderConfirmation (named params version)', () => {
+  describe('sendOrderConfirmationDirect (named params version)', () => {
     it('should skip if transporter is null', async () => {
       emailService.transporter = null;
-      await emailService.sendOrderConfirmation({
+      await emailService.sendOrderConfirmationDirect({
         customerName: 'Test',
         customerEmail: 'test@test.com',
         orderId: '12345678-abcd',
@@ -137,7 +137,7 @@ describe('EmailService', () => {
     });
 
     it('should handle invalid products array gracefully', async () => {
-      await emailService.sendOrderConfirmation({
+      await emailService.sendOrderConfirmationDirect({
         customerName: 'Test',
         customerEmail: 'test@test.com',
         orderId: '12345678-abcd',
@@ -150,7 +150,7 @@ describe('EmailService', () => {
     });
 
     it('should send order confirmation email', async () => {
-      await emailService.sendOrderConfirmation({
+      await emailService.sendOrderConfirmationDirect({
         customerName: 'Jane',
         customerEmail: 'jane@test.com',
         orderId: '12345678-abcd',

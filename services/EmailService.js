@@ -395,9 +395,9 @@ class EmailService {
   }
 
   /**
-   * Send order confirmation to customer
+   * Send order confirmation to customer (direct params version)
    */
-  async sendOrderConfirmation({ customerName, customerEmail, orderId, products, total, shippingAddress }) {
+  async sendOrderConfirmationDirect({ customerName, customerEmail, orderId, products, total, shippingAddress }) {
     if (!this.transporter) {
       console.warn('Email transporter not configured. Skipping order confirmation.');
       return;

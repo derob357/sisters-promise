@@ -235,7 +235,7 @@ class EmailSubscriber {
           return dbSubscriber;
         } catch (error) {
           if (error.code === 11000) {
-            throw new Error('Email already subscribed');
+            throw new Error('Email already subscribed', { cause: error });
           }
           throw error;
         }
@@ -368,13 +368,9 @@ class EmailSubscriber {
       };
 
       if (this.useMongoDB) {
-        try {
-          const dbCampaign = await Campaign.create(campaign);
-          console.log(`✓ Campaign "${name}" created in MongoDB`);
-          return dbCampaign;
-        } catch (error) {
-          throw error;
-        }
+        const dbCampaign = await Campaign.create(campaign);
+        console.log(`✓ Campaign "${name}" created in MongoDB`);
+        return dbCampaign;
       } else {
         this.campaigns.push(campaign);
         await this.saveCampaigns();
