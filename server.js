@@ -147,7 +147,7 @@ app.use(generalLimiter);
 const corsOptions = {
   origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000', 'http://localhost:5000'],
   credentials: true,
-  methods: ['GET', 'POST', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'X-Requested-With', 'Authorization'],
   maxAge: 3600,
 };
