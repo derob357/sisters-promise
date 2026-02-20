@@ -141,11 +141,20 @@ const checkoutLimiter = rateLimit({
   max: 10, // max 10 checkout attempts per minute
   message: 'Too many checkout attempts, please try again later.',
 });
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // max 5 auth attempts per IP per 15 minutes
+  message: 'Too many authentication attempts, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => req.ip || req.connection.remoteAddress,
+});
 app.use(generalLimiter);
 
 // CORS configuration - restrict origins
 const corsOptions = {
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000', 'http://localhost:5000'],
+  origin: process.env.ALLOWED_ORIGINS?.split(',').map(o => o.trim()) || ['http://localhost:3000', 'http://localhost:5000'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'X-Requested-With', 'Authorization'],
@@ -280,7 +289,7 @@ app.get('/api/health', generalLimiter, (req, res) => {
  * User Registration
  * POST /users/register
  */
-app.post('/api/users/register', validate(registerSchema), asyncHandler(async (req, res) => {
+app.post('/api/users/register', authLimiter, validate(registerSchema), asyncHandler(async (req, res) => {
   const { email, password, firstName, lastName, recaptchaToken } = req.body;
 
   if (!email || !password) {
@@ -342,7 +351,7 @@ app.post('/api/users/register', validate(registerSchema), asyncHandler(async (re
  * User Login
  * POST /api/users/login
  */
-app.post('/api/users/login', validate(loginSchema), asyncHandler(async (req, res) => {
+app.post('/api/users/login', authLimiter, validate(loginSchema), asyncHandler(async (req, res) => {
   const { email, password, recaptchaToken } = req.body;
 
   if (!email || !password) {
@@ -439,7 +448,7 @@ app.get('/api/users/profile', asyncHandler(async (req, res) => {
  * Change Password
  * POST /api/users/change-password
  */
-app.post('/api/users/change-password', validate(changePasswordSchema), asyncHandler(async (req, res) => {
+app.post('/api/users/change-password', authLimiter, validate(changePasswordSchema), asyncHandler(async (req, res) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Missing authorization token' });
@@ -1269,7 +1278,7 @@ app.get('/api/email/unsubscribe/:token', asyncHandler(async (req, res) => {
  * Get subscriber info
  * GET /api/email/subscriber/:email
  */
-app.get('/api/email/subscriber/:email', asyncHandler(async (req, res) => {
+app.get('/api/email/subscriber/:email', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
   try {
     const { email } = req.params;
     const subscriber = emailSubscriber.getSubscriber(email);
@@ -1308,7 +1317,7 @@ app.get('/api/email/subscriber/:email', asyncHandler(async (req, res) => {
  * Get email statistics
  * GET /api/email/stats
  */
-app.get('/api/email/stats', asyncHandler(async (req, res) => {
+app.get('/api/email/stats', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
   try {
     const subscriberStats = emailSubscriber.getStats();
     const campaignStats = emailSubscriber.getCampaignsStats();
@@ -1333,7 +1342,7 @@ app.get('/api/email/stats', asyncHandler(async (req, res) => {
  * Send test email
  * POST /api/email/test
  */
-app.post('/api/email/test', asyncHandler(async (req, res) => {
+app.post('/api/email/test', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
   try {
     const { email, templateId = 'welcome' } = req.body;
 
@@ -1381,10 +1390,10 @@ app.post('/api/email/test', asyncHandler(async (req, res) => {
 }));
 
 /**
- * Export subscribers as CSV (admin only - add authentication in production)
+ * Export subscribers as CSV (admin only)
  * GET /api/email/export
  */
-app.get('/api/email/export', asyncHandler(async (req, res) => {
+app.get('/api/email/export', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
   try {
     const csv = emailSubscriber.exportAsCSV();
     
@@ -1405,7 +1414,7 @@ app.get('/api/email/export', asyncHandler(async (req, res) => {
  * Create marketing campaign
  * POST /api/admin/campaigns
  */
-app.post('/api/admin/campaigns', asyncHandler(async (req, res) => {
+app.post('/api/admin/campaigns', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
   try {
     const { name, subject, templateId, type = 'newsletter', scheduleTime } = req.body;
 
@@ -1443,7 +1452,7 @@ app.post('/api/admin/campaigns', asyncHandler(async (req, res) => {
  * Get campaign by ID
  * GET /api/admin/campaigns/:campaignId
  */
-app.get('/api/admin/campaigns/:campaignId', asyncHandler(async (req, res) => {
+app.get('/api/admin/campaigns/:campaignId', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
   try {
     const { campaignId } = req.params;
     const campaign = emailSubscriber.getCampaign(campaignId);
@@ -1473,7 +1482,7 @@ app.get('/api/admin/campaigns/:campaignId', asyncHandler(async (req, res) => {
  * Send campaign to subscribers
  * POST /api/admin/campaigns/:campaignId/send
  */
-app.post('/api/admin/campaigns/:campaignId/send', asyncHandler(async (req, res) => {
+app.post('/api/admin/campaigns/:campaignId/send', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
   try {
     const { campaignId } = req.params;
     const { filterType = 'all' } = req.body;
@@ -1533,7 +1542,7 @@ app.post('/api/admin/campaigns/:campaignId/send', asyncHandler(async (req, res) 
  * Send promotional email
  * POST /api/admin/promotions/send
  */
-app.post('/api/admin/promotions/send', asyncHandler(async (req, res) => {
+app.post('/api/admin/promotions/send', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
   try {
     const { title, description, code, link, emails = null } = req.body;
 

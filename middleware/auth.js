@@ -43,7 +43,6 @@ const authenticate = async (req, res, next) => {
     return res.status(401).json({
       success: false,
       error: 'Invalid or expired token',
-      details: error.message,
     });
   }
 };
