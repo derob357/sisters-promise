@@ -122,6 +122,8 @@ Pages: `pages/shop.html`, `pages/ingredients.html`, `pages/about-us.html`, `page
 
 ### Completed
 
+- [x] `2026-02-19 00:00` Fix CORS — add PUT/DELETE to allowed methods (was blocking admin operations)
+
 - [x] `2026-02-14 00:10` Add input validation library (joi) — schemas for auth, contact, checkout, blog; validate() middleware on 13 routes
 - [x] `2026-02-14 00:10` Replace console.log with structured logging (winston) — ~110 replacements in server.js
 - [x] `2026-02-14 00:10` Complete rewards feature (mobile) — RewardsDashboard already wired into HomeScreen
@@ -148,6 +150,14 @@ Pages: `pages/shop.html`, `pages/ingredients.html`, `pages/about-us.html`, `page
 - [x] `2025-02-12 16:20` Add context file index and todo list to CLAUDE.md
 
 ---
+
+## Security Notes
+
+- **CORS**: Origin whitelist via `ALLOWED_ORIGINS` env var; methods GET/POST/PUT/DELETE/OPTIONS; credentials enabled
+- **Auth**: JWT tokens via `middleware/auth.js` with three tiers (authenticate, adminOrOwner, ownerOnly)
+- **Rate limiting**: General limiter + contact form specific (5/hr)
+- **Input validation**: joi schemas on 13 routes
+- **CRITICAL TODO**: Rotate all git-committed secrets (Square API keys, MongoDB URI, JWT secret, reCAPTCHA key, SMTP credentials) — see Active Todo List above
 
 ## Project Overview
 
