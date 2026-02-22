@@ -393,7 +393,7 @@ SistersPromise/
 ### Backend Development
 ```env
 # Database
-MONGODB_URI=mongodb+srv://derob357:****0@cluster0sp.ysdiayg.mongodb.net/sisterspromise
+MONGODB_URI=mongodb+srv://your-username:your-password@your-cluster.mongodb.net/sisterspromise
 
 # Auth
 JWT_SECRET=your-secure-random-secret-here-32-chars

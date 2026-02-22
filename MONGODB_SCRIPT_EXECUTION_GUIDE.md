@@ -21,7 +21,7 @@ npm --version
 
 # 3. .env.production has correct MONGODB_URI
 cat .env.production | grep MONGODB_URI
-# Should show: mongodb+srv://derob357:****@cluster0sp.mongodb.net/sisterspromise?...
+# Should show: mongodb+srv://username:password@cluster.mongodb.net/sisterspromise?...
 
 # 4. You have internet (for Atlas cloud connection)
 ping mongodb.com
@@ -108,7 +108,7 @@ node sisters-promise-products-with-images.js
 
 ```bash
 # Connect to MongoDB
-mongosh "mongodb+srv://derob357:2-Bel0wZer0@cluster0sp.mongodb.net/sisterspromise"
+mongosh "$MONGODB_URI"
 
 # List collections
 show collections
@@ -215,7 +215,7 @@ curl http://localhost:3000/api/products | jq '.[0].images'
 cat .env.production | grep MONGODB_URI
 
 # 2. Verify credentials work
-mongosh "mongodb+srv://derob357:2-Bel0wZer0@cluster0sp.mongodb.net/sisterspromise"
+mongosh "$MONGODB_URI"
 
 # 3. Allow your IP in MongoDB Atlas
 # Go to: mongodb.com/cloud → Network Access → Add 0.0.0.0/0

@@ -11,3 +11,7 @@ paths = [
   '''bfg-passwords\.txt''',
   '''SistersPromiseMobile/''',
 ]
+# reCAPTCHA site keys are public by design (embedded in frontend HTML)
+# Match lines containing RECAPTCHA_SITE_KEY or recaptcha/api.js
+regexTarget = "line"
+regexes = ['''RECAPTCHA_SITE_KEY''', '''recaptcha/api\.js\?render=''']

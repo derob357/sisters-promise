@@ -228,7 +228,7 @@ Test Credentials (if needed):
 
 ### Connection
 - **Provider:** MongoDB Atlas (Cloud)
-- **URI:** `mongodb+srv://derob357:...@cluster0sp.mongodb.net/sisterspromise`
+- **URI:** Set via `MONGODB_URI` environment variable
 - **Status:** ✅ Active and verified
 
 ---

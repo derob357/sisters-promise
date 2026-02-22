@@ -109,8 +109,7 @@ Pages: `pages/shop.html`, `pages/ingredients.html`, `pages/about-us.html`, `page
 
 ### Critical
 
-- [ ] `2025-02-12 16:30` Rotate all exposed API keys (Square, MongoDB, JWT, reCAPTCHA, SMTP) — previously committed to git history
-- [ ] `2025-02-12 16:30` Scrub credentials from git history (BFG Repo-Cleaner or git filter-branch)
+(none remaining)
 
 ### Medium
 
@@ -122,6 +121,8 @@ Pages: `pages/shop.html`, `pages/ingredients.html`, `pages/about-us.html`, `page
 
 ### Completed
 
+- [x] `2026-02-22 13:50` Rotate all exposed API keys (JWT, Square, SMTP, reCAPTCHA, default passwords) and scrub git history with BFG
+- [x] `2026-02-22 13:50` Remove genezio.yaml (unused deployment platform)
 - [x] `2026-02-19 00:00` Fix CORS — add PUT/DELETE to allowed methods (was blocking admin operations)
 
 - [x] `2026-02-14 00:10` Add input validation library (joi) — schemas for auth, contact, checkout, blog; validate() middleware on 13 routes

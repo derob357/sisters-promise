@@ -28,7 +28,7 @@ npx react-native run-ios --simulator="iPad Pro (11-inch) (4th generation)"
 - **Port**: 443 (HTTPS/TLS)
 - **Environment**: Production (uses `.env.production`)
 - **Database**: MongoDB Atlas
-  - URI: `mongodb+srv://derob357:***@cluster0sp.ysdiayg.mongodb.net/sisterspromise`
+  - URI: Set via `MONGODB_URI` in `.env.production`
   - Database: `sisterspromise`
   - Collections: Products (5 Etsy items), Users, Orders
 
