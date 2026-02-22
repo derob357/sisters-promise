@@ -263,4 +263,3 @@ For HTTPS locally, run `node generate-certs.js` to create self-signed certs.
 Configured for multiple platforms:
 - **Vercel** (`vercel.json`) - Serverless; routes `/api/*` to server.js, serves static files
 - **Render** (`render.yaml`) - Free tier Node.js service
-- **Genezio** (`genezio.yaml`) - Serverless backend (us-east-1)

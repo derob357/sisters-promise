@@ -22,7 +22,7 @@ Located: `/Users/drob/Documents/SistersPromise/.env`
 #### Database Configuration (REQUIRED)
 ```env
 # MongoDB connection string - Production database
-MONGODB_URI=mongodb+srv://derob357:***REMOVED***@cluster0sp.ysdiayg.mongodb.net/sisterspromise?retryWrites=true&w=majority&appName=Cluster0SP
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/sisterspromise
 ```
 - **Type:** Database URI
 - **Default:** None (REQUIRED)
@@ -32,7 +32,7 @@ MONGODB_URI=mongodb+srv://derob357:***REMOVED***@cluster0sp.ysdiayg.mongodb.net/
 #### Authentication (REQUIRED)
 ```env
 # JWT secret key for token signing/verification
-JWT_SECRET=***REMOVED***
+JWT_SECRET=your_jwt_secret_here_min_32_chars
 ```
 - **Type:** String (should be strong/random)
 - **Default:** None (REQUIRED)
@@ -89,7 +89,7 @@ SQUARE_ENVIRONMENT=sandbox  # or 'production'
 ```env
 # Google Cloud configuration
 GOOGLE_CLOUD_PROJECT_ID=sisters-promise
-RECAPTCHA_ENTERPRISE_KEY=***REMOVED***
+RECAPTCHA_ENTERPRISE_KEY=your_recaptcha_key_here
 GOOGLE_APPLICATION_CREDENTIALS=./credentials.json  # Path to service account key
 ```
 
@@ -393,7 +393,7 @@ SistersPromise/
 ### Backend Development
 ```env
 # Database
-MONGODB_URI=mongodb+srv://derob357:***REMOVED***@cluster0sp.ysdiayg.mongodb.net/sisterspromise
+MONGODB_URI=mongodb+srv://derob357:****0@cluster0sp.ysdiayg.mongodb.net/sisterspromise
 
 # Auth
 JWT_SECRET=your-secure-random-secret-here-32-chars
