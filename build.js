@@ -203,7 +203,7 @@ For more information, see:
 }
 
 function main() {
-  console.log('🔨 Building Sister's Promise...\n');
+  console.log("🔨 Building Sister's Promise...\\n");
 
   // Remove old dist folder
   if (fs.existsSync(OUTPUT_DIR)) {
