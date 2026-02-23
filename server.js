@@ -224,6 +224,7 @@ app.get('/api/health', (req, res) => {
     status: 'ok',
     uptime: process.uptime(),
     dbConnected: isConnected(),
+    dbError: getDbError(),
     timestamp: new Date().toISOString(),
   });
 });
