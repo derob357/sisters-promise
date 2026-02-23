@@ -17,6 +17,8 @@ if (!process.env.MONGODB_URI && fs.existsSync(envPath)) {
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/sisters-promise';
 
+let globalDbError = null;
+
 /**
  * Connect to MongoDB
  */
@@ -24,7 +26,7 @@ const connectDB = async () => {
   try {
     console.log('🔌 Attempting to connect to MongoDB...');
     console.log(`📍 Using URI: ${MONGODB_URI.replace(/\/\/[^:]+:[^@]+@/, '//****:****@')}`);
-    
+
     await mongoose.connect(MONGODB_URI, {
       serverSelectionTimeoutMS: 30000,
       socketTimeoutMS: 45000,
@@ -34,14 +36,18 @@ const connectDB = async () => {
     });
     console.log('✅ MongoDB connected successfully');
     console.log(`📊 Database: ${mongoose.connection.db.databaseName}`);
+    globalDbError = null;
     return mongoose.connection;
   } catch (error) {
     console.error('❌ MongoDB connection error:', error.message);
     console.error('💡 Tip: Ensure MONGODB_URI is set in Render environment variables');
+    globalDbError = String(error.message);
     // Don't exit, allow app to run with fallback to file-based storage
     return null;
   }
 };
+
+const getDbError = () => globalDbError;
 
 /**
  * Disconnect from MongoDB
@@ -66,5 +72,6 @@ module.exports = {
   connectDB,
   disconnectDB,
   isConnected,
+  getDbError,
   mongoose,
 };

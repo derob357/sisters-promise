@@ -42,7 +42,7 @@ const axios = require('axios');
 const { RecaptchaEnterpriseServiceClient } = require('@google-cloud/recaptcha-enterprise');
 const EmailSubscriber = require('./models/EmailSubscriber');
 const EmailService = require('./services/EmailService');
-const { connectDB, isConnected } = require('./config/database');
+const { connectDB, isConnected, getDbError } = require('./config/database');
 const UserService = require('./services/UserService');
 const AnalyticsService = require('./services/AnalyticsService');
 const { authenticate, adminOrOwner, ownerOnly } = require('./middleware/auth');
@@ -271,7 +271,9 @@ app.get('/api/health', generalLimiter, (req, res) => {
       status: 'ok',
       message: "Sister's Promise API is running",
       timestamp: new Date().toISOString(),
-      environment: process.env.SQUARE_ENVIRONMENT || 'sandbox'
+      environment: process.env.SQUARE_ENVIRONMENT || 'sandbox',
+      dbConnected: isConnected(),
+      dbError: getDbError()
     });
   } catch (error) {
     res.status(500).json({
