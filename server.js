@@ -225,6 +225,7 @@ app.get('/api/health', (req, res) => {
     uptime: process.uptime(),
     dbConnected: isConnected(),
     dbError: getDbError(),
+    hasMongoUri: !!process.env.MONGODB_URI,
     timestamp: new Date().toISOString(),
   });
 });
