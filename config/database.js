@@ -28,11 +28,12 @@ const connectDB = async () => {
     console.log(`📍 Using URI: ${MONGODB_URI.replace(/\/\/[^:]+:[^@]+@/, '//****:****@')}`);
 
     await mongoose.connect(MONGODB_URI, {
-      serverSelectionTimeoutMS: 30000,
+      serverSelectionTimeoutMS: 5000, // Keep short for serverless
       socketTimeoutMS: 45000,
-      connectTimeoutMS: 30000,
+      connectTimeoutMS: 10000,
       maxPoolSize: 10,
-      minPoolSize: 2,
+      minPoolSize: 0, // Must be 0 for serverless
+      family: 4, // Use IPv4, skip trying IPv6
     });
     console.log('✅ MongoDB connected successfully');
     console.log(`📊 Database: ${mongoose.connection.db.databaseName}`);
