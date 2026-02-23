@@ -9,7 +9,7 @@ const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.en
 const envPath = path.resolve(envFile);
 if (fs.existsSync(envPath)) {
   dotenv.config({ path: envPath });
-  logger.info(`📋 Loaded config from ${envFile}`);
+  console.log(`📋 Loaded config from ${envFile}`);
 } else {
   dotenv.config();
 }
@@ -21,9 +21,9 @@ if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON && !process.env.GOOGLE_APPLI
     const credentialsPath = path.join('/tmp', 'google-credentials.json');
     fs.writeFileSync(credentialsPath, credentialsJson);
     process.env.GOOGLE_APPLICATION_CREDENTIALS = credentialsPath;
-    logger.info('✓ Google credentials loaded from environment variable');
+    console.log('✓ Google credentials loaded from environment variable');
   } catch (err) {
-    logger.warn('Failed to write Google credentials:', err.message);
+    console.warn('Failed to write Google credentials:', err.message);
   }
 }
 
@@ -87,9 +87,9 @@ app.use(helmet({
     },
   },
   // HSTS - Force HTTPS for 1 year
-  hsts: { 
+  hsts: {
     maxAge: 31536000, // 1 year in seconds
-    includeSubDomains: true, 
+    includeSubDomains: true,
     preload: true,
   },
   frameguard: { action: 'deny' },
@@ -108,14 +108,14 @@ app.use((req, res, next) => {
   if (process.env.NODE_ENV === 'production' && !isVercel && proto !== 'https') {
     return res.redirect(301, `https://${req.get('host')}${req.originalUrl}`);
   }
-  
+
   // Additional security headers
   res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-XSS-Protection', '1; mode=block');
   res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
-  
+
   next();
 });
 
@@ -188,7 +188,7 @@ const { verifyRecaptchaV3, interpretRecaptchaScore } = require('./utils/recaptch
 async function annotateRecaptchaAssessment(assessmentName, annotation) {
   try {
     const client = new RecaptchaEnterpriseServiceClient();
-    
+
     const request = {
       name: assessmentName,
       annotation: annotation, // 'LEGITIMATE', 'FRAUDULENT', 'MALICIOUS_LOGIN', 'UNWANTED_SIGNUP'
@@ -267,8 +267,8 @@ const asyncHandler = (fn) => (req, res, next) => {
 // Health check endpoint
 app.get('/api/health', generalLimiter, (req, res) => {
   try {
-    res.json({ 
-      status: 'ok', 
+    res.json({
+      status: 'ok',
       message: "Sister's Promise API is running",
       timestamp: new Date().toISOString(),
       environment: process.env.SQUARE_ENVIRONMENT || 'sandbox'
@@ -306,12 +306,12 @@ app.post('/api/users/register', authLimiter, validate(registerSchema), asyncHand
   } else {
     logger.warn(`[reCAPTCHA] No token provided for registration: ${email}`);
   }
-  
+
   const existingUser = await User.findOne({ email: email.toLowerCase() });
   if (existingUser) {
     return res.status(409).json({ error: 'User already exists' });
   }
-  
+
   const hashedPassword = await bcryptjs.hash(password, 12);
   const newUser = new User({
     id: require('uuid').v4(),
@@ -321,15 +321,15 @@ app.post('/api/users/register', authLimiter, validate(registerSchema), asyncHand
     lastName: lastName || '',
     role: 'standard'
   });
-  
+
   await newUser.save();
-  
+
   const token = jwt.sign(
     { userId: newUser.id, email: newUser.email },
     process.env.JWT_SECRET,
     { expiresIn: '24h' }
   );
-  
+
   res.status(201).json({
     success: true,
     message: 'User registered successfully',
@@ -368,23 +368,23 @@ app.post('/api/users/login', authLimiter, validate(loginSchema), asyncHandler(as
   } else {
     logger.warn(`[reCAPTCHA] No token provided for login: ${email}`);
   }
-  
+
   const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
   if (!user) {
     return res.status(401).json({ error: 'Invalid credentials' });
   }
-  
+
   const passwordMatch = await bcryptjs.compare(password, user.password);
   if (!passwordMatch) {
     return res.status(401).json({ error: 'Invalid credentials' });
   }
-  
+
   const token = jwt.sign(
     { userId: user.id, email: user.email },
     process.env.JWT_SECRET,
     { expiresIn: '24h' }
   );
-  
+
   res.json({
     success: true,
     message: 'Login successful',
@@ -412,7 +412,7 @@ app.get('/api/users/profile', asyncHandler(async (req, res) => {
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Missing authorization token' });
   }
-  
+
   const token = authHeader.substring(7);
   let decoded;
   try {
@@ -420,12 +420,12 @@ app.get('/api/users/profile', asyncHandler(async (req, res) => {
   } catch (error) {
     return res.status(401).json({ error: 'Invalid token' });
   }
-  
+
   const user = await User.findOne({ id: decoded.userId });
   if (!user) {
     return res.status(404).json({ error: 'User not found' });
   }
-  
+
   res.json({
     success: true,
     user: {
@@ -453,7 +453,7 @@ app.post('/api/users/change-password', authLimiter, validate(changePasswordSchem
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Missing authorization token' });
   }
-  
+
   const token = authHeader.substring(7);
   let decoded;
   try {
@@ -461,25 +461,25 @@ app.post('/api/users/change-password', authLimiter, validate(changePasswordSchem
   } catch (error) {
     return res.status(401).json({ error: 'Invalid token' });
   }
-  
+
   const { oldPassword, newPassword } = req.body;
   if (!oldPassword || !newPassword) {
     return res.status(400).json({ error: 'Old and new passwords are required' });
   }
-  
+
   const user = await User.findOne({ id: decoded.userId }).select('+password');
   if (!user) {
     return res.status(404).json({ error: 'User not found' });
   }
-  
+
   const passwordMatch = await bcryptjs.compare(oldPassword, user.password);
   if (!passwordMatch) {
     return res.status(401).json({ error: 'Current password is incorrect' });
   }
-  
+
   user.password = await bcryptjs.hash(newPassword, 12);
   await user.save();
-  
+
   res.json({
     success: true,
     message: 'Password changed successfully'
@@ -500,9 +500,9 @@ app.get('/api/products/categories', asyncHandler(async (req, res) => {
     .distinct('category')
     .lean()
     .exec();
-  
+
   const categories = products.filter(cat => cat && cat.trim());
-  
+
   res.json({
     success: true,
     categories: categories.sort(),
@@ -516,7 +516,7 @@ app.get('/api/products/categories', asyncHandler(async (req, res) => {
  */
 app.get('/api/products/search', asyncHandler(async (req, res) => {
   const { q } = req.query;
-  
+
   if (!q || q.trim().length === 0) {
     return res.json({
       success: true,
@@ -527,7 +527,7 @@ app.get('/api/products/search', asyncHandler(async (req, res) => {
       query: q
     });
   }
-  
+
   const searchRegex = new RegExp(q.trim(), 'i');
   const results = await Product.find({
     isActive: true,
@@ -540,10 +540,10 @@ app.get('/api/products/search', asyncHandler(async (req, res) => {
     .select('-__v')
     .lean()
     .exec();
-  
+
   // Ensure results is always an array
   const validResults = Array.isArray(results) ? results : [];
-  
+
   res.json({
     success: true,
     data: {
@@ -563,22 +563,22 @@ app.get('/api/products', asyncHandler(async (req, res) => {
   try {
     // Build query filter
     const filter = { isActive: true };
-    
+
     // Add category filter if provided
     if (req.query.category && req.query.category !== 'all') {
       filter.category = req.query.category;
     }
-    
+
     // Fetch products from MongoDB
     const products = await Product.find(filter)
       .select('-__v')
       .lean()
       .exec();
-    
+
     // Ensure products is always an array
     const validProducts = Array.isArray(products) ? products : [];
 
-    res.json({ 
+    res.json({
       success: true,
       data: {
         count: validProducts.length,
@@ -825,7 +825,7 @@ app.post('/api/square/checkout', checkoutLimiter, validate(squareCheckoutSchema)
  */
 app.get('/api/products/:id', asyncHandler(async (req, res) => {
   const productId = req.params.id;
-  
+
   try {
     const product = await Product.findById(productId)
       .select('-__v')
@@ -833,8 +833,8 @@ app.get('/api/products/:id', asyncHandler(async (req, res) => {
       .exec();
 
     if (!product) {
-      return res.status(404).json({ 
-        error: 'Product not found' 
+      return res.status(404).json({
+        error: 'Product not found'
       });
     }
 
@@ -863,14 +863,14 @@ app.post('/api/checkout', checkoutLimiter, validate(directCheckoutSchema), async
 
   // Input validation
   if (!sourceId || typeof sourceId !== 'string' || sourceId.length < 5) {
-    return res.status(400).json({ 
-      error: 'Invalid source ID' 
+    return res.status(400).json({
+      error: 'Invalid source ID'
     });
   }
 
   if (!amount || typeof amount !== 'number' || amount < 1 || amount > 999999) {
-    return res.status(400).json({ 
-      error: 'Invalid amount. Must be between 1 and 999999 cents.' 
+    return res.status(400).json({
+      error: 'Invalid amount. Must be between 1 and 999999 cents.'
     });
   }
 
@@ -883,7 +883,7 @@ app.post('/api/checkout', checkoutLimiter, validate(directCheckoutSchema), async
 
   try {
     const sanitizedNote = sanitizeInput(note);
-    
+
     const response = await paymentsApi.createPayment({
       sourceId: sanitizeInput(sourceId),
       amountMoney: {
@@ -923,19 +923,19 @@ app.post('/api/checkout', checkoutLimiter, validate(directCheckoutSchema), async
  */
 app.post('/api/orders', authenticate, validate(orderSchema), asyncHandler(async (req, res) => {
   const { items, total, email, firstName, lastName, phone, address, city, state, zip } = req.body;
-  
+
   if (!items || !Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ error: 'Order must contain items' });
   }
-  
+
   if (!total || typeof total !== 'number' || total <= 0) {
     return res.status(400).json({ error: 'Invalid total amount' });
   }
-  
+
   if (!email) {
     return res.status(400).json({ error: 'Email is required' });
   }
-  
+
   // Convert items to products format for ManualOrder schema
   const products = items.map(item => ({
     name: item.productId || 'Product',
@@ -965,9 +965,9 @@ app.post('/api/orders', authenticate, validate(orderSchema), asyncHandler(async 
     orderStatus: 'confirmed',
     createdBy: req.user?.id || 'mobile-app',
   });
-  
+
   await order.save();
-  
+
   res.status(201).json({
     success: true,
     message: 'Order created successfully',
@@ -994,14 +994,14 @@ app.post('/api/orders', authenticate, validate(orderSchema), asyncHandler(async 
  */
 app.post('/api/analytics/event', asyncHandler(async (req, res) => {
   const { event, properties } = req.body;
-  
+
   if (!event) {
     return res.status(400).json({ error: 'Event name is required' });
   }
-  
+
   // Log analytics event (in production, save to database)
   logger.info(`[ANALYTICS] Event: ${event}`, properties);
-  
+
   res.json({
     success: true,
     message: 'Event tracked',
@@ -1016,7 +1016,7 @@ app.post('/api/analytics/event', asyncHandler(async (req, res) => {
 app.post('/api/analytics/signup', asyncHandler(async (req, res) => {
   const { email, source } = req.body;
   logger.info(`[ANALYTICS] Signup: ${email} (source: ${source})`);
-  
+
   res.json({
     success: true,
     message: 'Signup tracked'
@@ -1030,7 +1030,7 @@ app.post('/api/analytics/signup', asyncHandler(async (req, res) => {
 app.post('/api/analytics/purchase', asyncHandler(async (req, res) => {
   const { orderId, total, items } = req.body;
   logger.info(`[ANALYTICS] Purchase: ${orderId}, Total: ${total}`, items);
-  
+
   res.json({
     success: true,
     message: 'Purchase tracked'
@@ -1044,7 +1044,7 @@ app.post('/api/analytics/purchase', asyncHandler(async (req, res) => {
 app.post('/api/analytics/product', asyncHandler(async (req, res) => {
   const { productId, action, properties } = req.body;
   logger.info(`[ANALYTICS] Product Action: ${action} on ${productId}`, properties);
-  
+
   res.json({
     success: true,
     message: 'Product interaction tracked'
@@ -1058,7 +1058,7 @@ app.post('/api/analytics/product', asyncHandler(async (req, res) => {
 app.post('/api/analytics/email-subscription', asyncHandler(async (req, res) => {
   const { email, action } = req.body;
   logger.info(`[ANALYTICS] Email Subscription: ${action} for ${email}`);
-  
+
   res.json({
     success: true,
     message: 'Email subscription event tracked'
@@ -1072,7 +1072,7 @@ app.post('/api/analytics/email-subscription', asyncHandler(async (req, res) => {
 app.post('/api/analytics/form', asyncHandler(async (req, res) => {
   const { formType, data } = req.body;
   logger.info(`[ANALYTICS] Form Submission: ${formType}`, data);
-  
+
   res.json({
     success: true,
     message: 'Form submission tracked'
@@ -1136,7 +1136,7 @@ app.post('/api/email/subscribe', contactLimiter, validate(emailSubscribeSchema),
 
   } catch (error) {
     logger.error('Subscription error:', error.message);
-    
+
     if (error.message.includes('already subscribed')) {
       return res.status(409).json({
         error: 'Already Subscribed',
@@ -1396,7 +1396,7 @@ app.post('/api/email/test', authenticate, adminOrOwner, asyncHandler(async (req,
 app.get('/api/email/export', authenticate, adminOrOwner, asyncHandler(async (req, res) => {
   try {
     const csv = emailSubscriber.exportAsCSV();
-    
+
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', 'attachment; filename=subscribers.csv');
     res.send(csv);
@@ -1561,7 +1561,7 @@ app.post('/api/admin/promotions/send', authenticate, adminOrOwner, asyncHandler(
     };
 
     // Send to specific emails or all subscribers interested in promotions
-    let subscribers = emails 
+    let subscribers = emails
       ? emails.map(email => emailSubscriber.getSubscriber(email)).filter(Boolean)
       : emailSubscriber.getActiveSubscribers('promotions');
 
@@ -1710,8 +1710,8 @@ app.post('/api/create-checkout', checkoutLimiter, asyncHandler(async (req, res) 
 
   // Validate items
   if (!items || !Array.isArray(items) || items.length === 0) {
-    return res.status(400).json({ 
-      error: 'No items provided' 
+    return res.status(400).json({
+      error: 'No items provided'
     });
   }
 
@@ -1772,21 +1772,21 @@ app.post('/api/contact', contactLimiter, validate(contactSchema), asyncHandler(a
 
   // Input validation
   if (!name || typeof name !== 'string' || name.length < 2 || name.length > 100) {
-    return res.status(400).json({ 
-      error: 'Invalid name. Must be between 2 and 100 characters.' 
+    return res.status(400).json({
+      error: 'Invalid name. Must be between 2 and 100 characters.'
     });
   }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!email || !emailRegex.test(email) || email.length > 100) {
-    return res.status(400).json({ 
-      error: 'Invalid email address' 
+    return res.status(400).json({
+      error: 'Invalid email address'
     });
   }
 
   if (!message || typeof message !== 'string' || message.length < 10 || message.length > 1000) {
-    return res.status(400).json({ 
-      error: 'Invalid message. Must be between 10 and 1000 characters.' 
+    return res.status(400).json({
+      error: 'Invalid message. Must be between 10 and 1000 characters.'
     });
   }
 
@@ -1863,7 +1863,7 @@ app.post('/api/contact', contactLimiter, validate(contactSchema), asyncHandler(a
       logger.error('Failed to send contact confirmation email:', emailError);
       // Don't fail the request if email fails
     }
-    
+
     // For now, just confirm receipt
     res.status(200).json({
       success: true,
@@ -4040,7 +4040,7 @@ if (fs.existsSync(certPath) && fs.existsSync(keyPath)) {
   } catch (error) {
     logger.error('Failed to load SSL certificates:', error.message);
     logger.info('Falling back to HTTP only...\n');
-    
+
     app.listen(PORT, () => {
       logger.info(`\n✓ Sister's Promise API server running on http://localhost:${PORT}`);
       logger.info(`⚠️  WARNING: Running on HTTP (unencrypted) - Not recommended for production`);
