@@ -80,6 +80,7 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'", 'https://recaptcha.net', 'https://www.google.com/recaptcha/', 'https://www.gstatic.com/recaptcha/', 'https://www.googletagmanager.com', 'https://www.google-analytics.com'],
+      scriptSrcAttr: ["'unsafe-inline'"],
       frameSrc: ['https://recaptcha.net', 'https://www.google.com/recaptcha/'],
       imgSrc: ["'self'", 'data:', 'https://items-images-production.s3.us-west-2.amazonaws.com', 'https://items-images-sandbox.s3.us-west-2.amazonaws.com', 'https://*.squarecdn.com'],
       styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
