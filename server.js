@@ -230,7 +230,6 @@ app.get('/api/health', (req, res) => {
     dbConnected: isConnected(),
     dbError: getDbError(),
     hasMongoUri: !!process.env.MONGODB_URI,
-    uriPrefix: process.env.MONGODB_URI ? process.env.MONGODB_URI.substring(0, 20) : null,
     timestamp: new Date().toISOString(),
   });
 });
