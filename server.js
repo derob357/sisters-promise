@@ -79,11 +79,11 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", 'https://recaptcha.net', 'https://www.google.com/recaptcha/', 'https://www.gstatic.com/recaptcha/', 'https://cdn.jsdelivr.net', 'https://www.googletagmanager.com', 'https://www.google-analytics.com'],
+      scriptSrc: ["'self'", "'unsafe-inline'", 'https://recaptcha.net', 'https://www.google.com/recaptcha/', 'https://www.gstatic.com/recaptcha/', 'https://www.googletagmanager.com', 'https://www.google-analytics.com'],
       frameSrc: ['https://recaptcha.net', 'https://www.google.com/recaptcha/'],
       imgSrc: ["'self'", 'data:', 'https://items-images-production.s3.us-west-2.amazonaws.com', 'https://items-images-sandbox.s3.us-west-2.amazonaws.com', 'https://*.squarecdn.com'],
-      styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://cdnjs.cloudflare.com', 'https://cdn.jsdelivr.net'],
-      connectSrc: ["'self'", 'https://cdn.jsdelivr.net', 'https://googletagmanager.com', 'https://www.googletagmanager.com', 'https://www.google-analytics.com', 'https://analytics.google.com'],
+      styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+      connectSrc: ["'self'", 'https://googletagmanager.com', 'https://www.googletagmanager.com', 'https://www.google-analytics.com', 'https://analytics.google.com'],
     },
   },
   // HSTS - Force HTTPS for 1 year
