@@ -1,13 +1,20 @@
-<!--
- IMPORTANT: Please use the following link to create a new issue:
+## Issue Report
 
-  https://www.creative-tim.com/new-issue/material-kit
+### Description
+<!-- Describe the issue clearly -->
 
-**If your issue was not created using the app above, it will be closed immediately.**
--->
+### Steps to Reproduce
+1.
+2.
+3.
 
-<!--
-Love Creative Tim? Do you need Angular, React, Vuejs or HTML? You can visit:
-👉  https://www.creative-tim.com/bundles
-👉  https://www.creative-tim.com
--->
+### Expected Behavior
+<!-- What should happen? -->
+
+### Actual Behavior
+<!-- What actually happens? -->
+
+### Environment
+- Browser & Version:
+- Device:
+- OS:

@@ -1,21 +1,18 @@
 {
-  "name": "material-kit",
-  "homepage": "https://github.com/creativetimofficial/material-kit",
+  "name": "sisters-promise",
+  "homepage": "https://sisterspromise.com",
   "authors": [
-    "creative-tim"
+    "Sisters Promise"
   ],
-  "description": "A Badass Bootstrap UI Kit based on Material Design",
+  "description": "Sister's Promise - Natural Skincare E-Commerce",
   "main": "index.html",
   "keywords": [
-    "material",
-    "design",
-    "bootstrap",
-    "material",
-    "design",
-    "google",
-    "twitter"
+    "skincare",
+    "natural",
+    "e-commerce",
+    "bootstrap"
   ],
-  "license": "Creative TIM License",
+  "license": "MIT",
   "ignore": [
     "**/.*",
     "node_modules",
