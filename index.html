@@ -15,9 +15,13 @@
   <meta name="keywords" content="natural skincare, organic lotion, sea moss soap, skin scrub">
 
   <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-61SC1FBWPG"></script>
   <script>
-    // Set GA_MEASUREMENT_ID - leave empty to disable analytics
-    window.GA_MEASUREMENT_ID = ''; // Add your GA4 ID here when ready, e.g., 'G-XXXXXXXXXX'
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-61SC1FBWPG');
+    window.GA_MEASUREMENT_ID = 'G-61SC1FBWPG';
   </script>
 
   <!-- Apple App-Specific Site Analytics (iOS) -->
@@ -451,7 +455,8 @@
           <li class="nav-item"><a class="nav-link" href="./pages/blog.html">Blog</a></li>
           <li class="nav-item"><a class="nav-link" href="./pages/rewards.html">Rewards</a></li>
           <li class="nav-item"><a class="nav-link" href="./pages/ingredients.html">Ingredients</a></li>
-          <li class="nav-item"><a class="nav-link" href="./pages/about-us.html">About</a></li>
+          <!-- About page temporarily disabled -->
+          <!-- <li class="nav-item"><a class="nav-link" href="./pages/about-us.html">About</a></li> -->
           <li class="nav-item"><a class="nav-link" href="./pages/contact.html">Contact</a></li>
           <li class="nav-item" id="auth-nav-item"></li>
         </ul>
@@ -613,6 +618,7 @@
                 <i class="fas fa-star gold-star" aria-hidden="true"></i>
                 <i class="fas fa-star gold-star" aria-hidden="true"></i>
               </div>
+              <p class="card-text"><em>"Love this product! My skin feels so soft and moisturized."</em></p>
               <p class="text-muted"><strong>momofdestiny</strong></p>
               <p class="text-muted small">Black Kush Lotion</p>
             </div>
@@ -779,9 +785,6 @@
   <script>
     // Initialize analytics with page tracking
     if (typeof analyticsService !== 'undefined') {
-      // Set up global GA4 measurement ID
-      window.GA_MEASUREMENT_ID = 'G_XXXXXXXXXX'; // Replace with actual measurement ID from env
-      
       // Track page view
       analyticsService.trackPageView(window.location.pathname, document.title);
       

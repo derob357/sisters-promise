@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="Contact Sister's Promise - Natural Skincare. Get in touch with us for questions about our products.">
-  <meta name="theme-color" content="#1A73E8">
+  <meta name="theme-color" content="#C9A961">
   
   <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/logos/SistersPromise-Logo_bw_500.jpg">
   <link rel="icon" type="image/jpeg" href="../assets/img/logos/SistersPromise-Logo_bw_500.jpg">
@@ -497,7 +497,8 @@
           <li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
           <li class="nav-item"><a class="nav-link" href="rewards.html">Rewards</a></li>
           <li class="nav-item"><a class="nav-link" href="ingredients.html">Ingredients</a></li>
-          <li class="nav-item"><a class="nav-link" href="about-us.html">About</a></li>
+          <!-- About page temporarily disabled -->
+          <!-- <li class="nav-item"><a class="nav-link" href="about-us.html">About</a></li> -->
           <li class="nav-item"><a class="nav-link active" aria-current="page" href="contact.html">Contact</a></li>
           <li class="nav-item" id="auth-nav-item"></li>
         </ul>
@@ -630,12 +631,43 @@
   </main>
 
   <!-- Footer -->
-  <footer class="footer mt-5 py-4 border-top">
-    <div class="container text-center">
-      <p class="text-muted mb-0">
-        &copy; <span id="year"></span> Sister's Promise. All rights reserved. | 
-        <a href="#" class="text-decoration-none text-muted">Privacy Policy</a>
-      </p>
+  <footer style="background: #2d3e50; color: white; padding: 40px 20px 20px; text-align: center;">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-3 footer-section" style="margin-bottom: 30px;">
+          <h5 style="font-weight: 600; margin-bottom: 15px;">Sister's Promise</h5>
+          <p>Natural skincare products crafted with care and pure ingredients.</p>
+        </div>
+        <div class="col-md-3 footer-section" style="margin-bottom: 30px;">
+          <h5 style="font-weight: 600; margin-bottom: 15px;">Quick Links</h5>
+          <ul style="list-style: none; padding: 0;">
+            <li style="margin-bottom: 8px;"><a href="../index.html" style="color: #ccc; text-decoration: none;">Home</a></li>
+            <li style="margin-bottom: 8px;"><a href="shop.html" style="color: #ccc; text-decoration: none;">Shop</a></li>
+            <li style="margin-bottom: 8px;"><a href="rewards.html" style="color: #ccc; text-decoration: none;">Rewards</a></li>
+            <li style="margin-bottom: 8px;"><a href="contact.html" style="color: #ccc; text-decoration: none;">Contact</a></li>
+          </ul>
+        </div>
+        <div class="col-md-3 footer-section" style="margin-bottom: 30px;">
+          <h5 style="font-weight: 600; margin-bottom: 15px;">Customer Service</h5>
+          <ul style="list-style: none; padding: 0;">
+            <li style="margin-bottom: 8px;"><a href="contact.html" style="color: #ccc; text-decoration: none;">Contact Us</a></li>
+            <li style="margin-bottom: 8px;"><a href="shop.html" style="color: #ccc; text-decoration: none;">Order Status</a></li>
+            <li style="margin-bottom: 8px;"><a href="#" style="color: #ccc; text-decoration: none;">Shipping Info</a></li>
+            <li style="margin-bottom: 8px;"><a href="#" style="color: #ccc; text-decoration: none;">Returns</a></li>
+          </ul>
+        </div>
+        <div class="col-md-3 footer-section" style="margin-bottom: 30px;">
+          <h5 style="font-weight: 600; margin-bottom: 15px;">Connect</h5>
+          <ul style="list-style: none; padding: 0;">
+            <li style="margin-bottom: 8px;"><a href="#" style="color: #ccc; text-decoration: none;"><i class="fab fa-facebook"></i> Facebook</a></li>
+            <li style="margin-bottom: 8px;"><a href="https://www.instagram.com/sisterspromiseinc/" target="_blank" rel="noopener" style="color: #ccc; text-decoration: none;"><i class="fab fa-instagram"></i> Instagram</a></li>
+            <li style="margin-bottom: 8px;"><a href="#" style="color: #ccc; text-decoration: none;"><i class="fab fa-twitter"></i> Twitter</a></li>
+          </ul>
+        </div>
+      </div>
+      <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; margin-top: 20px; text-align: center; font-size: 0.9rem; color: #aaa;">
+        <p>&copy; 2026 Sister's Promise. All rights reserved. | <a href="privacy-policy.html" style="color: #ccc; text-decoration: none;">Privacy Policy</a> | <a href="terms-conditions.html" style="color: #ccc; text-decoration: none;">Terms &amp; Conditions</a></p>
+      </div>
     </div>
   </footer>
 
@@ -643,7 +675,7 @@
   <script src="../assets/js/core/bootstrap.bundle.min.js"></script>
 
   <!-- Square Integration & Contact Form -->
-  <script src="/assets/js/square-integration.js"></script>
+  <script src="../assets/js/square-integration.js"></script>
 
   <script>
     // Modal functions
@@ -682,9 +714,6 @@
     });
 
     document.addEventListener('DOMContentLoaded', function() {
-      // Set current year in footer
-      document.getElementById('year').textContent = new Date().getFullYear();
-
       // Handle contact form submission
       const contactForm = document.getElementById('contact-form');
       const submitBtn = document.getElementById('submit-btn');
