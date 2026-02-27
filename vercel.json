@@ -24,12 +24,19 @@
   ],
   "routes": [
     {
+      "src": "/assets/img/(.*)",
+      "dest": "/assets/img/$1",
+      "headers": { "Cache-Control": "public, max-age=86400, must-revalidate" }
+    },
+    {
       "src": "/assets/(.*)",
-      "dest": "/assets/$1"
+      "dest": "/assets/$1",
+      "headers": { "Cache-Control": "public, max-age=0, must-revalidate" }
     },
     {
       "src": "/pages/(.*)",
-      "dest": "/pages/$1"
+      "dest": "/pages/$1",
+      "headers": { "Cache-Control": "no-cache" }
     },
     {
       "src": "/manifest.json",
@@ -37,7 +44,8 @@
     },
     {
       "src": "/(.*\\.html)$",
-      "dest": "/$1"
+      "dest": "/$1",
+      "headers": { "Cache-Control": "no-cache" }
     },
     {
       "src": "/api/(.*)",

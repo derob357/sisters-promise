@@ -213,9 +213,12 @@ const sanitizeInput = (input) => {
 };
 
 // Serve static files - images, CSS, JavaScript, etc.
+// ETags enabled so browsers can revalidate efficiently (304 Not Modified).
+// maxAge=0 forces revalidation on every request — prevents stale content.
 app.use(express.static(__dirname, {
-  maxAge: '1h',
-  etag: false,
+  maxAge: 0,
+  etag: true,
+  lastModified: true,
 }));
 
 // Health check endpoint
@@ -232,15 +235,20 @@ app.get('/api/health', (req, res) => {
 });
 
 // Route handlers for HTML pages
+// no-cache = browser must revalidate with server before using cached copy.
+// With ETags enabled, unchanged files get a fast 304; changed files get fresh content.
 app.get('/', (req, res) => {
+  res.set('Cache-Control', 'no-cache');
   res.sendFile(__dirname + '/index.html');
 });
 
 app.get('/pages/contact', (req, res) => {
+  res.set('Cache-Control', 'no-cache');
   res.sendFile(__dirname + '/pages/contact.html');
 });
 
 app.get('/pages/shop', (req, res) => {
+  res.set('Cache-Control', 'no-cache');
   res.sendFile(__dirname + '/pages/shop.html');
 });
 
