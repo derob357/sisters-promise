@@ -3402,9 +3402,18 @@ app.get('/api/blog/posts', generalLimiter, asyncHandler(async (req, res) => {
   });
 }));
 
-// Featured posts for homepage
+// Featured posts for homepage (graceful fallback if DB unavailable)
 app.get('/api/blog/posts/featured', generalLimiter, asyncHandler(async (req, res) => {
   const limit = Math.min(parseInt(req.query.limit) || 4, 10);
+
+  if (!isConnected()) {
+    return res.json({
+      success: true,
+      data: { posts: [] },
+      timestamp: new Date().toISOString()
+    });
+  }
+
   const posts = await BlogService.getFeaturedPosts(limit);
 
   res.json({
