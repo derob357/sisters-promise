@@ -52,3 +52,5 @@ presentation.html
 docs/documentation.html
 pages/author.html
 bfg-passwords.txt
+.vercel
+.env*.local
