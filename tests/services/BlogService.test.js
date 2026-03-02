@@ -32,6 +32,17 @@ const createMockPost = (overrides = {}) => ({
 describe('BlogService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+
+    const mockChain = {
+      sort: jest.fn().mockReturnThis(),
+      skip: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockReturnThis(),
+      select: jest.fn().mockReturnThis(),
+      lean: jest.fn().mockResolvedValue([])
+    };
+    BlogPost.find = jest.fn().mockReturnValue(mockChain);
+    BlogPost.countDocuments = jest.fn().mockResolvedValue(0);
+    BlogService.cache = { featuredPosts: null, publishedPosts: null, lastUpdate: null };
   });
 
   describe('generateSlug', () => {
@@ -70,7 +81,7 @@ describe('BlogService', () => {
     });
 
     it('should create post with generated id and slug', async () => {
-      BlogPost.mockImplementation(function(data) {
+      BlogPost.mockImplementation(function (data) {
         Object.assign(this, data);
         this.save = jest.fn().mockResolvedValue(this);
       });
@@ -87,7 +98,7 @@ describe('BlogService', () => {
     });
 
     it('should set isPublished to false by default', async () => {
-      BlogPost.mockImplementation(function(data) {
+      BlogPost.mockImplementation(function (data) {
         Object.assign(this, data);
         this.save = jest.fn().mockResolvedValue(this);
       });
@@ -101,7 +112,7 @@ describe('BlogService', () => {
     });
 
     it('should auto-generate excerpt from content if not provided', async () => {
-      BlogPost.mockImplementation(function(data) {
+      BlogPost.mockImplementation(function (data) {
         Object.assign(this, data);
         this.save = jest.fn().mockResolvedValue(this);
       });
@@ -238,7 +249,7 @@ describe('BlogService', () => {
         })
       });
 
-      const result = await BlogService.getFeaturedPosts(4);
+      const result = await BlogService._getFeaturedPostsFromDb(4);
 
       expect(result.length).toBeGreaterThanOrEqual(1);
     });
@@ -262,7 +273,7 @@ describe('BlogService', () => {
         };
       });
 
-      const result = await BlogService.getFeaturedPosts(4);
+      const result = await BlogService._getFeaturedPostsFromDb(4);
 
       expect(result).toHaveLength(3); // 1 featured + 2 fallback
       expect(BlogPost.find).toHaveBeenCalledTimes(2);

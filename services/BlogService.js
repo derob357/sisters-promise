@@ -2,6 +2,34 @@ const { v4: uuidv4 } = require('uuid');
 const BlogPost = require('../models/BlogPost');
 
 class BlogService {
+  static cache = {
+    featuredPosts: null,
+    publishedPosts: null,
+    lastUpdate: null
+  };
+
+  static async refreshCache() {
+    try {
+      this.cache.featuredPosts = await this._getFeaturedPostsFromDb(4);
+      this.cache.publishedPosts = await this._getPublishedPostsFromDb(1, 9, 'newest');
+      this.cache.lastUpdate = new Date();
+      console.log(`[BlogService] Cache refreshed at ${this.cache.lastUpdate.toISOString()}`);
+    } catch (error) {
+      console.error('[BlogService] Error refreshing cache:', error);
+    }
+  }
+
+  static startScheduledUpdates() {
+    const cron = require('node-cron');
+    // Run at midnight, 5am, noon, and 6pm
+    cron.schedule('0 0,5,12,18 * * *', async () => {
+      console.log('[BlogService] Running scheduled cache refresh...');
+      await this.refreshCache();
+    });
+    // Run an initial refresh
+    this.refreshCache();
+  }
+
   static generateSlug(title) {
     const base = title
       .toLowerCase()
@@ -37,6 +65,7 @@ class BlogService {
     });
 
     await post.save();
+    this.refreshCache().catch(e => console.error('[BlogService] Error refreshing cache after create:', e));
     return post;
   }
 
@@ -60,6 +89,7 @@ class BlogService {
     }
 
     await post.save();
+    this.refreshCache().catch(e => console.error('[BlogService] Error refreshing cache after update:', e));
     return post;
   }
 
@@ -71,10 +101,22 @@ class BlogService {
     post.deletedAt = new Date();
     post.deletedBy = deleterId;
     await post.save();
+    this.refreshCache().catch(e => console.error('[BlogService] Error refreshing cache after delete:', e));
     return { success: true };
   }
 
   static async getPublishedPosts(page = 1, limit = 10, sort = 'newest') {
+    // Return from cache if it's the exact match for homepage/default list
+    if (page === 1 && limit === 9 && sort === 'newest') {
+      if (!this.cache.publishedPosts) {
+        await this.refreshCache();
+      }
+      return this.cache.publishedPosts;
+    }
+    return this._getPublishedPostsFromDb(page, limit, sort);
+  }
+
+  static async _getPublishedPostsFromDb(page = 1, limit = 10, sort = 'newest') {
     const filter = { isPublished: true, isDeleted: false };
 
     let sortOption;
@@ -105,6 +147,16 @@ class BlogService {
   }
 
   static async getFeaturedPosts(limit = 4) {
+    if (limit === 4) {
+      if (!this.cache.featuredPosts) {
+        await this.refreshCache();
+      }
+      return this.cache.featuredPosts;
+    }
+    return this._getFeaturedPostsFromDb(limit);
+  }
+
+  static async _getFeaturedPostsFromDb(limit = 4) {
     let posts = await BlogPost.find({
       isFeatured: true,
       isPublished: true,

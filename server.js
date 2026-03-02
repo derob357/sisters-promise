@@ -4115,5 +4115,8 @@ if (fs.existsSync(certPath) && fs.existsSync(keyPath)) {
   }
 }
 
+// Initialize scheduled blog cache updates
+BlogService.startScheduledUpdates();
+
 // Export for Vercel serverless deployment
 module.exports = app;
