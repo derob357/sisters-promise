@@ -31,7 +31,7 @@ const seedPosts = [
 
 <p>Ready to experience the difference? <a href="../pages/shop.html">Shop our Sea Moss collection</a> and let your skin thank you.</p>`,
     excerpt: 'Discover why sea moss is taking the skincare world by storm. Packed with 92 essential minerals, this ocean superfood hydrates, fights acne, and rejuvenates your skin naturally.',
-    coverImage: '',
+    coverImage: '/assets/img/blog/sea_moss_skincare_1772477470206.png',
     author: { userId: 'system', userName: "Sister's Promise", userRole: 'owner' },
     tags: ['sea moss', 'skincare', 'natural ingredients', 'wellness'],
     category: 'Ingredients',
@@ -69,7 +69,7 @@ const seedPosts = [
 
 <p>What morning skincare habits have made the biggest difference for you? Share in the comments below!</p>`,
     excerpt: 'Transform your skin with these 5 simple morning habits. From hydration hacks to the sunscreen rule you should never break, these small changes deliver real results.',
-    coverImage: '',
+    coverImage: '/assets/img/blog/morning_skincare_routine_1772477484772.png',
     author: { userId: 'system', userName: "Sister's Promise", userRole: 'owner' },
     tags: ['skincare routine', 'morning routine', 'tips', 'wellness'],
     category: 'Tips & Tricks',
@@ -110,7 +110,7 @@ const seedPosts = [
 
 <p>Have questions about specific ingredients? Drop them in the comments and we'll address them in our next post!</p>`,
     excerpt: 'Terms like "clean" and "natural" are unregulated in beauty. Learn how to read ingredient labels, spot red flags, and find products that are genuinely good for your skin.',
-    coverImage: '',
+    coverImage: '/assets/img/blog/clean_beauty_ingredients_1772477504751.png',
     author: { userId: 'system', userName: "Sister's Promise", userRole: 'owner' },
     tags: ['clean beauty', 'ingredients', 'education', 'transparency'],
     category: 'Education',
@@ -145,7 +145,7 @@ const seedPosts = [
 
 <p>Thank you for being part of the Sister's Promise family. We're just getting started.</p>`,
     excerpt: "Every Sister's Promise product starts with our community. Learn how your feedback, stories, and traditions inspire the honest skincare products we create.",
-    coverImage: '',
+    coverImage: '/assets/img/blog/community_inspired_beauty_1772477517793.png',
     author: { userId: 'system', userName: "Sister's Promise", userRole: 'owner' },
     tags: ['community', 'brand story', 'behind the scenes'],
     category: 'Community',

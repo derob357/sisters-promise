@@ -39,7 +39,7 @@ const trendingPosts = [
 
 <p>Have you tried turmeric in your skincare routine? Share your experience in the comments below!</p>`,
     excerpt: 'Turmeric soap has gone from Ayurvedic tradition to viral skincare trend. Here\'s what curcumin actually does for your skin, what the science says, and what to realistically expect.',
-    coverImage: '',
+    coverImage: '/assets/img/blog/turmeric_soap_science_1772477569269.png',
     author: { userId: 'system', userName: "Sister's Promise", userRole: 'owner' },
     tags: ['turmeric', 'curcumin', 'brightening', 'natural skincare', 'trending'],
     category: 'Ingredients',
@@ -83,7 +83,7 @@ const trendingPosts = [
 
 <p>The TikTok hype is real — but for us, sea moss has been an ingredient we've believed in long before it went viral. What questions do you have about sea moss? Drop them in the comments!</p>`,
     excerpt: 'Sea moss has 316 million TikTok views and a $2.6B projected market. Dermatologists weigh in on what this ocean algae actually does for your skin — and what\'s just hype.',
-    coverImage: '',
+    coverImage: '/assets/img/blog/sea_moss_viral_1772477582884.png',
     author: { userId: 'system', userName: "Sister's Promise", userRole: 'owner' },
     tags: ['sea moss', 'trending', 'skincare science', 'hydration', 'acne'],
     category: 'Ingredients',
@@ -139,7 +139,7 @@ const trendingPosts = [
 
 <p>Next time you pick up a bar, flip it over. Read the ingredients. You deserve to know what you're putting on the largest organ in your body.</p>`,
     excerpt: 'Commercial "soap" isn\'t actually soap — it\'s synthetic detergent with the glycerin removed. Here\'s what\'s really in your bar and why handmade soap is worth the switch.',
-    coverImage: '',
+    coverImage: '/assets/img/blog/handmade_vs_commercial_soap_comparison_1772477598705.png',
     author: { userId: 'system', userName: "Sister's Promise", userRole: 'owner' },
     tags: ['handmade soap', 'clean beauty', 'ingredients', 'education', 'natural vs synthetic'],
     category: 'Education',
@@ -190,7 +190,7 @@ const trendingPosts = [
 
 <p>The microbiome revolution isn't about buying more products — it's about being smarter with fewer. What changes have you made to protect your skin barrier? Share in the comments!</p>`,
     excerpt: 'The biggest skincare trend of 2026 is the skin microbiome — and it\'s changing everything we thought we knew about cleansing, exfoliation, and what "clean" skin really means.',
-    coverImage: '',
+    coverImage: '/assets/img/blog/skin_microbiome_science_1772477616840.png',
     author: { userId: 'system', userName: "Sister's Promise", userRole: 'owner' },
     tags: ['microbiome', 'skin barrier', '2026 trends', 'skincare science', 'gentle skincare'],
     category: 'Skincare Science',
