@@ -4116,7 +4116,12 @@ if (fs.existsSync(certPath) && fs.existsSync(keyPath)) {
 }
 
 // Initialize scheduled blog cache updates
-BlogService.startScheduledUpdates();
+// In Vercel serverless, cron jobs can't run persistently — do a one-time cache warm instead
+if (process.env.VERCEL) {
+  BlogService.refreshCache().catch(e => logger.warn('Initial blog cache refresh failed:', e.message));
+} else {
+  BlogService.startScheduledUpdates();
+}
 
 // Export for Vercel serverless deployment
 module.exports = app;
