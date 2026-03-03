@@ -61,7 +61,8 @@ const { createPostSchema, updatePostSchema, voteSchema, commentSchema } = requir
 const app = express();
 
 // Initialize database connection
-connectDB().catch(err => {
+// Store the promise so routes can await it on Vercel cold starts
+const dbConnectionPromise = connectDB().catch(err => {
   logger.warn('MongoDB connection failed, using file-based storage as fallback');
 });
 
@@ -3393,11 +3394,23 @@ app.get('/api/blog/posts', generalLimiter, asyncHandler(async (req, res) => {
   const limit = Math.min(parseInt(req.query.limit) || 10, 50);
   const sort = req.query.sort || 'newest';
 
+  // Await the initial DB connection (resolves instantly if already connected,
+  // handles Vercel cold-start race where request arrives before MongoDB is ready)
+  await dbConnectionPromise;
+
+  if (!isConnected()) {
+    return res.json({
+      success: true,
+      data: BlogService.cache.publishedPosts || { posts: [], pagination: {} },
+      timestamp: new Date().toISOString()
+    });
+  }
+
   const result = await BlogService.getPublishedPosts(page, limit, sort);
 
   res.json({
     success: true,
-    data: result,
+    data: result || { posts: [], pagination: {} },
     timestamp: new Date().toISOString()
   });
 }));

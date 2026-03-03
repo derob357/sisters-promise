@@ -111,7 +111,10 @@ class BlogService {
       if (!this.cache.publishedPosts) {
         await this.refreshCache();
       }
-      return this.cache.publishedPosts;
+      if (this.cache.publishedPosts) {
+        return this.cache.publishedPosts;
+      }
+      // Cache still null (DB issue during warm), fall through to direct query
     }
     return this._getPublishedPostsFromDb(page, limit, sort);
   }
