@@ -264,6 +264,12 @@
           <!-- About page temporarily disabled -->
           <!-- <li class="nav-item"><a class="nav-link" href="about-us.html">About</a></li> -->
           <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+          <li class="nav-item">
+            <a class="nav-link position-relative" href="cart.html" title="Cart" aria-label="Shopping Cart">
+              <i class="fas fa-shopping-cart"></i>
+              <span class="cart-badge badge rounded-pill position-absolute" style="top:-4px;right:-8px;background:#C9A961;font-size:10px;display:none;align-items:center;justify-content:center;min-width:18px;height:18px;"></span>
+            </a>
+          </li>
           <li class="nav-item" id="auth-nav-item"></li>
         </ul>
       </div>
@@ -423,13 +429,16 @@
   <script src="../assets/js/plugins/perfect-scrollbar.min.js"></script>
   <script src="../assets/js/material-kit.min.js?v=3.1.0" type="text/javascript"></script>
   
+  <!-- Cart -->
+  <script src="../assets/js/cart.js?v=2"></script>
   <!-- Square Integration -->
-  <script src="../assets/js/square-integration.js"></script>
-  
+  <script src="../assets/js/square-integration.js?v=2"></script>
+
   <script>
-    // Get product ID from URL
+    // Get product ID and variation ID from URL
     const urlParams = new URLSearchParams(window.location.search);
     const productId = urlParams.get('id');
+    const currentVariationId = urlParams.get('vid') || null;
     let currentProduct = null;
 
     if (!productId) {
@@ -558,48 +567,22 @@
       document.getElementById('error').style.display = 'block';
     }
 
-    async function addToCart() {
+    function addToCart() {
       if (!currentProduct) {
         alert('Product not loaded. Please refresh the page.');
         return;
       }
-
-      // Create order items array
-      const orderItems = [{
-        productId: currentProduct._id,
+      const imageUrl = (currentProduct.images && currentProduct.images[0])
+        ? currentProduct.images[0].url
+        : (currentProduct.imageUrl || '');
+      CartService.add({
+        id: currentProduct._id,
+        variationId: currentVariationId,
         name: currentProduct.name,
-        price: currentProduct.price,
-        quantity: 1,
-        imageUrl: currentProduct.images?.[0]?.url || currentProduct.imageUrl || ''
-      }];
-
-      try {
-        // Disable the button while processing
-        const btn = document.querySelector('.btn-add-to-cart');
-        const originalText = btn.innerHTML;
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
-
-        // Use SquareIntegration to process the payment
-        const result = await SquareIntegration.processPayment(orderItems);
-        
-        if (result.success) {
-          // Show success message
-          alert('Payment successful! Thank you for your purchase.');
-          // Optionally redirect to a success page
-          // window.location.href = '/pages/order-success.html?orderId=' + result.orderId;
-        } else {
-          throw new Error(result.error || 'Payment failed');
-        }
-      } catch (error) {
-        console.error('Payment error:', error);
-        alert('Payment failed: ' + (error.message || 'Please try again'));
-        
-        // Re-enable button
-        const btn = document.querySelector('.btn-add-to-cart');
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-shopping-cart me-2"></i>Add to Cart';
-      }
+        price: Math.round((currentProduct.price || 0) * 100),
+        priceFormatted: '$' + (currentProduct.price || 0).toFixed(2),
+        imageUrl: imageUrl
+      });
     }
   </script>
   <!-- Auth -->

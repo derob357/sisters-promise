@@ -156,24 +156,42 @@ const SquareIntegration = {
           ? `<span class="badge" style="background-color: #C9A961;">${this.sanitize(product.category)}</span>`
           : '';
         const safePrice = this.sanitize(typeof price === 'string' ? price : String(price));
-        const buyButtonAttr = product.variationId
-          ? `data-variation-id="${this.sanitize(product.variationId)}" style="background-color: #C9A961; color: white; border: none; cursor: pointer;"`
-          : `href="https://sisters-promise-inc.square.site/s/shop" target="_blank" rel="noopener noreferrer" style="background-color: #C9A961; color: white; border: none;"`;
-        const buyButtonTag = product.variationId ? 'button' : 'a';
-        const buyButtonClose = product.variationId ? '</button>' : '</a>';
+        const variationId = product.variationId || '';
+        const productId = product.id || product._id || '';
+        const detailUrl = productId
+          ? ('./pages/product-detail.html?id=' + encodeURIComponent(productId) + (variationId ? '&vid=' + encodeURIComponent(variationId) : ''))
+          : './pages/shop.html';
+
+        // Build add-to-cart button — uses global spAddToCart(this) defined in cart.js
+        let cartBtnHtml;
+        if (variationId) {
+          cartBtnHtml = `<button type="button" onclick="spAddToCart(this)" class="btn btn-sm w-100" ` +
+            `data-variation-id="${this.sanitize(variationId)}" ` +
+            `data-id="${this.sanitize(productId)}" ` +
+            `data-name="${this.sanitize(product.name)}" ` +
+            `data-price="${product.price || 0}" ` +
+            `data-price-formatted="${safePrice}" ` +
+            `data-image="${this.sanitize(imageUrl)}" ` +
+            `style="background-color: #C9A961; color: white; border: none; cursor: pointer;">` +
+            `<i class="fas fa-shopping-cart me-1"></i>Add to Cart</button>`;
+        } else {
+          cartBtnHtml = `<a href="https://sisters-promise-inc.square.site/s/shop" target="_blank" rel="noopener noreferrer" class="btn btn-sm w-100" style="background-color: #C9A961; color: white; border: none;"><i class="fas fa-shopping-cart me-1"></i>Add to Cart</a>`;
+        }
 
         html += `
           <div class="col-lg-4 col-md-6 mb-4">
             <div class="card border-0 shadow-lg hover-shadow transition">
               <div class="position-relative overflow-hidden" style="height: 300px;">
-                <img
-                  src="${imageUrl}"
-                  class="card-img-top"
-                  style="width: 100%; height: 100%; object-fit: cover;"
-                  alt="${this.sanitize(product.name)}"
-                  loading="lazy"
-                  onerror="this.src='../assets/img/logos/SistersPromise-Logo_bw_500.jpg'"
-                >
+                <a href="${this.sanitize(detailUrl)}">
+                  <img
+                    src="${imageUrl}"
+                    class="card-img-top"
+                    style="width: 100%; height: 100%; object-fit: cover;"
+                    alt="${this.sanitize(product.name)}"
+                    loading="lazy"
+                    onerror="this.src='../assets/img/logos/SistersPromise-Logo_bw_500.jpg'"
+                  >
+                </a>
               </div>
               <div class="card-body">
                 <h5 class="card-title text-dark font-weight-bold">${this.sanitize(product.name)}</h5>
@@ -183,7 +201,7 @@ const SquareIntegration = {
                   ${categoryBadge}
                 </div>
                 <div class="text-center">
-                  <${buyButtonTag} class="btn btn-sm w-100" ${buyButtonAttr}>Buy Now${buyButtonClose}
+                  ${cartBtnHtml}
                 </div>
               </div>
             </div>
@@ -195,13 +213,7 @@ const SquareIntegration = {
     });
 
     container.innerHTML = html;
-
-    // Bind buy buttons via event delegation (avoids inline onclick XSS risk)
-    container.querySelectorAll('button[data-variation-id]').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        SquareIntegration.buyNow(this.getAttribute('data-variation-id'));
-      });
-    });
+    // Buttons use onclick="spAddToCart(this)" — no listener attachment needed
   },
 
   /**
@@ -266,10 +278,19 @@ const SquareIntegration = {
       var productId = product.id || product._id || '';
       var variationId = product.variationId || '';
 
-      var detailUrl = productId ? './pages/product-detail.html?id=' + encodeURIComponent(productId) : './pages/shop.html';
+      var detailUrl = productId
+        ? ('./pages/product-detail.html?id=' + encodeURIComponent(productId) + (variationId ? '&vid=' + encodeURIComponent(variationId) : ''))
+        : './pages/shop.html';
 
       var cartButton = variationId
-        ? '<button class="btn btn-sm btn-custom btn-custom-primary flex-fill featured-buy" data-variation-id="' + SquareIntegration.sanitize(variationId) + '"><i class="fas fa-shopping-cart"></i> Add to Cart</button>'
+        ? '<button type="button" onclick="spAddToCart(this)" class="btn btn-sm btn-custom btn-custom-primary flex-fill"' +
+            ' data-variation-id="' + SquareIntegration.sanitize(variationId) + '"' +
+            ' data-id="' + SquareIntegration.sanitize(productId) + '"' +
+            ' data-name="' + SquareIntegration.sanitize(product.name) + '"' +
+            ' data-price="' + (product.price || 0) + '"' +
+            ' data-price-formatted="' + SquareIntegration.sanitize(safePrice) + '"' +
+            ' data-image="' + SquareIntegration.sanitize(safeImage) + '"' +
+            '><i class="fas fa-shopping-cart"></i> Add to Cart</button>'
         : '<a href="./pages/shop.html" class="btn btn-sm btn-custom btn-custom-primary flex-fill"><i class="fas fa-shopping-cart"></i> Shop Now</a>';
 
       html += '<div class="col-lg-4 col-md-6">' +
@@ -289,12 +310,7 @@ const SquareIntegration = {
     });
 
     container.innerHTML = html;
-
-    container.querySelectorAll('button.featured-buy[data-variation-id]').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        SquareIntegration.buyNow(this.getAttribute('data-variation-id'));
-      });
-    });
+    // Buttons use onclick="spAddToCart(this)" — no listener attachment needed
   },
 
   /**

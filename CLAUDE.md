@@ -121,6 +121,7 @@ Pages: `pages/shop.html`, `pages/ingredients.html`, `pages/about-us.html`, `page
 
 ### Completed
 
+- [x] `2026-03-05 00:00` Add web shopping cart — `assets/js/cart.js` (CartService + spAddToCart global), `pages/cart.html` (review + checkout page), cart icon in all 12 navbars, badge + toast UI. Buttons use `onclick="spAddToCart(this)"` (not event delegation). `?v=2` cache-buster on all cart.js/square-integration.js script tags. `variationId` threaded via `?vid=` URL param from shop/featured into product-detail. Cart cleared on order-success.html.
 - [x] `2026-02-22 13:50` Rotate all exposed API keys (JWT, Square, SMTP, reCAPTCHA, default passwords) and scrub git history with BFG
 - [x] `2026-02-22 13:50` Remove genezio.yaml (unused deployment platform)
 - [x] `2026-02-19 00:00` Fix CORS — add PUT/DELETE to allowed methods (was blocking admin operations)

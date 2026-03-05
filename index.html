@@ -458,6 +458,12 @@
           <!-- About page temporarily disabled -->
           <!-- <li class="nav-item"><a class="nav-link" href="./pages/about-us.html">About</a></li> -->
           <li class="nav-item"><a class="nav-link" href="./pages/contact.html">Contact</a></li>
+          <li class="nav-item">
+            <a class="nav-link position-relative" href="./pages/cart.html" title="Cart" aria-label="Shopping Cart">
+              <i class="fas fa-shopping-cart"></i>
+              <span class="cart-badge badge rounded-pill position-absolute" style="top:-4px;right:-8px;background:#C9A961;font-size:10px;display:none;align-items:center;justify-content:center;min-width:18px;height:18px;"></span>
+            </a>
+          </li>
           <li class="nav-item" id="auth-nav-item"></li>
         </ul>
       </div>
@@ -777,8 +783,10 @@
   <!-- Custom Carousel JS -->
   <script src="./assets/js/custom-carousel.js"></script>
   
+  <!-- Cart -->
+  <script src="./assets/js/cart.js?v=2"></script>
   <!-- Square Integration -->
-  <script src="./assets/js/square-integration.js"></script>
+  <script src="./assets/js/square-integration.js?v=2"></script>
 
   <!-- Analytics Tracking -->
   <script src="./assets/js/analytics-tracking.js"></script>
@@ -813,63 +821,8 @@
       });
     }
 
-    // Quick Add to Cart function for featured products
-    async function quickAddToCart(productId, productName, price, imageUrl) {
-      const orderItems = [{
-        productId: productId,
-        name: productName,
-        price: price,
-        quantity: 1,
-        imageUrl: imageUrl
-      }];
-
-      try {
-        // Find the button that was clicked
-        const btn = event.target.closest('button');
-        const originalHTML = btn.innerHTML;
-        
-        // Disable button and show loading
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
-
-        // Process payment via Square
-        const result = await SquareIntegration.processPayment(orderItems);
-        
-        if (result.success) {
-          // Show success message
-          alert('Payment successful! Thank you for your purchase.');
-          btn.innerHTML = '<i class="fas fa-check"></i> Success!';
-          setTimeout(() => {
-            btn.disabled = false;
-            btn.innerHTML = originalHTML;
-          }, 2000);
-        } else {
-          throw new Error(result.error || 'Payment failed');
-        }
-      } catch (error) {
-        console.error('Payment error:', error);
-        alert('Payment failed: ' + (error.message || 'Please try again'));
-        
-        // Re-enable button
-        const btn = event.target.closest('button');
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-shopping-cart"></i> Add to Cart';
-      }
-    }
-
-    // Add event listeners to all quick add to cart buttons
-    document.addEventListener('DOMContentLoaded', function() {
-      const quickAddButtons = document.querySelectorAll('.quick-add-to-cart');
-      quickAddButtons.forEach(button => {
-        button.addEventListener('click', function(event) {
-          const productId = this.dataset.productId;
-          const productName = this.dataset.productName;
-          const price = parseFloat(this.dataset.productPrice);
-          const imageUrl = this.dataset.productImage;
-          quickAddToCart(productId, productName, price, imageUrl);
-        });
-      });
-    });
+    // Cart buttons rendered by renderFeaturedProducts are handled via
+    // event delegation in square-integration.js → renderFeaturedProducts()
   </script>
 
   <!-- Blog -->
