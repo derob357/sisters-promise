@@ -154,7 +154,10 @@ class BlogService {
       if (!this.cache.featuredPosts) {
         await this.refreshCache();
       }
-      return this.cache.featuredPosts;
+      if (this.cache.featuredPosts) {
+        return this.cache.featuredPosts;
+      }
+      // Cache still null (DB issue during warm), fall through to direct query
     }
     return this._getFeaturedPostsFromDb(limit);
   }

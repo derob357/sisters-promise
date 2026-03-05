@@ -85,7 +85,7 @@ app.use(helmet({
       frameSrc: ['https://recaptcha.net', 'https://www.google.com/recaptcha/'],
       imgSrc: ["'self'", 'data:', 'https://items-images-production.s3.us-west-2.amazonaws.com', 'https://items-images-sandbox.s3.us-west-2.amazonaws.com', 'https://*.squarecdn.com'],
       styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
-      connectSrc: ["'self'", 'https://googletagmanager.com', 'https://www.googletagmanager.com', 'https://www.google-analytics.com', 'https://analytics.google.com'],
+      connectSrc: ["'self'", 'https://googletagmanager.com', 'https://www.googletagmanager.com', 'https://www.google-analytics.com', 'https://analytics.google.com', 'https://stats.g.doubleclick.net', 'https://region1.google-analytics.com', 'https://region1.analytics.google.com'],
     },
   },
   // HSTS - Force HTTPS for 1 year
@@ -3431,7 +3431,7 @@ app.get('/api/blog/posts/featured', generalLimiter, asyncHandler(async (req, res
 
   res.json({
     success: true,
-    data: { posts },
+    data: { posts: posts || [] },
     timestamp: new Date().toISOString()
   });
 }));
