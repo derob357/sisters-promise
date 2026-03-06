@@ -5,8 +5,8 @@
  */
 
 const SquareIntegration = {
-  apiUrl: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-    ? 'http://localhost:3000/api' 
+  apiUrl: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3000/api'
     : `${window.location.protocol}//${window.location.host}/api`,
   maxRetries: 3,
   retryDelay: 1000,
@@ -14,7 +14,7 @@ const SquareIntegration = {
   /**
    * Sanitize HTML and prevent XSS attacks
    */
-  sanitize: function(str) {
+  sanitize: function (str) {
     if (typeof str !== 'string') return '';
     const div = document.createElement('div');
     div.textContent = str;
@@ -24,7 +24,7 @@ const SquareIntegration = {
   /**
    * Show error message to user
    */
-  showError: function(message, duration = 5000) {
+  showError: function (message, duration = 5000) {
     console.error('Error:', message);
     const alertDiv = document.createElement('div');
     alertDiv.className = 'alert alert-danger alert-dismissible fade show';
@@ -34,14 +34,14 @@ const SquareIntegration = {
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     `;
     document.body.insertBefore(alertDiv, document.body.firstChild);
-    
+
     setTimeout(() => alertDiv.remove(), duration);
   },
 
   /**
    * Show success message to user
    */
-  showSuccess: function(message, duration = 3000) {
+  showSuccess: function (message, duration = 3000) {
     const alertDiv = document.createElement('div');
     alertDiv.className = 'alert alert-success alert-dismissible fade show';
     alertDiv.role = 'alert';
@@ -50,14 +50,14 @@ const SquareIntegration = {
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     `;
     document.body.insertBefore(alertDiv, document.body.firstChild);
-    
+
     setTimeout(() => alertDiv.remove(), duration);
   },
 
   /**
    * Fetch with retry logic
    */
-  fetchWithRetry: async function(url, options = {}, retries = 0) {
+  fetchWithRetry: async function (url, options = {}, retries = 0) {
     try {
       const response = await fetch(url, {
         ...options,
@@ -82,7 +82,7 @@ const SquareIntegration = {
   /**
    * Fetch all products from Square Catalog
    */
-  fetchProducts: async function() {
+  fetchProducts: async function () {
     try {
       const response = await this.fetchWithRetry(`${this.apiUrl}/square/catalog`);
       const data = await response.json();
@@ -103,7 +103,7 @@ const SquareIntegration = {
   /**
    * Fetch single product details
    */
-  fetchProduct: async function(productId) {
+  fetchProduct: async function (productId) {
     try {
       if (!productId || typeof productId !== 'string') {
         throw new Error('Invalid product ID');
@@ -111,7 +111,7 @@ const SquareIntegration = {
 
       const response = await this.fetchWithRetry(`${this.apiUrl}/products/${encodeURIComponent(productId)}`);
       const data = await response.json();
-      
+
       if (data.success && data.product) {
         return data.product;
       } else {
@@ -127,7 +127,7 @@ const SquareIntegration = {
   /**
    * Render product gallery
    */
-  renderProducts: async function(containerId, limit = 50) {
+  renderProducts: async function (containerId, limit = 50) {
     const container = document.getElementById(containerId);
     if (!container) {
       console.error(`Container with id '${containerId}' not found`);
@@ -163,20 +163,15 @@ const SquareIntegration = {
           : './pages/shop.html';
 
         // Build add-to-cart button — uses global spAddToCart(this) defined in cart.js
-        let cartBtnHtml;
-        if (variationId) {
-          cartBtnHtml = `<button type="button" onclick="spAddToCart(this)" class="btn btn-sm w-100" ` +
-            `data-variation-id="${this.sanitize(variationId)}" ` +
-            `data-id="${this.sanitize(productId)}" ` +
-            `data-name="${this.sanitize(product.name)}" ` +
-            `data-price="${product.price || 0}" ` +
-            `data-price-formatted="${safePrice}" ` +
-            `data-image="${this.sanitize(imageUrl)}" ` +
-            `style="background-color: #C9A961; color: white; border: none; cursor: pointer;">` +
-            `<i class="fas fa-shopping-cart me-1"></i>Add to Cart</button>`;
-        } else {
-          cartBtnHtml = `<a href="https://sisters-promise-inc.square.site/s/shop" target="_blank" rel="noopener noreferrer" class="btn btn-sm w-100" style="background-color: #C9A961; color: white; border: none;"><i class="fas fa-shopping-cart me-1"></i>Add to Cart</a>`;
-        }
+        let cartBtnHtml = `<button type="button" onclick="spAddToCart(this)" class="btn btn-sm w-100" ` +
+          `data-variation-id="${this.sanitize(variationId)}" ` +
+          `data-id="${this.sanitize(productId)}" ` +
+          `data-name="${this.sanitize(product.name)}" ` +
+          `data-price="${product.price || 0}" ` +
+          `data-price-formatted="${safePrice}" ` +
+          `data-image="${this.sanitize(imageUrl)}" ` +
+          `style="background-color: #C9A961; color: white; border: none; cursor: pointer;">` +
+          `<i class="fas fa-shopping-cart me-1"></i>Add to Cart</button>`;
 
         html += `
           <div class="col-lg-4 col-md-6 mb-4">
@@ -228,7 +223,7 @@ const SquareIntegration = {
   /**
    * Render featured products for homepage (curated selection from Square catalog)
    */
-  renderFeaturedProducts: async function(containerId) {
+  renderFeaturedProducts: async function (containerId) {
     var container = document.getElementById(containerId);
     if (!container) return;
 
@@ -267,7 +262,7 @@ const SquareIntegration = {
 
     var html = '';
 
-    featured.forEach(function(product) {
+    featured.forEach(function (product) {
       var imageUrl = product.imageUrl || './assets/img/logos/SistersPromise-Logo_bw_500.jpg';
       var price = product.priceFormatted || (product.price ? '$' + (product.price / 100).toFixed(2) : 'Contact for price');
       var description = (product.description || '').substring(0, 120);
@@ -282,31 +277,29 @@ const SquareIntegration = {
         ? ('./pages/product-detail.html?id=' + encodeURIComponent(productId) + (variationId ? '&vid=' + encodeURIComponent(variationId) : ''))
         : './pages/shop.html';
 
-      var cartButton = variationId
-        ? '<button type="button" onclick="spAddToCart(this)" class="btn btn-sm btn-custom btn-custom-primary flex-fill"' +
-            ' data-variation-id="' + SquareIntegration.sanitize(variationId) + '"' +
-            ' data-id="' + SquareIntegration.sanitize(productId) + '"' +
-            ' data-name="' + SquareIntegration.sanitize(product.name) + '"' +
-            ' data-price="' + (product.price || 0) + '"' +
-            ' data-price-formatted="' + SquareIntegration.sanitize(safePrice) + '"' +
-            ' data-image="' + SquareIntegration.sanitize(safeImage) + '"' +
-            '><i class="fas fa-shopping-cart"></i> Add to Cart</button>'
-        : '<a href="./pages/shop.html" class="btn btn-sm btn-custom btn-custom-primary flex-fill"><i class="fas fa-shopping-cart"></i> Shop Now</a>';
+      var cartButton = '<button type="button" onclick="spAddToCart(this)" class="btn btn-sm btn-custom btn-custom-primary flex-fill"' +
+        ' data-variation-id="' + SquareIntegration.sanitize(variationId) + '"' +
+        ' data-id="' + SquareIntegration.sanitize(productId) + '"' +
+        ' data-name="' + SquareIntegration.sanitize(product.name) + '"' +
+        ' data-price="' + (product.price || 0) + '"' +
+        ' data-price-formatted="' + SquareIntegration.sanitize(safePrice) + '"' +
+        ' data-image="' + SquareIntegration.sanitize(safeImage) + '"' +
+        '><i class="fas fa-shopping-cart"></i> Add to Cart</button>';
 
       html += '<div class="col-lg-4 col-md-6">' +
         '<div class="product-card">' +
-          '<img src="' + safeImage + '" alt="' + safeName + '" loading="lazy" style="object-fit: cover; object-position: center;" onerror="this.src=\'./assets/img/logos/SistersPromise-Logo_bw_500.jpg\'">' +
-          '<div class="card-body">' +
-            '<h5 class="product-title">' + safeName + '</h5>' +
-            '<p class="product-description">' + safeDesc + (description.length >= 120 ? '...' : '') + '</p>' +
-            '<p style="color: #C9A961; font-weight: bold; font-size: 1.1rem;">' + safePrice + '</p>' +
-            '<div class="d-flex gap-2">' +
-              '<a href="' + detailUrl + '" class="btn btn-sm btn-custom btn-custom-outline flex-fill">View Details</a>' +
-              cartButton +
-            '</div>' +
-          '</div>' +
+        '<img src="' + safeImage + '" alt="' + safeName + '" loading="lazy" style="object-fit: cover; object-position: center;" onerror="this.src=\'./assets/img/logos/SistersPromise-Logo_bw_500.jpg\'">' +
+        '<div class="card-body">' +
+        '<h5 class="product-title">' + safeName + '</h5>' +
+        '<p class="product-description">' + safeDesc + (description.length >= 120 ? '...' : '') + '</p>' +
+        '<p style="color: #C9A961; font-weight: bold; font-size: 1.1rem;">' + safePrice + '</p>' +
+        '<div class="d-flex gap-2">' +
+        '<a href="' + detailUrl + '" class="btn btn-sm btn-custom btn-custom-outline flex-fill">View Details</a>' +
+        cartButton +
         '</div>' +
-      '</div>';
+        '</div>' +
+        '</div>' +
+        '</div>';
     });
 
     container.innerHTML = html;
@@ -316,7 +309,7 @@ const SquareIntegration = {
   /**
    * Buy a single product now via Square Checkout
    */
-  buyNow: async function(variationId, quantity = 1) {
+  buyNow: async function (variationId, quantity = 1) {
     try {
       if (!variationId) {
         throw new Error('No product selected');
@@ -353,7 +346,7 @@ const SquareIntegration = {
   /**
    * Process payment via Square Checkout with multiple items
    */
-  processPayment: async function(orderItems) {
+  processPayment: async function (orderItems) {
     try {
       if (!Array.isArray(orderItems) || orderItems.length === 0) {
         throw new Error('No items in cart');
@@ -393,7 +386,7 @@ const SquareIntegration = {
   /**
    * Submit contact form with reCAPTCHA validation
    */
-  submitContactForm: async function(formData, recaptchaToken) {
+  submitContactForm: async function (formData, recaptchaToken) {
     try {
       if (!recaptchaToken) {
         throw new Error('reCAPTCHA verification required');
@@ -451,7 +444,7 @@ const SquareIntegration = {
 };
 
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   // Auto-render products if container exists
   const productContainer = document.getElementById('square-products');
   if (productContainer) {
